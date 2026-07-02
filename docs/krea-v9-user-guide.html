@@ -1,0 +1,682 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Krea Reference V9 Visual Guide</title>
+  <style>
+    :root {
+      --bg: #f7f4ed;
+      --paper: #fffdf7;
+      --ink: #232323;
+      --muted: #62605b;
+      --line: #d8d0c0;
+      --accent: #0f766e;
+      --accent-2: #bf5b30;
+      --dark: #171717;
+      --code: #eee6d8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.55;
+    }
+    a { color: var(--accent); }
+    img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+    code {
+      background: var(--code);
+      border-radius: 4px;
+      padding: 0.12rem 0.28rem;
+      font-size: 0.92em;
+    }
+    pre {
+      background: #1f1f1f;
+      color: #f5f0e7;
+      padding: 1rem;
+      border-radius: 8px;
+      overflow: auto;
+    }
+    main { max-width: 1180px; margin: 0 auto; padding: 32px 20px 64px; }
+    header {
+      padding: 56px 20px 36px;
+      background: var(--dark);
+      color: #fff8ec;
+    }
+    header .inner { max-width: 1180px; margin: 0 auto; }
+    header p { color: #d9d0c3; max-width: 760px; font-size: 1.15rem; }
+    h1 {
+      font-size: clamp(2.4rem, 5vw, 4.8rem);
+      line-height: 0.95;
+      margin: 0 0 18px;
+      letter-spacing: 0;
+    }
+    h2 {
+      font-size: clamp(1.65rem, 3vw, 2.5rem);
+      line-height: 1.08;
+      margin: 0 0 16px;
+      letter-spacing: 0;
+    }
+    h3 {
+      font-size: 1.35rem;
+      margin: 0 0 10px;
+      letter-spacing: 0;
+    }
+    h4 { margin: 0 0 8px; font-size: 1rem; }
+    section {
+      margin-top: 34px;
+      padding: 28px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+    .lede { font-size: 1.1rem; color: var(--muted); max-width: 880px; }
+    .quick-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .quick-links a,
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 36px;
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fffaf0;
+      color: var(--ink);
+      text-decoration: none;
+      font-weight: 650;
+    }
+    .button.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 18px;
+    }
+    .two {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 22px;
+      align-items: start;
+    }
+    .three {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+    .callout {
+      border-left: 4px solid var(--accent);
+      background: #edf8f4;
+      padding: 14px 16px;
+      border-radius: 6px;
+      color: #173b36;
+    }
+    .warning {
+      border-left-color: var(--accent-2);
+      background: #fff0e8;
+      color: #50301f;
+    }
+    .route {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 18px 0;
+    }
+    .route div {
+      position: relative;
+      min-height: 74px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      font-weight: 750;
+    }
+    .route span {
+      display: block;
+      margin-top: 6px;
+      font-size: 0.9rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 12px 0;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 4px 8px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      font-size: 0.88rem;
+      color: #3a3834;
+    }
+    .recipe {
+      margin-top: 24px;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fffaf2;
+    }
+    .recipe .media {
+      display: grid;
+      grid-template-columns: 190px minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+    .recipe .source img { aspect-ratio: 1 / 1; object-fit: cover; }
+    .caption {
+      color: var(--muted);
+      font-size: 0.92rem;
+      margin-top: 7px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: #eee5d4; }
+    tr:last-child td { border-bottom: 0; }
+    .small { font-size: 0.92rem; color: var(--muted); }
+    .toc {
+      columns: 2;
+      column-gap: 28px;
+      margin: 0;
+      padding-left: 20px;
+    }
+    .toc li { break-inside: avoid; margin: 0 0 6px; }
+    footer { color: var(--muted); margin-top: 30px; }
+    @media (max-width: 820px) {
+      main { padding: 20px 12px 48px; }
+      header { padding: 42px 16px 28px; }
+      section { padding: 18px; }
+      .two, .three, .route, .recipe .media { grid-template-columns: 1fr; }
+      .toc { columns: 1; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="inner">
+      <h1>Krea Reference V9 Visual Guide</h1>
+      <p>
+        Krea Reference lets each source image have a clear job. Use one image
+        for subject, another for style, another for lighting, another for
+        material, and another to keep text or logos from being copied.
+      </p>
+      <div class="quick-links">
+        <a href="#quick-start">Quick Start</a>
+        <a href="#recipes">Recipes</a>
+        <a href="#stack">Stack Encoder</a>
+        <a href="#multi">Multi-Reference</a>
+        <a href="#troubleshooting">Troubleshooting</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="quick-start">
+      <h2>Quick Start</h2>
+      <p class="lede">
+        Start with one guide card per image. Choose <code>Use image for</code>,
+        set <code>How strongly this image guides</code>, and let the V9 stack
+        combine all connected cards with your written prompt.
+      </p>
+      <div class="route" aria-label="Workflow route">
+        <div>Load Image<span>Your source or reference image</span></div>
+        <div>Guide Card V9<span>Pick the image's job</span></div>
+        <div>Reference Stack V9<span>Combine prompt and cards</span></div>
+        <div>KSampler Positive<span>Generate with Krea</span></div>
+      </div>
+      <div class="callout">
+        <strong>Try the demo images:</strong> the individual PNG files in
+        <code>docs/assets/krea-v9/demos/</code> contain ComfyUI workflow metadata.
+        Drag one of those PNGs into ComfyUI to load the matching demo workflow.
+      </div>
+      <div class="two" style="margin-top: 20px;">
+        <figure>
+          <img src="../example_assets/krea-reference-examples/contact_sheet.png" alt="Synthetic reference images included with Krea Reference">
+          <figcaption class="caption">Synthetic reference images included with this repo.</figcaption>
+        </figure>
+        <figure>
+          <img src="assets/krea-v9/demos/recipe-gallery.png" alt="Krea V9 recipe demo output gallery">
+          <figcaption class="caption">ComfyUI-generated V9 demo outputs. Each individual demo PNG has an embedded workflow.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section id="mental-model">
+      <h2>The Mental Model</h2>
+      <div class="grid">
+        <div>
+          <h3>1. The prompt says what to make</h3>
+          <p>Use the prompt for the final image idea: product, scene, material, camera, and constraints.</p>
+        </div>
+        <div>
+          <h3>2. Cards say what to borrow</h3>
+          <p>Every image card should have one primary job. This is easier to control than one large image prompt.</p>
+        </div>
+        <div>
+          <h3>3. Strength says how loudly it speaks</h3>
+          <p>Start low. Raise only the card that is too subtle. Strong references can overpower the prompt.</p>
+        </div>
+        <div>
+          <h3>4. Timing controls when images guide</h3>
+          <p>Smart timing lets structure guide early while style and material can influence the final finish.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="recipes">
+      <h2>Use Image For Recipes</h2>
+      <p class="lede">
+        <code>Use image for</code> is the main creative control on the guide card.
+        The quick recipes fill in the lower-level manual controls for you. Use
+        <code>manual tuning</code> when you want those lower controls to count.
+      </p>
+
+      <article class="recipe" id="manual-tuning">
+        <h3>Manual Tuning</h3>
+        <div class="meta">
+          <span class="pill">Recipe: manual tuning</span>
+          <span class="pill">Strength: 0.42</span>
+          <span class="pill">Reference: visual style</span>
+        </div>
+        <div class="media">
+          <figure class="source">
+            <img src="../example_assets/krea-reference-examples/slot2_style_reference.png" alt="Abstract color style reference">
+            <figcaption class="caption">Source image</figcaption>
+          </figure>
+          <figure>
+            <img src="assets/krea-v9/demos/manual-tuning.png" alt="Manual tuning Krea V9 demo output">
+            <figcaption class="caption">Output. The vase keeps the prompt subject while borrowing teal brush energy.</figcaption>
+          </figure>
+        </div>
+        <p>
+          Manual mode is for deliberate control. In this demo the card borrows
+          <code>colors and art style</code>, uses <code>palette wash</code>, lowers
+          <code>Shape copied</code>, and raises <code>Overall style reach</code>.
+        </p>
+        <p><a class="button" href="assets/krea-v9/demos/manual-tuning.png">Open embedded-workflow PNG</a> <a class="button" href="assets/krea-v9/demos/manual-tuning.workflow.json">Open workflow JSON</a></p>
+      </article>
+
+      <article class="recipe" id="balanced">
+        <h3>Balanced</h3>
+        <div class="meta">
+          <span class="pill">Recipe: balanced</span>
+          <span class="pill">Strength: 0.45</span>
+          <span class="pill">Reference: content anchor</span>
+        </div>
+        <div class="media">
+          <figure class="source">
+            <img src="../example_assets/krea-reference-examples/slot1_content_anchor.png" alt="Simple cone lamp reference">
+            <figcaption class="caption">Source image</figcaption>
+          </figure>
+          <figure>
+            <img src="assets/krea-v9/demos/balanced.png" alt="Balanced Krea V9 demo output">
+            <figcaption class="caption">Output. The reference gives a general lamp direction without locking every detail.</figcaption>
+          </figure>
+        </div>
+        <p>
+          Balanced is a general-purpose image reference. It is useful when the
+          source image is a loose guide for subject, camera, color, and mood all
+          at once.
+        </p>
+        <p><a class="button" href="assets/krea-v9/demos/balanced.png">Open embedded-workflow PNG</a> <a class="button" href="assets/krea-v9/demos/balanced.workflow.json">Open workflow JSON</a></p>
+      </article>
+
+      <article class="recipe" id="keep-same-subject">
+        <h3>Keep The Same Subject</h3>
+        <div class="meta">
+          <span class="pill">Recipe: keep the same subject</span>
+          <span class="pill">Strength: 0.80</span>
+          <span class="pill">Reference: content anchor</span>
+        </div>
+        <div class="media">
+          <figure class="source">
+            <img src="../example_assets/krea-reference-examples/slot1_content_anchor.png" alt="Cone lamp source image">
+            <figcaption class="caption">Source image</figcaption>
+          </figure>
+          <figure>
+            <img src="assets/krea-v9/demos/keep-same-subject.png" alt="Keep same subject Krea V9 demo output">
+            <figcaption class="caption">Output. The cone-lamp identity is preserved while the prompt changes the product finish.</figcaption>
+          </figure>
+        </div>
+        <p>
+          Use this when the product, character, outfit, person, or object must
+          remain recognizable. This recipe is the one place where high strength
+          values such as <code>0.70</code> to <code>0.85</code> often make sense.
+        </p>
+        <p><a class="button" href="assets/krea-v9/demos/keep-same-subject.png">Open embedded-workflow PNG</a> <a class="button" href="assets/krea-v9/demos/keep-same-subject.workflow.json">Open workflow JSON</a></p>
+      </article>
+
+      <article class="recipe" id="copy-pose-layout">
+        <h3>Copy Pose And Layout</h3>
+        <div class="meta">
+          <span class="pill">Recipe: copy pose and layout</span>
+          <span class="pill">Strength: 0.38</span>
+          <span class="pill">Reference: diagonal layout</span>
+        </div>
+        <div class="media">
+          <figure class="source">
+            <img src="../example_assets/krea-reference-examples/slot6_pose_layout.png" alt="Diagonal pose and layout reference">
+            <figcaption class="caption">Source image</figcaption>
+          </figure>
+          <figure>
+            <img src="assets/krea-v9/demos/copy-pose-layout.png" alt="Copy pose and layout Krea V9 demo output">
+            <figcaption class="caption">Output. The objects follow the diagonal shelf arrangement.</figcaption>
+          </figure>
+        </div>
+        <p>
+          This recipe borrows structure: pose, camera, crop, spacing, and broad
+          placement. It suppresses subject copying, color copying, and exact
+          texture so the prompt can decide what appears in that layout.
+        </p>
+        <p><a class="button" href="assets/krea-v9/demos/copy-pose-layout.png">Open embedded-workflow PNG</a> <a class="button" href="assets/krea-v9/demos/copy-pose-layout.workflow.json">Open workflow JSON</a></p>
+      </article>
+
+      <article class="recipe" id="copy-lighting-mood">
+        <h3>Copy Lighting And Mood</h3>
+        <div class="meta">
+          <span class="pill">Recipe: copy lighting and mood</span>
+          <span class="pill">Strength: 0.42</span>
+          <span class="pill">Reference: dramatic side light</span>
+        </div>
+        <div class="media">
+          <figure class="source">
+            <img src="../example_assets/krea-reference-examples/slot4_lighting_mood.png" alt="Lighting mood reference with warm beam">
+            <figcaption class="caption">Source image</figcaption>
+          </figure>
+          <figure>
+            <img src="assets/krea-v9/demos/copy-lighting-mood.png" alt="Copy lighting and mood Krea V9 demo output">
+            <figcaption class="caption">Output. The warm side beam and dark tabletop mood carry through.</figcaption>
+          </figure>
+        </div>
+        <p>
+          Use this when you want atmosphere without identity. Good targets are
+          light direction, shadow behavior, glow, haze, contrast, and color cast.
+        </p>
+        <p><a class="button" href="assets/krea-v9/demos/copy-lighting-mood.png">Open embedded-workflow PNG</a> <a class="button" href="assets/krea-v9/demos/copy-lighting-mood.workflow.json">Open workflow JSON</a></p>
+      </article>
+
+      <article class="recipe" id="suggest-visual-style">
+        <h3>Suggest The Visual Style</h3>
+        <div class="meta">
+          <span class="pill">Recipe: suggest the visual style</span>
+          <span class="pill">Strength: 0.65</span>
+          <span class="pill">Reference: abstract palette</span>
+        </div>
+        <div class="media">
+          <figure class="source">
+            <img src="../example_assets/krea-reference-examples/slot2_style_reference.png" alt="Abstract visual style reference">
+            <figcaption class="caption">Source image</figcaption>
+          </figure>
+          <figure>
+            <img src="assets/krea-v9/demos/suggest-visual-style.png" alt="Suggest visual style Krea V9 demo output">
+            <figcaption class="caption">Output. The prompt subject survives while teal, coral, and graphite styling appears.</figcaption>
+          </figure>
+        </div>
+        <p>
+          This is the main style-transfer recipe. It borrows palette, finish,
+          medium, and atmosphere while avoiding the style image's subject. If it
+          starts changing the subject too much, lower strength toward
+          <code>0.35</code> to <code>0.50</code>.
+        </p>
+        <p><a class="button" href="assets/krea-v9/demos/suggest-visual-style.png">Open embedded-workflow PNG</a> <a class="button" href="assets/krea-v9/demos/suggest-visual-style.workflow.json">Open workflow JSON</a></p>
+      </article>
+
+      <article class="recipe" id="suggest-material-texture">
+        <h3>Suggest Material Or Texture</h3>
+        <div class="meta">
+          <span class="pill">Recipe: suggest material or texture</span>
+          <span class="pill">Strength: 0.36</span>
+          <span class="pill">Reference: woven material</span>
+        </div>
+        <div class="media">
+          <figure class="source">
+            <img src="../example_assets/krea-reference-examples/slot3_material_texture.png" alt="Material texture source image">
+            <figcaption class="caption">Source image</figcaption>
+          </figure>
+          <figure>
+            <img src="assets/krea-v9/demos/suggest-material-texture.png" alt="Suggest material texture Krea V9 demo output">
+            <figcaption class="caption">Output. The lamp surface borrows woven texture without copying every mark.</figcaption>
+          </figure>
+        </div>
+        <p>
+          Use this for material feel: woven ceramic, stone, paper grain, fabric,
+          brushed metal, painted finish, and similar surfaces. If the exact
+          pattern copies too strongly, lower strength or use manual tuning with
+          lower <code>Small details kept</code>.
+        </p>
+        <p><a class="button" href="assets/krea-v9/demos/suggest-material-texture.png">Open embedded-workflow PNG</a> <a class="button" href="assets/krea-v9/demos/suggest-material-texture.workflow.json">Open workflow JSON</a></p>
+      </article>
+
+      <article class="recipe" id="copy-big-shapes-only">
+        <h3>Copy Big Shapes Only</h3>
+        <div class="meta">
+          <span class="pill">Recipe: copy big shapes only</span>
+          <span class="pill">Strength: 0.34</span>
+          <span class="pill">Reference: silhouette</span>
+        </div>
+        <div class="media">
+          <figure class="source">
+            <img src="../example_assets/krea-reference-examples/slot7_shape_only.png" alt="Large triangular shape-only reference">
+            <figcaption class="caption">Source image</figcaption>
+          </figure>
+          <figure>
+            <img src="assets/krea-v9/demos/copy-big-shapes-only.png" alt="Copy big shapes only Krea V9 demo output">
+            <figcaption class="caption">Output. The perfume bottle picks up a bold triangular silhouette.</figcaption>
+          </figure>
+        </div>
+        <p>
+          Shape-only mode is for broad geometry, silhouette, massing, and
+          spacing. It intentionally removes color and detail influence.
+        </p>
+        <p><a class="button" href="assets/krea-v9/demos/copy-big-shapes-only.png">Open embedded-workflow PNG</a> <a class="button" href="assets/krea-v9/demos/copy-big-shapes-only.workflow.json">Open workflow JSON</a></p>
+      </article>
+
+      <article class="recipe" id="avoid-copying-text-logos">
+        <h3>Avoid Copying Text/Logos</h3>
+        <div class="meta">
+          <span class="pill">Recipe: avoid copying text/logos</span>
+          <span class="pill">Strength: 0.03</span>
+          <span class="pill">Stack: full guard</span>
+        </div>
+        <div class="media">
+          <figure class="source">
+            <img src="../example_assets/krea-reference-examples/slot5_text_logo_guard.png" alt="Text and logo guard source sign">
+            <figcaption class="caption">Source image</figcaption>
+          </figure>
+          <figure>
+            <img src="assets/krea-v9/demos/avoid-copying-text-logos.png" alt="Avoid copying text logos Krea V9 demo output">
+            <figcaption class="caption">Output. The sign shape remains, but the interior is blank and unmarked.</figcaption>
+          </figure>
+        </div>
+        <p>
+          Use this for signs, logos, UI, labels, screenshots, labels on packaging,
+          letter-like marks, or any source image that contains words. Keep
+          strength very low. The recipe caps effective image pull to protect the
+          output from copied text.
+        </p>
+        <p><a class="button" href="assets/krea-v9/demos/avoid-copying-text-logos.png">Open embedded-workflow PNG</a> <a class="button" href="assets/krea-v9/demos/avoid-copying-text-logos.workflow.json">Open workflow JSON</a></p>
+      </article>
+    </section>
+
+    <section id="manual">
+      <h2>Manual Controls</h2>
+      <p class="lede">
+        Manual controls count only when <code>Use image for</code> is
+        <code>manual tuning</code>. In quick recipe mode, the recipe supplies
+        tested values for these lower controls.
+      </p>
+      <table>
+        <tr><th>Control</th><th>Use It For</th></tr>
+        <tr><td><code>Manual mode borrows</code></td><td>Choose the ingredient: style, palette, layout, framing, identity, environment, lighting, mood, material, shape, or text/logo safety.</td></tr>
+        <tr><td><code>Prepare image by</code></td><td>Simplify the source before Krea studies it: grayscale, blur, palette wash, color wash, shape cleanup, or original image.</td></tr>
+        <tr><td><code>Color kept</code></td><td>Lower it when you want shape or layout without palette influence.</td></tr>
+        <tr><td><code>Small details kept</code></td><td>Lower it to avoid exact grain, letters, tiny marks, and over-copying.</td></tr>
+        <tr><td><code>Study this image at</code></td><td>Override the global image detail level for this one card.</td></tr>
+        <tr><td><code>Frame this reference by</code></td><td>Override the global framing mode for this one card.</td></tr>
+        <tr><td><code>Subject copying</code></td><td>Tell the stack whether the source subject should be avoided, allowed, or preserved.</td></tr>
+        <tr><td><code>Early layout guidance</code></td><td>Controls how much the card helps early composition when timing is smart or two-phase.</td></tr>
+        <tr><td><code>Final detail copying</code></td><td>Controls how much late detail can come through near the end.</td></tr>
+        <tr><td><code>Maximum image pull</code></td><td>Caps a manual card even if the main strength is high.</td></tr>
+        <tr><td><code>Shape copied</code></td><td>Spatial or subject-structure pull. Lower it for pure style, palette, lighting, or material.</td></tr>
+        <tr><td><code>Overall style reach</code></td><td>Global tone, palette, finish, and atmosphere pull. Raise it when manual style is too subtle.</td></tr>
+      </table>
+    </section>
+
+    <section id="stack">
+      <h2>Reference Stack Encoder</h2>
+      <p class="lede">
+        The stack encoder receives your Krea CLIP, your final prompt, and up to
+        12 guide cards. It turns them into the positive conditioning that goes
+        into KSampler.
+      </p>
+      <div class="grid">
+        <div>
+          <h3>Written Prompt Strength</h3>
+          <p>Use <code>1.0</code> as normal. Raise it when the prompt should win over references. Use <code>0.0</code> for blank-prompt image mixing.</p>
+        </div>
+        <div>
+          <h3>Image Slider Feel</h3>
+          <p><code>artist friendly</code> is the best default. <code>extra gentle</code> helps when references dominate at low values.</p>
+        </div>
+        <div>
+          <h3>Image Detail Level</h3>
+          <p>Low is safer and looser. High studies more detail, which can help exact style but can also over-copy.</p>
+        </div>
+        <div>
+          <h3>Image Framing</h3>
+          <p>Keep full image shape unless a reference should be center-cropped or stretched to square before study.</p>
+        </div>
+        <div>
+          <h3>When Images Guide</h3>
+          <p><code>smart per-card timing</code> lets each card use its resolved early and late behavior. This is the default.</p>
+        </div>
+        <div>
+          <h3>Text/Logo Guard Handling</h3>
+          <p><code>full guard</code> rewrites marking words into blank-surface language. <code>gentle guard</code> keeps your prompt words and appends protection.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="strengths">
+      <h2>Starting Strengths</h2>
+      <table>
+        <tr><th>Strength</th><th>What It Usually Means</th><th>Good Uses</th></tr>
+        <tr><td><code>0.00</code></td><td>Off.</td><td>Keep a card connected but inactive.</td></tr>
+        <tr><td><code>0.03</code> to <code>0.08</code></td><td>Tiny nudge.</td><td>Text/logo guard, shape hints, stubborn prompts.</td></tr>
+        <tr><td><code>0.10</code> to <code>0.25</code></td><td>Gentle guidance.</td><td>Layout, material, mood-board influence.</td></tr>
+        <tr><td><code>0.25</code> to <code>0.45</code></td><td>Strong guidance.</td><td>Lighting, texture, pose, broad style.</td></tr>
+        <tr><td><code>0.50</code> to <code>0.90</code></td><td>Very strong.</td><td>Content anchor or deliberate style transfer. Watch for over-copying.</td></tr>
+      </table>
+    </section>
+
+    <section id="multi">
+      <h2>Multi-Reference Workflows</h2>
+      <p class="lede">
+        A good multi-reference setup gives every source image a separate job.
+        Do not ask every image to do everything.
+      </p>
+      <div class="three">
+        <div>
+          <h3>Product Variation</h3>
+          <p><code>keep the same subject</code> for the product, <code>suggest the visual style</code> for art direction, and <code>copy lighting and mood</code> for the lighting reference.</p>
+        </div>
+        <div>
+          <h3>Style Onto Content</h3>
+          <p>Image 1: content anchor. Image 2: visual style. Leave the prompt blank for pure image-to-image style mixing, or add a short prompt for a guided result.</p>
+        </div>
+        <div>
+          <h3>Packaging Or UI Safety</h3>
+          <p>Use a normal product or layout card, then add a text/logo guard card for labels, signs, screens, or logo-shaped panels.</p>
+        </div>
+      </div>
+      <pre><code>Reference 1: keep the same subject, strength 0.80
+Reference 2: suggest the visual style, strength 0.45 to 0.65
+Reference 3: copy lighting and mood, strength 0.30 to 0.45
+Reference 4: avoid copying text/logos, strength 0.03</code></pre>
+    </section>
+
+    <section id="embedded-workflows">
+      <h2>Embedded Demo Workflows</h2>
+      <p>
+        Every individual recipe PNG below was saved by ComfyUI with workflow
+        metadata in the PNG. Drag the PNG file into ComfyUI to load the demo.
+        The companion workflow JSON is included for users who prefer opening a
+        workflow file directly.
+      </p>
+      <ul class="toc">
+        <li><a href="assets/krea-v9/demos/manual-tuning.png">manual-tuning.png</a></li>
+        <li><a href="assets/krea-v9/demos/balanced.png">balanced.png</a></li>
+        <li><a href="assets/krea-v9/demos/keep-same-subject.png">keep-same-subject.png</a></li>
+        <li><a href="assets/krea-v9/demos/copy-pose-layout.png">copy-pose-layout.png</a></li>
+        <li><a href="assets/krea-v9/demos/copy-lighting-mood.png">copy-lighting-mood.png</a></li>
+        <li><a href="assets/krea-v9/demos/suggest-visual-style.png">suggest-visual-style.png</a></li>
+        <li><a href="assets/krea-v9/demos/suggest-material-texture.png">suggest-material-texture.png</a></li>
+        <li><a href="assets/krea-v9/demos/copy-big-shapes-only.png">copy-big-shapes-only.png</a></li>
+        <li><a href="assets/krea-v9/demos/avoid-copying-text-logos.png">avoid-copying-text-logos.png</a></li>
+      </ul>
+      <div class="callout warning">
+        If a loaded demo reports missing images, copy
+        <code>example_assets/krea-reference-examples/</code> into your ComfyUI
+        <code>input/</code> folder so paths such as
+        <code>krea-reference-examples/slot1_content_anchor.png</code> resolve.
+      </div>
+    </section>
+
+    <section id="troubleshooting">
+      <h2>Troubleshooting</h2>
+      <table>
+        <tr><th>Problem</th><th>What To Try</th></tr>
+        <tr><td>The reference is too bossy.</td><td>Lower card strength, switch <code>Image slider feel</code> to <code>extra gentle</code>, or raise <code>Written prompt strength</code>.</td></tr>
+        <tr><td>The prompt is ignored.</td><td>Raise <code>Written prompt strength</code>, reduce the strongest card, or use more specific prompt language.</td></tr>
+        <tr><td>Style changes the subject.</td><td>Lower style strength, use <code>suggest the visual style</code>, or in manual mode lower <code>Shape copied</code>.</td></tr>
+        <tr><td>Material copies too literally.</td><td>Lower strength, lower <code>Small details kept</code>, or use <code>suggest material or texture</code>.</td></tr>
+        <tr><td>Text or logos appear.</td><td>Use <code>avoid copying text/logos</code>, strength around <code>0.03</code>, low detail, and blank-surface prompt wording.</td></tr>
+        <tr><td>Layout gets too tight.</td><td>Lower the layout card, use <code>smart per-card timing</code>, or reduce <code>Final detail copying</code> in manual mode.</td></tr>
+      </table>
+    </section>
+
+    <footer>
+      <p>
+        Companion files: <a href="krea-v9-documentation-index.md">V9 documentation index</a>,
+        <a href="nodes/kg-krea-2-image-guide-card-v9.md">Guide Card node docs</a>,
+        <a href="nodes/kg-krea-2-reference-stack-encoder-v9.md">Reference Stack node docs</a>,
+        and <a href="../example_workflows/README.md">example workflows</a>.
+      </p>
+    </footer>
+  </main>
+</body>
+</html>

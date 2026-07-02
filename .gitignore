@@ -1,0 +1,62 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments and local config
+.venv/
+venv/
+env/
+.env
+.env.*
+!.env.example
+*.local
+*.local.*
+local_*
+
+# ComfyUI local runtime folders and generated artifacts
+input/
+output/
+temp/
+user/
+models/
+checkpoints/
+loras/
+embeddings/
+vae/
+upscale_models/
+controlnet/
+clip/
+unet/
+*.safetensors
+*.ckpt
+*.pt
+*.pth
+*.onnx
+*.gguf
+codex_*
+
+# Agent/editor private state and skills
+AGENTS.md
+.codex/
+.agents/
+.claude/
+.cursor/
+.windsurf/
+AGENTS.local.md
+CLAUDE.local.md
+GEMINI.local.md
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+*.tmp
+*.bak

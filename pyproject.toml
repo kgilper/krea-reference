@@ -1,0 +1,21 @@
+[project]
+name = "comfyui-krea-reference"
+version = "0.1.5"
+description = "ComfyUI custom nodes for Krea 2 V9 image-reference conditioning."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [
+  { name = "Kevin Gilper" }
+]
+keywords = ["comfyui", "krea", "krea2", "image-reference"]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/kgilper/krea-reference"
+Repository = "https://github.com/kgilper/krea-reference"
+Issues = "https://github.com/kgilper/krea-reference/issues"
+
+[tool.krea-reference]
+comfyui_custom_node = true
+ships_model_weights = false

@@ -1,0 +1,40 @@
+name: Bug report
+description: Report a reproducible issue with the Krea Reference nodes.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. Do not attach private/client images or model files.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What went wrong?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Include node settings, workflow shape, and error text.
+      placeholder: |
+        1. Load ...
+        2. Set ...
+        3. Queue ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: ComfyUI version, Python version, OS, and relevant custom nodes.
+    validations:
+      required: false

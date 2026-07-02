@@ -1,0 +1,1 @@
+# No additional pip dependencies beyond a normal ComfyUI installation.
