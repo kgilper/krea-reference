@@ -42,6 +42,9 @@ unet/
 *.gguf
 codex_*
 
+# comfy-cli build artifact (comfy node pack/publish)
+node.zip
+
 # Agent/editor private state and skills
 AGENTS.md
 .codex/
