@@ -667,7 +667,7 @@
         "Node name for S&R": "LoadImage"
       },
       "widgets_values": [
-        "krea-reference-content-placeholder.png",
+        "krea-reference-examples/slot1_content_anchor.png",
         "image"
       ]
     },
@@ -707,7 +707,7 @@
         "Node name for S&R": "LoadImage"
       },
       "widgets_values": [
-        "krea-reference-style-placeholder.png",
+        "krea-reference-examples/slot2_style_reference.png",
         "image"
       ]
     },
@@ -747,7 +747,7 @@
         "Node name for S&R": "LoadImage"
       },
       "widgets_values": [
-        "krea-reference-text-logo-placeholder.png",
+        "krea-reference-examples/slot5_text_logo_guard.png",
         "image"
       ]
     },
