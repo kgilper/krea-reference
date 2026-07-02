@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.6 - Runnable Example Workflows
+
+- Pointed the starter reference-stack and no-prompt style-transfer workflows' Load Image nodes at the bundled example assets, so all three example workflows run out of the box after copying `example_assets/krea-reference-examples/` into the ComfyUI input folder.
+- Added Comfy Registry packaging metadata: the `[tool.comfy]` publisher section in pyproject.toml and a `.comfyignore` that keeps registry packages lean (runtime code, web extension, and example workflows ship; heavy demo assets and dev files do not).
+
 ## 0.1.5 - Maintainability Refactor
 
 - Split the single-file `kg_krea_v9.py` module into the `kg_krea_v9/` package: node classes (`guide_card.py`, `encoder.py`) now sit on focused, reusable modules for tuning tables (`recipes.py`), prompt text (`prompts.py`), image preparation (`images.py`), token analysis (`qwen_tokens.py`), CLIP patches (`clip_hooks.py`), and conditioning math (`conditioning.py`).

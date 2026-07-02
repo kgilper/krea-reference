@@ -1,6 +1,6 @@
 [project]
 name = "comfyui-krea-reference"
-version = "0.1.5"
+version = "0.1.6"
 description = "ComfyUI custom nodes for Krea 2 V9 image-reference conditioning."
 readme = "README.md"
 requires-python = ">=3.10"
