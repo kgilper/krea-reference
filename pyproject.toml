@@ -14,7 +14,12 @@ dependencies = []
 [project.urls]
 Homepage = "https://github.com/kgilper/krea-reference"
 Repository = "https://github.com/kgilper/krea-reference"
+Documentation = "https://github.com/kgilper/krea-reference/blob/main/docs/README.md"
 Issues = "https://github.com/kgilper/krea-reference/issues"
+
+[tool.comfy]
+PublisherId = "kgilper"
+DisplayName = "Krea Reference"
 
 [tool.krea-reference]
 comfyui_custom_node = true

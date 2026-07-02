@@ -1,0 +1,8 @@
+# Excluded from Comfy Registry packages (gitignore syntax).
+# Keeps the installed node lean: runtime code, web extension, example
+# workflows, and top-level docs ship; heavy demo assets and dev files do not.
+.github/
+docs/
+example_assets/
+tests/
+temp/
