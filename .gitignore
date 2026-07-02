@@ -47,6 +47,7 @@ node.zip
 
 # Agent/editor private state and skills
 AGENTS.md
+CLAUDE.md
 .codex/
 .agents/
 .claude/
