@@ -95,12 +95,11 @@ Each card below shows the source image, the output image, suggested use, and the
 embedded demo file. Open a PNG directly or drag it into ComfyUI to inspect the
 workflow.
 
-> **Note (2026-07):** the appearance recipes (`suggest the visual style`,
-> `copy lighting and mood`, `suggest material or texture`) have since been
-> retuned to transfer noticeably more at the same strengths - re-running these
-> demo workflows on a current install borrows the reference look more strongly
-> than the images below show. Fresh renders of every recipe on the current
-> tuning live in the [V10 guide's recipe gallery](krea-v10-user-guide.md#the-recipe-gallery).
+> **Note (2026-07):** every demo below is rendered on the current tuning -
+> the retuned appearance recipes and the smooth (bilinear) palette wash -
+> so what you see is what a current install produces from the embedded
+> workflow. The V10 counterparts of these recipes live in the
+> [V10 guide's recipe gallery](krea-v10-user-guide.md#the-recipe-gallery).
 
 ### Balanced
 
@@ -147,15 +146,17 @@ recipe where high values such as `0.70` to `0.85` often make sense.
 | Setting | Value |
 | --- | --- |
 | Recipe | `suggest the visual style` |
-| Demo strength | `0.65` |
+| Demo strength | `0.50` |
 | Best for | Palette, finish, medium, art direction, and atmosphere. |
 | Demo prompt | `a modern table lamp in a clean studio product photo, teal coral graphite art direction, abstract editorial styling, no readable text` |
 | Demo seed | `972006` |
 | Demo files | [embedded-workflow PNG](assets/krea-v9/demos/suggest-visual-style.png), [workflow JSON](assets/krea-v9/demos/suggest-visual-style.workflow.json) |
 
 This is the main style-transfer recipe. It borrows palette and finish while
-trying not to copy the style image's subject. If it changes the subject too
-much, lower strength toward `0.35` to `0.50`.
+trying not to copy the style image's subject. The demo runs at `0.50`, where
+the borrowed palette lands cleanly on a crisp subject; pushing toward `0.65`
+transfers even harder but can start softening the subject's surfaces, and
+dropping toward `0.35` keeps just a hint of the palette.
 
 ### Copy Lighting And Mood
 
@@ -264,11 +265,12 @@ as `blank`, `unmarked`, `plain`, `clean`, or `empty panel`.
 | Demo files | [embedded-workflow PNG](assets/krea-v9/demos/manual-tuning.png), [workflow JSON](assets/krea-v9/demos/manual-tuning.workflow.json) |
 
 Manual mode is for deliberate control. In this demo the card borrows
-`colors and art style` with a `palette wash` prep. (The demo predates the
-2026-07 retune, when it also lowered `Shape copied` and raised
-`Overall style reach` - on Krea 2 that combination is now known to mute the
-card: keep `Shape copied` alive and let the palette wash provide the
-structure safety.)
+`colors and art style` with a `palette wash` prep, keeps `Shape copied` alive
+at `0.8`, and studies the reference coarsely (`256`). The palette wash - not
+a muted shape dial - provides the structure safety: it destroys the source's
+geometry before Krea studies it, so the live shape pull carries palette and
+finish only. On Krea 2 `Overall style reach` has no effect (the model
+exposes no pooled channel), so never rely on it to carry a look.
 
 ## Manual Controls
 

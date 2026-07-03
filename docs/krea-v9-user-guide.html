@@ -324,8 +324,11 @@
         </div>
         <p>
           Manual mode is for deliberate control. In this demo the card borrows
-          <code>colors and art style</code>, uses <code>palette wash</code>, lowers
-          <code>Shape copied</code>, and raises <code>Overall style reach</code>.
+          <code>colors and art style</code> through a <code>palette wash</code>
+          with <code>Shape copied</code> kept alive at <code>0.8</code> - the
+          wash provides the structure safety, so the live shape pull carries
+          palette and finish only. On Krea 2 <code>Overall style reach</code>
+          has no effect (no pooled channel); never rely on it to carry a look.
         </p>
         <p><a class="button" href="assets/krea-v9/demos/manual-tuning.png">Open embedded-workflow PNG</a> <a class="button" href="assets/krea-v9/demos/manual-tuning.workflow.json">Open workflow JSON</a></p>
       </article>
@@ -433,7 +436,7 @@
         <h3>Suggest The Visual Style</h3>
         <div class="meta">
           <span class="pill">Recipe: suggest the visual style</span>
-          <span class="pill">Strength: 0.65</span>
+          <span class="pill">Strength: 0.50</span>
           <span class="pill">Reference: abstract palette</span>
         </div>
         <div class="media">
@@ -448,9 +451,11 @@
         </div>
         <p>
           This is the main style-transfer recipe. It borrows palette, finish,
-          medium, and atmosphere while avoiding the style image's subject. If it
-          starts changing the subject too much, lower strength toward
-          <code>0.35</code> to <code>0.50</code>.
+          medium, and atmosphere while avoiding the style image's subject. The
+          demo runs at <code>0.50</code>, where the borrowed palette lands
+          cleanly on a crisp subject; pushing toward <code>0.65</code>
+          transfers even harder but can start softening the subject's
+          surfaces.
         </p>
         <p><a class="button" href="assets/krea-v9/demos/suggest-visual-style.png">Open embedded-workflow PNG</a> <a class="button" href="assets/krea-v9/demos/suggest-visual-style.workflow.json">Open workflow JSON</a></p>
       </article>

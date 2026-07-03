@@ -324,7 +324,7 @@
         "aux_id": "kgilper/krea-reference"
       },
       "widgets_values": [
-        0.65,
+        0.5,
         "suggest the visual style",
         "overall image",
         "use image as-is",
@@ -750,7 +750,7 @@
       "outputs": [],
       "properties": {},
       "widgets_values": [
-        "Suggest the visual style\n\nUse image for: suggest the visual style\nReference: krea-reference-examples/slot2_style_reference.png\nStrength: 0.65\n\nThe style recipe borrows palette, finish, medium, and atmosphere while trying not to copy the style image subject."
+        "Suggest the visual style\n\nUse image for: suggest the visual style\nReference: krea-reference-examples/slot2_style_reference.png\nStrength: 0.5\n\nThe style recipe borrows palette, finish, medium, and atmosphere while trying not to copy the style image subject."
       ],
       "color": "#432",
       "bgcolor": "#653"

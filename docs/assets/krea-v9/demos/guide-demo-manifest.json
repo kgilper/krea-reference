@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-02",
+  "generated_at": "2026-07-03",
   "model": "krea2\\krea2_turbo_nvfp4.safetensors",
   "clip": "krea2\\qwen3vl_4b_fp8_scaled.safetensors",
   "vae": "krea2\\qwen_image_vae.safetensors",
@@ -72,7 +72,7 @@
       "reference": "krea-reference-examples/slot2_style_reference.png",
       "prompt": "a modern table lamp in a clean studio product photo, teal coral graphite art direction, abstract editorial styling, no readable text",
       "seed": 972006,
-      "strength": 0.65,
+      "strength": 0.5,
       "output": "demos/suggest-visual-style.png",
       "workflow": "demos/suggest-visual-style.workflow.json",
       "lesson": "The style recipe borrows palette, finish, medium, and atmosphere while trying not to copy the style image subject."
@@ -114,5 +114,6 @@
       "lesson": "Text/logo guard turns signs, labels, UI, and brand marks into blank shape guidance instead of asking the model to reproduce lettering."
     }
   ],
-  "workflow_embedded_in_png": true
+  "workflow_embedded_in_png": true,
+  "engine_note": "Re-rendered with the current V9 nodes (retuned appearance recipes, bilinear palette wash) on the LAN ComfyUI box; sidecar workflow values are exactly what rendered."
 }
