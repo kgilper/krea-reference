@@ -172,14 +172,37 @@ means a fixed seed/prompt grid scored with objective, attribute-specific metrics
 energy for texture, style/identity distances),
 not by eye. [SCORING.md](SCORING.md) is the interim manual rubric.
 
-### Stage 3 - optimize the table for a stated objective (definitive) - needs a V10 box
+### Stage 3 - derive the table from renders (definitive) - RUN ONCE for the style role
 
-Turn each role's intent into a measurable objective (e.g. style: maximize
-style-similarity to the reference minus content/identity leakage) and optimize
-the 12-gain vector with a black-box optimizer (CMA-ES / Bayesian optimization,
-~100-300 evals for 12 dims), initialized from the Stage 0 prior + Stage 1 map,
-trained and reported on held-out references. This *derives* the table from data
-for the exact effect wanted.
+Turn a role's intent into a measurable objective and pick/optimize the 12-gain
+vector by *rendering* candidates and scoring them. Done here for the **style**
+role: hold the real style-recipe settings fixed and vary only `layers`; render
+(colorful reference -> plain-bowl prompt) and score look-transfer minus
+subject-leak.
+
+**Result (2026-07-03):** among seven candidate tables, the **shipped STYLE
+table scored best** (objective 0.106), with the shallow-tap table clearly worst
+- the render evidence supports spiking the deep taps. But the differences are
+small and every candidate's output was nearly the same bowl, so **for the style
+role the layer table is a second-order knob**: the shipped values hold up, and
+the primary look-vs-subject control is strength and the shape/global
+(token/pooled) split, not the per-tap vector. The layers visibly bite only in
+the aggressive isolation test (Stage 1 result above), where the deep taps
+dominate - which the shipped tables already emphasize.
+
+To go further (more roles, references, a real CMA-ES/Bayesian optimizer with
+CLIP style/identity metrics), the harness and objective are in place; this run
+is the demonstration. Full result + images:
+`local_records/.../stage1-measurement/stage3-derivation/`.
+
+### Bottom line
+
+The reliable, measured way to set the layers is **render-based** (Stages 2-3);
+conditioning analysis alone misleads (Stage 1). Applying it shows the shipped
+tables are directionally right (they spike the effective, high-magnitude deep
+taps, which the model's own projector also leans on) and, for the style role,
+near-optimal and second-order. The durable deliverable is the harness itself,
+which can re-derive or verify the layers for any future checkpoint.
 
 ### Building the controlled reference sets
 
