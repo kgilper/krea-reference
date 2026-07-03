@@ -19,11 +19,14 @@ the same KG_KREA_REFERENCE link type) and adds:
   the prepared (post-treatment) references.
 - A multilingual starter vocabulary for the text/logo guard's prompt
   rewriter (Spanish, French, German, Portuguese, Italian).
+- User-defined custom recipes: schema-validated YAML/JSON files in
+  ``custom_recipes/`` become first-class "Use image for" choices.
 
 Module map:
 
 - ``guide_card`` / ``encoder``: the two ComfyUI node classes.
 - ``recipes``: V9 tables plus the V10 recipes, timing, and balance tables.
+- ``custom_recipes``: the user-recipe schema, validation, and file loader.
 - ``prompts``: direction-aware prompt text and the wider guard vocabulary.
 - ``cache``: the content-keyed study cache.
 - ``report``: the plain-language stack report builder.
@@ -31,7 +34,7 @@ Module map:
 - ``_v9``: locates the sibling kg_krea_v9 package (math and host adapters).
 """
 
-from . import cache, preview, prompts, recipes, report
+from . import cache, custom_recipes, preview, prompts, recipes, report
 from ._v9 import v9
 from .encoder import KGTextEncodeKreaImageReferencesV10
 from .guide_card import KGKrea2ImageGuideCardV10
@@ -63,6 +66,7 @@ __all__ = [
     "cache",
     "clip_hooks",
     "conditioning",
+    "custom_recipes",
     "images",
     "preview",
     "prompts",

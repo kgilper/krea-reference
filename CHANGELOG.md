@@ -7,6 +7,7 @@
 - Card: `Guide direction` - a card can steer the result *away* from its image (counter-example guidance via negative delta targets, with symmetric per-layer clamping).
 - Card: `When this card guides` - per-card timing (`whole image`, `early layout only`, `final details only`) on top of the stack schedule.
 - Card: manual-only `Structure layers pull` / `Finish layers pull` dials over the deepstack gain table.
+- Card: user-defined custom recipes - schema-validated YAML/JSON files in `custom_recipes/` (or `<ComfyUI user dir>/krea_reference/recipes/`) become first-class `Use image for` choices, picked up on node-definition refresh. Only `label` and `role` are required; unknown keys are rejected (typo protection); invalid files are skipped with logged reasons and the node always loads; removed-recipe workflows fall back to `balanced` with a warning. Ships with `custom_recipes/README.md` and a disabled template.
 - Stack: `Balance strong cards` - an optional per-phase budget on summed departure from neutral, so several hot cards degrade gracefully instead of fighting.
 - Stack: `Reuse image studies` - a content-keyed cache of the base encode and ingredient deltas; re-runs that change only strengths, direction, timing, or balance skip every encoder pass.
 - Stack: two new outputs - `stack_report` (plain-language account of caps, curves, guard actions, balance, timing, and encoder pass counts) and `prepared_references` (contact sheet of exactly what the vision encoder studied).

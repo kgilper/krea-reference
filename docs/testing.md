@@ -19,6 +19,7 @@ They verify:
 - Per-card timing rewrites phase multipliers and the blank-surface guard clamp always wins.
 - The V10 balance budget scales hot stacks while preserving card ratios.
 - The V10 study cache skips encoder passes on re-runs and re-studies when reuse is off.
+- Custom recipe files validate against the schema: valid YAML/JSON recipes appear after the built-in dropdown choices and resolve on the card (including guard clamping and direction/timing composition), invalid files are skipped with named reasons, labels cannot shadow built-ins in either direction, and removed-recipe workflows fall back to `balanced`.
 - Layer-target fallback warns when conditioning cannot split into the expected bands.
 - Strength curves and timestep ranges behave predictably.
 

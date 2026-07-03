@@ -66,6 +66,7 @@ cross-connect, and saved V9 workflows keep working unchanged.
 | V10 control | What it does |
 | --- | --- |
 | Four more quick recipes | `suggest the color palette`, `use the background/setting`, `copy the camera framing`, and `mood board only` - jobs that previously required manual tuning. |
+| Your own recipes | Drop schema-validated YAML/JSON files into [custom_recipes/](custom_recipes/README.md) and they appear in `Use image for` as first-class choices. |
 | `Guide direction` | A card can steer *away* from its image: a counter-example for a palette, composition, subject, or style you do not want. |
 | `When this card guides` | Per-card timing: whole image, early layout only, or final details only. |
 | `Structure/Finish layers pull` | Manual-mode dials over the structure-vs-finish conditioning layers. |

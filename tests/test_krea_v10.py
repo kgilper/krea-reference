@@ -1,6 +1,6 @@
 """Tests for the Krea V10 package (kg_krea_v10/).
 
-Covers four layers:
+Covers five layers:
 
 1. Label contracts - the V10 widget surface is the V9 surface plus appended
    rows, and packets stay V9-compatible.
@@ -9,9 +9,14 @@ Covers four layers:
    cache, the stack report, and V9-packet cross-compatibility.
 4. Prompt behavior - direction-aware system prompts and the multilingual
    text/logo guard vocabulary.
+5. Custom recipes - schema validation, dynamic dropdown inclusion, card
+   resolution, guard clamping, and safe failure modes.
 """
 
+import json
+import shutil
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -170,24 +175,27 @@ class KreaV10LabelContractTests(unittest.TestCase):
         )
 
     def test_v10_purpose_choices_are_v9_plus_new_recipes(self):
+        builtin = [
+            "manual tuning",
+            "balanced",
+            "keep the same subject",
+            "copy pose and layout",
+            "copy lighting and mood",
+            "suggest the visual style",
+            "suggest material or texture",
+            "copy big shapes only",
+            "avoid copying text/logos",
+            "suggest the color palette",
+            "use the background/setting",
+            "copy the camera framing",
+            "mood board only",
+        ]
         purposes = list(self.nodes.KGKrea2ImageGuideCardV10.INPUT_TYPES()["required"]["Use image for"][0])
+        # Built-ins are a frozen prefix; validated custom recipes follow, sorted.
+        self.assertEqual(purposes[:len(builtin)], builtin)
         self.assertEqual(
-            purposes,
-            [
-                "manual tuning",
-                "balanced",
-                "keep the same subject",
-                "copy pose and layout",
-                "copy lighting and mood",
-                "suggest the visual style",
-                "suggest material or texture",
-                "copy big shapes only",
-                "avoid copying text/logos",
-                "suggest the color palette",
-                "use the background/setting",
-                "copy the camera framing",
-                "mood board only",
-            ],
+            purposes[len(builtin):],
+            sorted(self.nodes.KGKrea2ImageGuideCardV10._custom_recipes()),
         )
 
     def test_v10_stack_labels_are_v9_plus_appended_rows(self):
@@ -485,6 +493,176 @@ class KreaV10EncoderBehaviorTests(unittest.TestCase):
             self.assertAlmostEqual(pooled_weight, -0.5)
         finally:
             restore_encoder_machinery(cls, original)
+
+
+class KreaV10CustomRecipeTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.nodes, cls.torch = load_module("kg_krea_v10", "kg_krea_v10_custom_recipe_tests")
+        cls.custom = cls.nodes.custom_recipes
+        cls.card_cls = cls.nodes.KGKrea2ImageGuideCardV10
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp(prefix="kg_v10_recipes_"))
+        self._original_pack_dir = self.custom._PACK_RECIPE_DIR
+        # Isolate from the repo's shipped custom_recipes/ folder.
+        self.custom._PACK_RECIPE_DIR = self.tmp / "no-such-dir"
+        self.custom.EXTRA_SEARCH_PATHS.clear()
+        self.custom.EXTRA_SEARCH_PATHS.append(self.tmp)
+        self.custom._last_errors = None
+        self.custom._warned_missing.clear()
+
+    def tearDown(self):
+        self.custom._PACK_RECIPE_DIR = self._original_pack_dir
+        self.custom.EXTRA_SEARCH_PATHS.clear()
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def _write(self, name, content):
+        (self.tmp / name).write_text(content, encoding="utf-8")
+
+    def _refresh(self):
+        reserved = set(self.card_cls.PURPOSE_LABELS) | set(self.card_cls.QUICK_RECIPES)
+        return self.custom.refresh(reserved)
+
+    def _build(self, purpose, strength=0.5, **kwargs):
+        base = {"Reference image": "img", "How strongly this image guides": strength, "Use image for": purpose}
+        base.update(kwargs)
+        return self.card_cls().build(**base)[0]
+
+    FULL_RECIPE = {
+        "label": "neon glow style",
+        "description": "Saturated neon palette and glow.",
+        "role": "style",
+        "treatment": "palette wash",
+        "color": 0.8,
+        "detail": 0.1,
+        "study": "256",
+        "framing": "stack",
+        "subject": "avoid",
+        "early": 0.9,
+        "late": 0.8,
+        "guard": False,
+        "cap": 0.7,
+        "shape": 0.3,
+        "global": 1.9,
+        "layers": [1.0] * 12,
+    }
+
+    def test_json_recipe_appears_in_dropdown_and_resolves_on_card(self):
+        self._write("neon.json", json.dumps(self.FULL_RECIPE))
+        purposes = self.card_cls.INPUT_TYPES()["required"]["Use image for"][0]
+        self.assertIn("neon glow style", purposes)
+        self.assertEqual(purposes.index("neon glow style"), len(self.card_cls.PURPOSE_LABELS))
+
+        card = self._build("neon glow style", strength=0.9)
+        self.assertTrue(card["custom_recipe"])
+        self.assertEqual(card["custom_recipe_source"], "neon.json")
+        self.assertEqual(card["quick_recipe"], "neon glow style")
+        self.assertEqual(card["resolved_role"], "style")
+        self.assertEqual(card["resolved_treatment"], "palette wash")
+        self.assertAlmostEqual(card["resolved_color_keep"], 0.8)
+        self.assertAlmostEqual(card["resolved_detail"], 0.1)
+        self.assertEqual(card["resolved_reference_resolution"], "256")
+        self.assertEqual(card["resolved_subject_policy"], "avoid")
+        self.assertAlmostEqual(card["resolved_early_multiplier"], 0.9)
+        self.assertAlmostEqual(card["resolved_late_multiplier"], 0.8)
+        self.assertAlmostEqual(card["resolved_shape_pull"], 0.3)
+        self.assertAlmostEqual(card["resolved_global_pull"], 1.9)
+        self.assertEqual(card["resolved_layer_pull"], [1.0] * 12)
+        # Strength 0.9 exceeds the recipe's cap of 0.7.
+        self.assertEqual(card["v9_strength_cap"], 0.7)
+        self.assertAlmostEqual(card["strength"], 0.7)
+        self.assertAlmostEqual(card["requested_strength"], 0.9)
+
+    @unittest.skipUnless(__import__("importlib.util", fromlist=["util"]).find_spec("yaml"), "PyYAML not installed")
+    def test_minimal_yaml_recipe_fills_role_defaults(self):
+        self._write("hint.yaml", "label: soft palette hint\nrole: palette\n")
+        recipes_map, errors = self._refresh()
+        self.assertEqual(errors, [])
+        bundle = recipes_map["soft palette hint"]
+        self.assertEqual(bundle["treatment"], "normal")
+        self.assertIsNone(bundle["cap"])
+        self.assertEqual(bundle["subject"], "recipe")
+        default_shape, default_global = self.nodes.recipes.role_pull_defaults("palette")
+        self.assertAlmostEqual(bundle["shape"], default_shape)
+        self.assertAlmostEqual(bundle["global"], default_global)
+        self.assertEqual(bundle["layers"], self.nodes.recipes.role_layer_pull_defaults("palette"))
+
+    def test_recipe_pack_loads_multiple(self):
+        pack = {"recipes": [
+            {"label": "pack style", "role": "style"},
+            {"label": "pack lighting", "role": "lighting"},
+        ]}
+        self._write("pack.json", json.dumps(pack))
+        recipes_map, errors = self._refresh()
+        self.assertEqual(errors, [])
+        self.assertEqual(sorted(recipes_map), ["pack lighting", "pack style"])
+
+    def test_custom_guard_recipe_is_clamped_like_the_builtin_guard(self):
+        recipe = {"label": "my logo guard", "role": "text/logo safe", "guard": True}
+        self._write("guard.json", json.dumps(recipe))
+        card = self._build("my logo guard", strength=0.5)
+        self.assertTrue(card["v9_blank_surface_guard"])
+        self.assertEqual(card["v9_strength_cap"], 0.03)
+        self.assertAlmostEqual(card["strength"], 0.03)
+        self.assertEqual(card["resolved_late_multiplier"], 0.0)
+        self.assertEqual(card["resolved_treatment"], "shape wash")
+
+    def test_direction_and_timing_apply_to_custom_recipes(self):
+        self._write("neon.json", json.dumps(self.FULL_RECIPE))
+        card = self._build(
+            "neon glow style",
+            **{"Guide direction": "away from this image", "When this card guides": "whole image"},
+        )
+        self.assertEqual(card["resolved_direction"], "away")
+        self.assertEqual(card["resolved_subject_policy"], "avoid")
+        self.assertAlmostEqual(card["resolved_early_multiplier"], 1.0)
+        self.assertAlmostEqual(card["resolved_late_multiplier"], 1.0)
+
+    def test_invalid_recipes_are_skipped_with_reasons(self):
+        self._write("a-valid.json", json.dumps({"label": "still fine", "role": "style"}))
+        self._write("bad-key.json", json.dumps({"label": "typo", "role": "style", "colour": 0.5}))
+        self._write("bad-role.json", json.dumps({"label": "bad role", "role": "vibes"}))
+        self._write("bad-range.json", json.dumps({"label": "hot color", "role": "style", "color": 1.5}))
+        self._write("bad-layers.json", json.dumps({"label": "short layers", "role": "style", "layers": [1.0] * 11}))
+        self._write("collide-label.json", json.dumps({"label": "balanced", "role": "style"}))
+        self._write("collide-key.json", json.dumps({"label": "identity", "role": "style"}))
+        self._write("not-a-mapping.json", json.dumps([1, 2, 3]))
+        self._write("broken.yaml", "label: [unclosed\n")
+
+        recipes_map, errors = self._refresh()
+        self.assertEqual(sorted(recipes_map), ["still fine"])
+        joined = "\n".join(errors)
+        self.assertIn("unknown recipe keys: colour", joined)
+        self.assertIn("role must be one of", joined)
+        self.assertIn("color must be between 0.0 and 1.0", joined)
+        self.assertIn("exactly 12 numbers", joined)
+        self.assertIn('"balanced" collides', joined)
+        self.assertIn('"identity" collides', joined)
+        self.assertIn("expected a recipe mapping", joined)
+        self.assertEqual(len(errors), 7 if self.custom.yaml is None else 8)
+
+    def test_duplicate_label_across_files_first_wins(self):
+        self._write("a.json", json.dumps({"label": "twice", "role": "style", "color": 0.2}))
+        self._write("b.json", json.dumps({"label": "twice", "role": "style", "color": 0.9}))
+        recipes_map, errors = self._refresh()
+        self.assertAlmostEqual(recipes_map["twice"]["color"], 0.2)
+        self.assertTrue(any('"twice" collides' in e for e in errors))
+
+    def test_underscore_and_unknown_extensions_are_ignored(self):
+        self._write("_disabled.json", json.dumps({"label": "hidden", "role": "style"}))
+        self._write("notes.txt", "not a recipe")
+        recipes_map, errors = self._refresh()
+        self.assertEqual(recipes_map, {})
+        self.assertEqual(errors, [])
+
+    def test_missing_custom_label_falls_back_to_balanced(self):
+        card = self._build("ghost recipe that no longer exists")
+        self.assertFalse(card["custom_recipe"])
+        self.assertEqual(card["quick_recipe"], "balanced")
+        self.assertEqual(card["resolved_role"], "balanced")
+        # Manual rows were not silently read.
+        self.assertFalse(card["manual_controls_active"])
 
 
 class KreaV10PromptTests(unittest.TestCase):

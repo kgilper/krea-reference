@@ -1,0 +1,27 @@
+# Template custom recipe for the KG Krea 2 Image Guide Card V10.
+#
+# Files starting with "_" or "." are ignored, so this template loads
+# nothing as shipped. To use it: copy it to a new name without the leading
+# underscore (e.g. vintage-postcard.yaml), edit, then refresh node
+# definitions in ComfyUI (or restart). The label below then appears in the
+# card's "Use image for" dropdown.
+#
+# Only "label" and "role" are required; every other field defaults from the
+# role's tuning tables. Full schema: README.md in this folder.
+
+label: vintage postcard style
+description: Warm faded palette and a soft print finish, without copying the source subject.
+role: style
+treatment: palette wash
+color: 0.9
+detail: 0.05
+study: "384"
+framing: stack
+subject: avoid
+early: 0.85
+late: 0.9
+guard: false
+cap: 0.85
+shape: 0.3
+global: 1.7
+layers: [0.25, 0.35, 0.45, 0.6, 0.8, 1.0, 1.0, 2.5, 5.0, 1.1, 4.0, 1.2]

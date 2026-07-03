@@ -18,12 +18,31 @@ The first fifteen rows repeat the [V9 card](kg-krea-2-image-guide-card-v9.md) ex
 
 ## New Quick Recipes
 
-`Use image for` adds four choices:
+`Use image for` adds four built-in choices, and additionally lists your own
+custom recipes (see below):
 
 - `suggest the color palette`: borrow broad color palette and tonal relationships only. Palette wash, zero detail, loose 256 study, quick-strength cap `0.9`.
 - `use the background/setting`: borrow location, scene context, and spatial atmosphere without replacing the main subject.
 - `copy the camera framing`: borrow camera distance, crop, lens feel, and viewpoint only. Grayscale, structure-heavy early, quiet late.
 - `mood board only`: loose inspiration with a gentle `0.6` cap; avoids copying specific details.
+
+## Custom Recipes
+
+Drop schema-validated `.yaml`/`.yml`/`.json` files into the pack's
+`custom_recipes/` folder (or `<ComfyUI user dir>/krea_reference/recipes/`)
+and each valid recipe appears in `Use image for` as a first-class choice
+after the built-ins, picked up on node-definition refresh without a restart.
+Only `label` and `role` are required; everything else defaults from the
+role's tuning tables, and invalid files are skipped with a logged warning so
+the node always loads. Custom recipes compose with direction, timing, and
+the strength slider, and a `guard: true` recipe is clamped exactly like the
+built-in text/logo guard.
+
+Saved workflows reference custom recipes by label: ship the recipe file with
+shared workflows, or the card falls back to `balanced` with a warning.
+
+Full schema and walkthrough: [creating recipes in the V10 user guide](../krea-v10-user-guide.md#create-your-own-recipes)
+and [custom_recipes/README.md](../../custom_recipes/README.md).
 
 ## New Controls
 

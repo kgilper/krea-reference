@@ -239,6 +239,7 @@
         <a href="#quick-start">Quick Start</a>
         <a href="#new">What V10 Adds</a>
         <a href="#recipes">New Recipes</a>
+        <a href="#custom-recipes">Your Own Recipes</a>
         <a href="#direction">Direction</a>
         <a href="#feedback">Report &amp; Preview</a>
         <a href="#troubleshooting">Troubleshooting</a>
@@ -304,6 +305,10 @@
         <div>
           <h3>Feedback outputs</h3>
           <p>A plain-language stack report and a contact sheet of the prepared references. No more guessing why a card is silent.</p>
+        </div>
+        <div>
+          <h3>Your own recipes</h3>
+          <p>Drop a small YAML or JSON file into <code>custom_recipes/</code> and it becomes a first-class <code>Use image for</code> choice - no code.</p>
         </div>
       </div>
     </section>
@@ -406,6 +411,97 @@
           </div>
         </div>
       </div>
+    </section>
+
+    <section id="custom-recipes">
+      <h2>Create Your Own Recipes</h2>
+      <p class="lede">
+        The built-in recipes are settings bundles - and you can write your
+        own. A custom recipe is a small YAML or JSON file; every file that
+        passes validation appears in <code>Use image for</code> as a
+        first-class choice, indistinguishable from a built-in.
+      </p>
+      <div class="two">
+        <div>
+          <h3>Three steps</h3>
+          <ol>
+            <li>Create <code>custom_recipes/soft-palette-hint.yaml</code>:
+<pre>label: soft palette hint
+role: palette
+cap: 0.5</pre>
+            </li>
+            <li>Refresh node definitions in ComfyUI (or restart).</li>
+            <li>Open a V10 guide card - <code>soft palette hint</code> is now in the dropdown.</li>
+          </ol>
+          <p class="small">
+            Only <code>label</code> and <code>role</code> are required; every
+            omitted field defaults from the role's tuning tables. Files can
+            also live in
+            <code>&lt;ComfyUI user dir&gt;/krea_reference/recipes/</code>,
+            which survives node-pack updates. Names starting with
+            <code>_</code> or <code>.</code> are ignored - that is how the
+            bundled template ships without adding itself to your dropdown.
+          </p>
+        </div>
+        <div>
+          <h3>A complete recipe</h3>
+<pre>label: vintage postcard style
+description: Warm faded palette, soft print finish.
+role: style
+treatment: palette wash
+color: 0.9
+detail: 0.05
+study: "384"
+subject: avoid
+early: 0.85
+late: 0.9
+cap: 0.85
+shape: 0.3
+global: 1.7
+layers: [0.25, 0.35, 0.45, 0.6, 0.8,
+         1.0, 1.0, 2.5, 5.0, 1.1, 4.0, 1.2]</pre>
+          <p class="small">
+            One file holds one recipe, or a pack:
+            <code>{"recipes": [recipe, recipe, ...]}</code>. JSON works
+            identically to YAML.
+          </p>
+        </div>
+      </div>
+      <table style="margin-top: 18px;">
+        <tr><th>Field</th><th>Values</th><th>Default</th></tr>
+        <tr><td><code>label</code> (required)</td><td>Dropdown text; must not collide with a built-in or another custom label.</td><td>-</td></tr>
+        <tr><td><code>role</code> (required)</td><td><code>balanced</code>, <code>style</code>, <code>palette</code>, <code>composition</code>, <code>framing</code>, <code>identity</code>, <code>environment</code>, <code>lighting</code>, <code>material</code>, <code>loose</code>, <code>shape only</code>, <code>text/logo safe</code></td><td>-</td></tr>
+        <tr><td><code>treatment</code></td><td><code>normal</code>, <code>grayscale</code>, <code>soft blur</code>, <code>strong blur</code>, <code>palette wash</code>, <code>color wash</code>, <code>grayscale blur</code>, <code>shape wash</code></td><td><code>normal</code></td></tr>
+        <tr><td><code>color</code>, <code>detail</code></td><td>0.0-1.0: how much color / fine detail survives preparation.</td><td>1.0</td></tr>
+        <tr><td><code>study</code></td><td><code>stack</code>, <code>256</code>, <code>384</code>, <code>512</code>, <code>768</code></td><td><code>stack</code></td></tr>
+        <tr><td><code>framing</code></td><td><code>stack</code>, <code>preserve aspect</code>, <code>center crop square</code>, <code>stretch square</code></td><td><code>stack</code></td></tr>
+        <tr><td><code>subject</code></td><td><code>recipe</code>, <code>avoid</code>, <code>allow</code>, <code>preserve</code></td><td><code>recipe</code></td></tr>
+        <tr><td><code>early</code>, <code>late</code></td><td>0.0-5.0: phase multipliers.</td><td>1.0</td></tr>
+        <tr><td><code>guard</code></td><td><code>true</code> applies the full text/logo blank-surface clamp.</td><td><code>false</code></td></tr>
+        <tr><td><code>cap</code></td><td>0.0-3.0 hard ceiling on effective strength; omit for none.</td><td>none</td></tr>
+        <tr><td><code>shape</code>, <code>global</code></td><td>0.0-3.0 / 0.0-4.0: structure pull and overall-look pull.</td><td>role defaults</td></tr>
+        <tr><td><code>layers</code></td><td>Exactly 12 numbers, 0.0-8.0: per-layer gains.</td><td>role table</td></tr>
+        <tr><td><code>description</code></td><td>Free text for humans reading the file.</td><td>empty</td></tr>
+      </table>
+      <div class="callout" style="margin-top: 16px;">
+        <strong>Validation is strict about keys, forgiving about omissions.</strong>
+        An unknown key (say, <code>colour</code>) rejects the recipe with a
+        named error in the ComfyUI log - typos never become silent no-ops.
+        Invalid recipes are skipped; the node always loads. Across files
+        (scanned in sorted order) the first definition of a label wins.
+      </div>
+      <div class="callout warning" style="margin-top: 12px;">
+        <strong>Sharing:</strong> saved workflows reference custom recipes by
+        label. Ship the recipe file with shared workflows; without it the card
+        falls back to <code>balanced</code> with a logged warning. Prefer
+        adding new recipes over renaming old ones.
+      </div>
+      <p class="small" style="margin-top: 12px;">
+        Custom recipes compose with everything else: direction, timing, and
+        the strength slider apply on top, and the stack report names your
+        recipe on its card line. Design tips and the schema also live in
+        <code>custom_recipes/README.md</code> inside the pack.
+      </p>
     </section>
 
     <section id="direction">

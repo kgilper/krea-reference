@@ -63,6 +63,51 @@ Two bundles are worth noting:
 - **`framing`** sets per-card `framing: "preserve aspect"` rather than
   deferring to the stack, because the aspect ratio *is* the framing signal.
 
+### 2.1 User-defined recipes
+
+The recipe table itself is now user-extensible
+(`kg_krea_v10/custom_recipes.py`). Files with `.yaml`/`.yml`/`.json`
+extensions in the pack's `custom_recipes/` folder — plus
+`<ComfyUI user dir>/krea_reference/recipes/` when `folder_paths` is
+importable — are parsed, schema-validated, and merged into the card's
+`Use image for` choices after the built-ins, sorted. The card's
+`INPUT_TYPES` re-scans on every call, so ComfyUI's node-definition refresh
+picks up new files without a restart.
+
+**Schema.** A validated recipe resolves to the same fourteen-key settings
+bundle as a built-in `QUICK_RECIPES` entry. `label` and `role` are required;
+every other field defaults from the role's V9 tuning tables
+(`role_pull_defaults` / `role_layer_pull_defaults`), so a two-line recipe is
+well-formed. Validation is deliberately asymmetric: **strict about keys**
+(an unknown key is an error — typos cannot become silent no-ops) and
+**forgiving about omissions**. Numeric ranges mirror the card's own clamps;
+`layers` must be exactly twelve numbers; `guard: true` marks the bundle for
+the blank-surface clamp, which then applies in `build()` exactly as for the
+built-in guard recipe.
+
+**Identity and collisions.** The label is the identity. Reserved labels are
+the union of the artist-facing purpose labels *and* the internal recipe keys
+(`_custom_recipes` on the card), closing both shadowing directions — a
+custom recipe named `identity` would otherwise resolve to the built-in
+bundle through `_map_label`. Across files (scanned in sorted name order) the
+first definition of a label wins; later duplicates are reported as
+collisions. Files whose names start with `_` or `.` are skipped, which is
+how the shipped template stays inert.
+
+**Failure containment.** Node registration can never be broken by a recipe
+file: parse and validation errors skip the recipe, are returned to callers,
+and are logged once per *change* of the error list rather than once per
+scan (`refresh` keeps the last error list; `INPUT_TYPES` runs often). At
+build time, a purpose value that is neither built-in nor currently loaded —
+a saved workflow whose recipe file was removed — falls back to the
+`balanced` bundle with a once-per-label warning instead of silently reading
+the manual rows.
+
+**Resolution order** in `build()`: built-in recipe key → custom label →
+`manual tuning` → balanced fallback. A resolved custom card carries
+`custom_recipe: true` and `custom_recipe_source` (the file name) in its
+packet; direction, timing, and the guard clamp compose on top unchanged.
+
 ## 3. Direction: negative delta targets
 
 The V9 compose rule is $C_{out} = C_{full} + (t - 1)\,\Delta$ per ingredient
@@ -297,6 +342,9 @@ the same stub environment and seam-patching pattern:
 | Report names the guard cap (§8) | `test_report_names_the_guard_cap` |
 | V9-style packets execute with toward defaults (§10) | `test_v9_style_packet_works_and_defaults_toward` |
 | Multilingual rewrites fire; English collisions survive (§9) | `test_sanitizer_rewrites_spanish_and_german_marking_words`, `test_sanitizer_leaves_english_collision_words_alone` |
+| Custom recipes load, appear after built-ins, and resolve on the card (§2.1) | `test_json_recipe_appears_in_dropdown_and_resolves_on_card`, `test_minimal_yaml_recipe_fills_role_defaults`, `test_recipe_pack_loads_multiple` |
+| Custom guard recipes clamp; direction/timing compose on top (§2.1) | `test_custom_guard_recipe_is_clamped_like_the_builtin_guard`, `test_direction_and_timing_apply_to_custom_recipes` |
+| Invalid recipes skip with named reasons; both shadowing directions reserved; first label wins; removed labels fall back to balanced (§2.1) | `test_invalid_recipes_are_skipped_with_reasons`, `test_duplicate_label_across_files_first_wins`, `test_underscore_and_unknown_extensions_are_ignored`, `test_missing_custom_label_falls_back_to_balanced` |
 
 The V9 suite runs unchanged beside it — the strongest available statement
 that V10 did not move V9.
@@ -325,15 +373,31 @@ that V10 did not move V9.
    is out of scope for regex word boundaries.
 7. **The V9 stack ignores direction** (§10). Cross-plugging an away card
    into V9 silently behaves as toward — carried as data, not acted on.
+8. **Custom recipes make workflows label-portable, not file-portable.**
+   Saved workflows reference custom recipes by label; sharing a workflow
+   without its recipe file degrades that card to `balanced` (with a
+   warning). The dropdown is also no longer a fully frozen list — the
+   built-in prefix is frozen, the custom tail is the user's responsibility.
+9. **YAML support depends on PyYAML.** ComfyUI ships it; in a stripped
+   environment `.yaml` recipes report a clear error and `.json` recipes
+   still work.
 
 ## 13. Extension points
 
 The V9 paper's §16 recipes all still apply (they operate on the shared
 tables). V10-specific seams, all data-first:
 
-- **New recipe / role:** as V9 §16.1–16.2, but add the bundle to
-  `kg_krea_v10/recipes.py`'s `QUICK_RECIPES` and the label to the V10 card's
-  `PURPOSE_LABELS`. Append only.
+- **New recipe:** users need no code path at all — a schema-valid file in
+  `custom_recipes/` is a first-class recipe (§2.1). Reserve the
+  `QUICK_RECIPES`/`PURPOSE_LABELS` table edit (V9 §16.1) for recipes that
+  should ship with the pack for everyone.
+- **New role:** as V9 §16.2 (roles are still code: pull baselines, layer
+  table, instruction language). Once a role exists, custom recipe files can
+  target it immediately — `ROLES` derives from `ROLE_PULL_DEFAULTS`.
+- **Recipe schema fields:** extend `ALLOWED_KEYS` plus a validation branch
+  in `validate_recipe`, and default the new field in
+  `_custom_recipe_settings`. Unknown-key strictness means old packs reject
+  files that use fields they do not know — version recipe packs accordingly.
 - **Repel language for a new role:** one entry in
   `REPEL_ROLE_INSTRUCTIONS`; unknown roles fall back to the balanced
   counter-example line.

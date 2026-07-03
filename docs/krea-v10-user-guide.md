@@ -18,6 +18,7 @@ release; the bundled synthetic source images below ship today.
 - [Fast Start](#fast-start)
 - [What V10 Adds](#what-v10-adds)
 - [New Quick Recipes](#new-quick-recipes)
+- [Create Your Own Recipes](#create-your-own-recipes)
 - [Guide Direction: Counter-Examples](#guide-direction-counter-examples)
 - [Per-Card Timing](#per-card-timing)
 - [Manual Layer Dials](#manual-layer-dials)
@@ -67,6 +68,7 @@ V10 controls). Saved V9 workflows keep working unchanged.
 | `use the background/setting` | card | Environment quick recipe (was manual-only in V9). |
 | `copy the camera framing` | card | Framing-only quick recipe (was manual-only in V9). |
 | `mood board only` | card | Loose-inspiration quick recipe (was manual-only in V9). |
+| Custom recipes | card | Your own YAML/JSON recipe files appear in `Use image for` as first-class choices. |
 | `Guide direction` | card | `toward this image` (V9 behavior) or `away from this image` (counter-example). |
 | `When this card guides` | card | Per-card timing: recipe decides, whole image, early layout only, or final details only. |
 | `Structure layers pull` / `Finish layers pull` | card | Manual-mode dials over the structure-vs-finish conditioning layers. |
@@ -125,6 +127,125 @@ to `early layout only`.
 | Source example | <img src="../example_assets/krea-reference-examples/slot2_style_reference.png" alt="Mood board source example" width="220"> |
 | Start near | `0.15` to `0.30` (capped at `0.6`) |
 | Best for | Loose inspiration that should whisper, never dictate. |
+
+## Create Your Own Recipes
+
+The built-in recipes are settings bundles - and in V10 you can write your
+own. A custom recipe is a small YAML or JSON file; every file that passes
+validation appears in `Use image for` as a first-class choice,
+indistinguishable from a built-in.
+
+### Where recipe files go
+
+| Location | Notes |
+| --- | --- |
+| `custom_recipes/` inside this node pack | Ships with a README and a template. Easiest to find. |
+| `<ComfyUI user dir>/krea_reference/recipes/` | Survives reinstalling or updating the node pack. Create the folder if it does not exist. |
+
+Files named with a leading `_` or `.` are ignored - that is how the bundled
+template ([_example-vintage-postcard.yaml](../custom_recipes/_example-vintage-postcard.yaml))
+ships without adding itself to your dropdown.
+
+### Your first recipe, in three steps
+
+1. Create `custom_recipes/soft-palette-hint.yaml` containing:
+
+   ```yaml
+   label: soft palette hint
+   role: palette
+   cap: 0.5
+   ```
+
+2. In ComfyUI, refresh node definitions (or restart).
+3. Open a V10 guide card: `soft palette hint` is now in `Use image for`.
+
+Only `label` (the dropdown text) and `role` (which built-in behavior family
+to start from) are required. Every omitted field defaults from the role's
+tuning tables, so a two-line recipe is already well-behaved.
+
+### The full schema
+
+A file holds one recipe, or a pack: `{"recipes": [recipe, recipe, ...]}`.
+
+| Field | Required | Values | Default |
+| --- | --- | --- | --- |
+| `label` | yes | The dropdown text. Must not collide with a built-in choice or another custom label. | - |
+| `role` | yes | `balanced`, `style`, `palette`, `composition`, `framing`, `identity`, `environment`, `lighting`, `material`, `loose`, `shape only`, `text/logo safe` | - |
+| `description` | no | Free text for humans reading the file. | `""` |
+| `treatment` | no | `normal`, `grayscale`, `soft blur`, `strong blur`, `palette wash`, `color wash`, `grayscale blur`, `shape wash` | `normal` |
+| `color` | no | `0.0`-`1.0`: how much color survives preparation. | `1.0` |
+| `detail` | no | `0.0`-`1.0`: how much fine detail survives. | `1.0` |
+| `study` | no | `stack`, `256`, `384`, `512`, `768` | `stack` |
+| `framing` | no | `stack`, `preserve aspect`, `center crop square`, `stretch square` | `stack` |
+| `subject` | no | `recipe`, `avoid`, `allow`, `preserve` | `recipe` |
+| `early`, `late` | no | `0.0`-`5.0`: phase multipliers for two-phase timing. | `1.0` |
+| `guard` | no | `true` applies the full text/logo blank-surface clamp to this card. | `false` |
+| `cap` | no | `0.0`-`3.0`: hard ceiling on effective strength. Omit for no cap. | none |
+| `shape` | no | `0.0`-`3.0`: spatial/structure pull. | role default |
+| `global` | no | `0.0`-`4.0`: overall look/style pull. | role default |
+| `layers` | no | Exactly 12 numbers (`0.0`-`8.0`): per-layer conditioning gains. | role table |
+
+A complete example (the shipped template):
+
+```yaml
+label: vintage postcard style
+description: Warm faded palette and a soft print finish, without copying the source subject.
+role: style
+treatment: palette wash
+color: 0.9
+detail: 0.05
+study: "384"
+framing: stack
+subject: avoid
+early: 0.85
+late: 0.9
+guard: false
+cap: 0.85
+shape: 0.3
+global: 1.7
+layers: [0.25, 0.35, 0.45, 0.6, 0.8, 1.0, 1.0, 2.5, 5.0, 1.1, 4.0, 1.2]
+```
+
+The same recipe as JSON is the same mapping with JSON syntax - both formats
+are equivalent.
+
+### How validation behaves
+
+- **Strict about keys.** An unknown key (say, `colour`) rejects the recipe
+  with a named error, so typos cannot silently become no-ops.
+- **Forgiving about omissions.** Everything except `label` and `role` has a
+  sensible role-derived default.
+- **The node always loads.** Invalid recipes are skipped with a warning in
+  the ComfyUI log naming the file and the reason; your other recipes and the
+  built-ins are unaffected.
+- **First definition wins.** Files scan in sorted name order; a duplicate
+  label in a later file is skipped with a collision warning.
+
+Custom recipes compose with every other V10 control: `Guide direction`,
+`When this card guides`, and the strength slider all apply on top, the stack
+report names your recipe on its card line, and a `guard: true` recipe is
+clamped exactly like the built-in text/logo guard.
+
+### Recipe design tips
+
+- Start from the closest built-in: copy its values from the
+  [technical paper's recipe tables](krea-v9-technical-paper.md) or the
+  shipped template, then move one number at a time.
+- `role` does more than defaults: it selects the instruction language the
+  encoder writes for the card and the per-layer gain table.
+- Keep `subject: avoid` on style-family recipes unless you specifically want
+  the source subject to survive.
+- Give whisper-jobs a `cap` so a slider bump cannot blow past their intent.
+- Test with the prepared-references preview: if the treated frame still
+  shows what you meant to strip, strengthen `treatment` or lower `detail`.
+
+### Sharing recipes and saved workflows
+
+Saved workflows reference custom recipes **by label**. If you share a
+workflow that uses one, ship the recipe file with it; without the file the
+card falls back to `balanced` with a logged warning. Renaming a label
+orphans existing workflows the same way - prefer adding a new recipe over
+renaming an old one.
 
 ## Guide Direction: Counter-Examples
 

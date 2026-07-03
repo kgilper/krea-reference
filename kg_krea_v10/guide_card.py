@@ -2,14 +2,16 @@
 
 Everything the V9 card does, plus quick recipes for the four roles V9 left
 manual-only, a guide direction (a card can now be a counter-example), a
-per-card timing choice, and manual-mode structure/finish layer dials.
+per-card timing choice, manual-mode structure/finish layer dials, and
+user-defined custom recipes loaded from YAML/JSON files (custom_recipes.py)
+that appear in "Use image for" as first-class choices.
 
 Packets stay V9-compatible: every V9 key is emitted with the same meaning,
 so a V10 card plugs into a V9 stack (which simply ignores the V10 keys) and
 a V9 card plugs into the V10 stack (V10 keys fall back to their defaults).
 """
 
-from . import recipes
+from . import custom_recipes, recipes
 from ._v9 import v9
 
 KG_KREA_REFERENCE_TYPE = v9.KG_KREA_REFERENCE_TYPE
@@ -61,15 +63,35 @@ class KGKrea2ImageGuideCardV10:
     QUICK_RECIPES = recipes.QUICK_RECIPES
 
     @classmethod
+    def _custom_recipes(cls):
+        """Currently loaded user recipes (label -> validated bundle).
+
+        Reserved labels cover both the artist-facing purpose labels and the
+        internal recipe keys, so a custom label can never shadow (or be
+        shadowed by) a built-in on either level.
+        """
+        reserved = set(cls.PURPOSE_LABELS) | set(cls.QUICK_RECIPES)
+        loaded, _errors = custom_recipes.refresh(reserved)
+        return loaded
+
+    @classmethod
+    def _purpose_choices(cls):
+        """Built-in purposes first (frozen order), then custom labels sorted."""
+        return list(cls.PURPOSE_LABELS.keys()) + sorted(cls._custom_recipes())
+
+    @classmethod
     def INPUT_TYPES(cls):
         # Widget labels are the saved-workflow API: the first 15 rows repeat
         # the V9 card's frozen surface, and the V10 rows are appended after.
-        # Append new labels only; never rename or reorder.
+        # Append new labels only; never rename or reorder. "Use image for"
+        # additionally lists validated custom recipes after the built-ins;
+        # ComfyUI re-calls this on node-definition refresh, so new recipe
+        # files appear without a restart.
         return {
             "required": {
                 "Reference image": ("IMAGE",),
                 "How strongly this image guides": ("FLOAT", {"default": 0.2, "min": 0.0, "max": 3.0, "step": 0.05}),
-                "Use image for": (list(cls.PURPOSE_LABELS.keys()),),
+                "Use image for": (cls._purpose_choices(),),
                 "Manual mode borrows": (list(cls.MANUAL_TARGET_LABELS.keys()),),
                 "Prepare image by": (list(cls.PREP_LABELS.keys()),),
                 "Color kept": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 1.0, "step": 0.05}),
@@ -102,14 +124,45 @@ class KGKrea2ImageGuideCardV10:
     def _clamp(value, minimum, maximum):
         return min(max(float(value), minimum), maximum)
 
+    @staticmethod
+    def _custom_recipe_settings(label, bundle):
+        """Resolve one validated custom-recipe bundle into card settings."""
+        return {
+            "quick_recipe": label,
+            "manual_active": False,
+            "role": bundle["role"],
+            "treatment": bundle["treatment"],
+            "color_keep": bundle["color"],
+            "detail": bundle["detail"],
+            "study_at": bundle["study"],
+            "framing": bundle["framing"],
+            "subject_policy": bundle["subject"],
+            "early_multiplier": bundle["early"],
+            "late_multiplier": bundle["late"],
+            "blank_surface_guard": bool(bundle["guard"]),
+            "strength_cap": bundle["cap"],
+            "shape_pull": bundle["shape"],
+            "global_pull": bundle["global"],
+            "layer_pull": list(bundle["layers"]),
+        }
+
     def build(self, **kwargs):
         purpose = kwargs.get("Use image for", "manual tuning")
         manual_target = kwargs.get("Manual mode borrows", "overall image")
         prep = kwargs.get("Prepare image by", "use image as-is")
         recipe_key = self._map_label(self.PURPOSE_LABELS, purpose)
+        custom_recipe = None
 
         if recipe_key in self.QUICK_RECIPES:
             settings = _V9Resolution._recipe_settings(recipe_key)
+        elif purpose not in self.PURPOSE_LABELS and (custom_recipe := self._custom_recipes().get(purpose)) is not None:
+            settings = self._custom_recipe_settings(purpose, custom_recipe)
+        elif purpose not in self.PURPOSE_LABELS:
+            # A saved workflow references a custom recipe whose file was
+            # removed or renamed: fall back to balanced rather than silently
+            # reading the manual rows.
+            custom_recipes.warn_missing(purpose)
+            settings = _V9Resolution._recipe_settings("balanced")
         else:
             settings = _V9Resolution._manual_settings(kwargs, manual_target, prep)
             # Manual-only layer dials scale the role's per-layer gain table.
@@ -178,6 +231,8 @@ class KGKrea2ImageGuideCardV10:
             "resolved_timing": timing,
             "structure_layers_pull": kwargs.get("Structure layers pull", 1.0),
             "finish_layers_pull": kwargs.get("Finish layers pull", 1.0),
+            "custom_recipe": custom_recipe is not None,
+            "custom_recipe_source": custom_recipe.get("source") if custom_recipe else None,
             # Shared packet keys keep the guide card easy to inspect in tests
             # and future stack nodes.
             "preset": "manual",

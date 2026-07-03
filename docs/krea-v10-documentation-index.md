@@ -47,6 +47,9 @@ Krea 2 ComfyUI as part of the V10 release checklist and will land under
 
 - The four previously manual-only jobs (palette, background/setting, camera
   framing, mood board) are now one-click quick recipes.
+- You can write your own recipes: schema-validated YAML/JSON files in
+  [custom_recipes/](../custom_recipes/README.md) become first-class
+  `Use image for` choices, no code required.
 - `Guide direction` turns any card into a counter-example: not this style,
   not this palette, not this subject.
 - `When this card guides` gives every card its own timing without touching
@@ -76,7 +79,8 @@ positive - a written prompt or a toward card - that says what you do want.
 
 ## Maintainer Source Touchpoints
 
-- [kg_krea_v10/](../kg_krea_v10) (node classes in `guide_card.py` and `encoder.py`; V10 tables in `recipes.py` and `prompts.py`; the study cache, report builder, and contact sheet in `cache.py`, `report.py`, and `preview.py`; V9 locating shim in `_v9.py`)
+- [kg_krea_v10/](../kg_krea_v10) (node classes in `guide_card.py` and `encoder.py`; V10 tables in `recipes.py` and `prompts.py`; the user-recipe loader in `custom_recipes.py`; the study cache, report builder, and contact sheet in `cache.py`, `report.py`, and `preview.py`; V9 locating shim in `_v9.py`)
+- [custom_recipes/](../custom_recipes) (user recipe drop folder: README, schema, and the shipped template)
 - [kg_krea_v9/](../kg_krea_v9) (shared math and host adapters, unchanged)
 - [__init__.py](../__init__.py)
 - [web/krea_reference_stack_v9_ui.js](../web/krea_reference_stack_v9_ui.js) (covers both versions)
