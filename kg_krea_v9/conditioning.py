@@ -45,6 +45,12 @@ def conditioning_delta(conditioning, muted_conditioning):
         if cond.shape != muted_cond.shape:
             raise RuntimeError("Krea delta expected matching conditioning shapes but got {} and {}".format(cond.shape, muted_cond.shape))
 
+        # Pooled ("global") delta only exists when the text encoder emits a
+        # pooled_output. Krea 2's Qwen3-VL encoder does NOT, so on that model
+        # pooled_delta stays empty and the recipe "global" pull is inert - every
+        # appearance effect must ride the token path above. (Render-verified;
+        # see recipes.py ROLE_PULL_DEFAULTS note.) On CLIP-style encoders that
+        # do emit a pooled vector, this carries the pooled delta as designed.
         pooled_delta = {}
         full_pooled = pooled.get("pooled_output", None)
         muted_pooled_output = muted_pooled.get("pooled_output", None)

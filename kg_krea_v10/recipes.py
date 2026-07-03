@@ -40,7 +40,13 @@ QUICK_RECIPES.update({
         "late": 0.9,
         "guard": False,
         "cap": 0.9,
-        "shape": 0.05,
+        # Render-tuned 2026-07-03: shape 0.05 -> 0.7. On Krea 2 "global" is inert
+        # (no pooled_output), so the old low-shape/high-global palette recipe
+        # transferred nothing at any strength. With palette-wash prep, a live
+        # shape borrows the reference palette as a color field (subtle at low
+        # card strength, clear by ~0.65) while keeping the subject. Validated on
+        # a geometric and a natural reference; see the recipe-retune record.
+        "shape": 0.7,
         "global": 1.8,
         "layers": PALETTE_LAYER_PULL,
     },

@@ -8,11 +8,21 @@ without importing each other.
 """
 
 # Baseline shape/global pull per resolved role. "shape" scales the token-level
-# delta (layout/structure), "global" scales the pooled delta (overall style).
+# delta (layout/structure); "global" scales the pooled delta (overall style).
+#
+# IMPORTANT (render-verified 2026-07-03): on Krea 2 the text encoder emits no
+# usable pooled_output, so the "global" axis is a silent no-op (compose only
+# adds the pooled delta when it is a tensor). ALL appearance transfer therefore
+# flows through the token path (strength x shape x layers). Appearance recipes
+# must carry their effect on "shape" with structure-destroying image prep
+# (palette wash / strong blur); a near-zero shape leaning on "global" transfers
+# nothing regardless of card strength. Do not "fix" a weak appearance recipe by
+# raising global - raise shape. See docs/deepstack-layers + the recipe-retune
+# record for the sweep.
 ROLE_PULL_DEFAULTS = {
     "balanced": {"shape": 1.0, "global": 1.0},
-    "style": {"shape": 0.18, "global": 1.35},
-    "palette": {"shape": 0.04, "global": 1.75},
+    "style": {"shape": 0.8, "global": 1.35},
+    "palette": {"shape": 0.7, "global": 1.75},
     "composition": {"shape": 1.25, "global": 0.35},
     "framing": {"shape": 0.9, "global": 0.25},
     "identity": {"shape": 1.0, "global": 1.0},
@@ -29,6 +39,9 @@ ROLE_PULL_DEFAULTS = {
 # palette/finish response in internal empirical sweeps; early layers stay
 # low so style cards do not drag subject structure along. The stack
 # encoder soft-caps the effective per-layer scale (MAX_LAYER_SCALE).
+# Note: render-validation showed the layer *shape* is second-order at whisper
+# strengths - the first-order appearance lever is the recipe's "shape" pull
+# (token-path scale) under structure-destroying prep, not this table.
 EVEN_LAYER_PULL = [1.0] * 12
 STYLE_LAYER_PULL = [0.25, 0.35, 0.45, 0.6, 0.8, 1.0, 1.0, 2.5, 5.0, 1.1, 4.0, 1.2]
 PALETTE_LAYER_PULL = [0.15, 0.2, 0.3, 0.45, 0.7, 1.0, 1.0, 2.8, 5.5, 1.3, 4.5, 1.2]
@@ -120,15 +133,20 @@ QUICK_RECIPES = {
         "role": "style",
         "treatment": "palette wash",
         "color": 0.85,
-        "detail": 0.05,
-        "study": "384",
+        # Render-tuned 2026-07-03: coarse prep (study 256, detail 0) + a live
+        # "shape" so the borrowed look actually lands at demo strength. The old
+        # shape 0.35 / study 384 leaned on the (inert) global axis and showed
+        # nothing. Structure-safe: palette wash destroys the reference's shape
+        # before encoding, so raising shape borrows the palette, not the subject.
+        "detail": 0.0,
+        "study": "256",
         "framing": "stack",
         "subject": "avoid",
         "early": 0.85,
         "late": 0.85,
         "guard": False,
         "cap": 0.9,
-        "shape": 0.35,
+        "shape": 0.8,
         "global": 1.85,
         "layers": STYLE_LAYER_PULL,
     },
