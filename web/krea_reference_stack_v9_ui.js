@@ -1,4 +1,4 @@
-// ComfyUI frontend extension for the KG Krea 2 V9 nodes.
+// ComfyUI frontend extension for the KG Krea 2 V9 and V10 nodes.
 //
 // Stack encoder: keeps the reference-card inputs compact while the backend
 // still validates up to 12 cards.
@@ -18,7 +18,28 @@ const STACK_NODES = {
     inputPattern: /^Reference \d+ guide card$/,
     inputName: (i) => `Reference ${i} guide card`,
   },
+  KGTextEncodeKreaImageReferencesV10: {
+    marker: "__kgKreaV10StackUi",
+    patched: "__kgKreaV10StackPatched",
+    inputPattern: /^Reference \d+ guide card$/,
+    inputName: (i) => `Reference ${i} guide card`,
+  },
 };
+
+const V9_MANUAL_ONLY_WIDGETS = [
+  "Manual mode borrows",
+  "Prepare image by",
+  "Color kept",
+  "Small details kept",
+  "Study this image at",
+  "Frame this reference by",
+  "Subject copying",
+  "Early layout guidance",
+  "Final detail copying",
+  "Maximum image pull",
+  "Shape copied",
+  "Overall style reach",
+];
 
 const GUIDE_CARD_NODES = {
   KGKrea2ImageGuideCardV9: {
@@ -26,19 +47,19 @@ const GUIDE_CARD_NODES = {
     patched: "__kgKreaV9CardPatched",
     purposeWidget: "Use image for",
     manualValue: "manual tuning",
+    manualOnlyWidgets: V9_MANUAL_ONLY_WIDGETS,
+  },
+  KGKrea2ImageGuideCardV10: {
+    marker: "__kgKreaV10CardUi",
+    patched: "__kgKreaV10CardPatched",
+    purposeWidget: "Use image for",
+    manualValue: "manual tuning",
+    // The V10 layer dials are manual-only rows; direction and timing apply
+    // to every purpose, so they stay enabled.
     manualOnlyWidgets: [
-      "Manual mode borrows",
-      "Prepare image by",
-      "Color kept",
-      "Small details kept",
-      "Study this image at",
-      "Frame this reference by",
-      "Subject copying",
-      "Early layout guidance",
-      "Final detail copying",
-      "Maximum image pull",
-      "Shape copied",
-      "Overall style reach",
+      ...V9_MANUAL_ONLY_WIDGETS,
+      "Structure layers pull",
+      "Finish layers pull",
     ],
   },
 };

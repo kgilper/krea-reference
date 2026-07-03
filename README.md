@@ -52,9 +52,30 @@ text/logo copying.
 | --- | --- |
 | `KG Krea 2 Image Guide Card V9` | Describes one reference image. Choose a recipe or use manual tuning. |
 | `KG Krea 2 Reference Stack Encoder V9` | Combines the final prompt and up to 12 guide cards into Krea conditioning. |
+| `KG Krea 2 Image Guide Card V10` | The V9 card plus four more recipes, guide direction, per-card timing, and layer dials. |
+| `KG Krea 2 Reference Stack Encoder V10` | The V9 stack plus balance, study reuse, a stack report, and a prepared-reference preview. |
 
 The nodes expose plain-language controls for prompt strength, image strength
 feel, image detail level, framing, timing, and text/logo guard behavior.
+
+## What V10 Adds
+
+V10 extends the same architecture without touching V9; the two versions
+cross-connect, and saved V9 workflows keep working unchanged.
+
+| V10 control | What it does |
+| --- | --- |
+| Four more quick recipes | `suggest the color palette`, `use the background/setting`, `copy the camera framing`, and `mood board only` - jobs that previously required manual tuning. |
+| `Guide direction` | A card can steer *away* from its image: a counter-example for a palette, composition, subject, or style you do not want. |
+| `When this card guides` | Per-card timing: whole image, early layout only, or final details only. |
+| `Structure/Finish layers pull` | Manual-mode dials over the structure-vs-finish conditioning layers. |
+| `Balance strong cards` | Keeps several simultaneously hot cards from fighting by budgeting their total departure. |
+| `Reuse image studies` | Caches image studies by content, so strength and timing tweaks re-run without any encoder passes. |
+| `stack_report` output | A plain-language account of what every card requested, what it got, and why. |
+| `prepared_references` output | A contact sheet of exactly what the vision encoder studied after treatments. |
+
+Per-node details: [V10 guide card](docs/nodes/kg-krea-2-image-guide-card-v10.md)
+and [V10 stack encoder](docs/nodes/kg-krea-2-reference-stack-encoder-v10.md).
 
 ## Install
 
@@ -147,7 +168,7 @@ The contract tests run without launching ComfyUI:
 
 ```bash
 python -m unittest discover -s tests -p "test_*.py" -v
-python -m compileall -q kg_krea_v9 __init__.py
+python -m compileall -q kg_krea_v9 kg_krea_v10 __init__.py
 ```
 
 ## License

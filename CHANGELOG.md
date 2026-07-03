@@ -1,5 +1,19 @@
 # Changelog
 
+## Unreleased - Krea 2 V10 Nodes
+
+- Added `KG Krea 2 Image Guide Card V10` and `KG Krea 2 Reference Stack Encoder V10` (`kg_krea_v10/`). The V9 nodes are untouched and both versions cross-connect: packets stay V9-compatible in both directions.
+- Card: four new quick recipes for the previously manual-only roles (`suggest the color palette`, `use the background/setting`, `copy the camera framing`, `mood board only`).
+- Card: `Guide direction` - a card can steer the result *away* from its image (counter-example guidance via negative delta targets, with symmetric per-layer clamping).
+- Card: `When this card guides` - per-card timing (`whole image`, `early layout only`, `final details only`) on top of the stack schedule.
+- Card: manual-only `Structure layers pull` / `Finish layers pull` dials over the deepstack gain table.
+- Stack: `Balance strong cards` - an optional per-phase budget on summed departure from neutral, so several hot cards degrade gracefully instead of fighting.
+- Stack: `Reuse image studies` - a content-keyed cache of the base encode and ingredient deltas; re-runs that change only strengths, direction, timing, or balance skip every encoder pass.
+- Stack: two new outputs - `stack_report` (plain-language account of caps, curves, guard actions, balance, timing, and encoder pass counts) and `prepared_references` (contact sheet of exactly what the vision encoder studied).
+- Text/logo guard: the full guard's prompt rewriter now also understands common marking words in Spanish, French, German, Portuguese, and Italian.
+- Web extension: the compact card sockets and manual-row greying now cover the V10 nodes (the V10 layer dials grey out outside manual tuning).
+- Contract tests: `tests/test_krea_v10.py` pins the V10 label surface, packet compatibility, direction/timing/balance math, cache behavior, and the multilingual guard vocabulary.
+
 ## 0.1.6 - Runnable Example Workflows
 
 - Pointed the starter reference-stack and no-prompt style-transfer workflows' Load Image nodes at the bundled example assets, so all three example workflows run out of the box after copying `example_assets/krea-reference-examples/` into the ComfyUI input folder.
