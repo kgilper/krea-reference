@@ -18,11 +18,15 @@ Usage:
   python generate_sweep.py --server http://HOST:PORT # render on a V10 box
   python generate_sweep.py --gains 2 4 6             # multi-level (default: 4)
 
-Outputs (under docs/deepstack-layers/sweep_out/):
+Outputs (locally, under docs/deepstack-layers/sweep_out/):
   recipes/chunk-NN-gainG.yaml   one custom recipe per spike
   grids/<ref>__chunk-NN-gainG.png   rendered result (when a server is given)
   grids/<ref>__control.png          the all-ones baseline
   sweep-manifest.json               every cell: ref, chunk, gain, seed, file
+
+On the render box, SaveImage writes under the dedicated Claude output
+folder (output/claude-generations/krea-deepstack-sweep/); this tool only
+downloads back the images it just generated and never opens any other.
 """
 
 import argparse
@@ -154,7 +158,7 @@ def build_api_graph(recipe_label, recipe_bundle, reference_image):
             "positive": ["pos", 0], "negative": ["neg", 0], "latent_image": ["latent", 0]}},
         "decode": {"class_type": "VAEDecode", "inputs": {"samples": ["sampler", 0], "vae": ["vae", 0]}},
         "save": {"class_type": "SaveImage", "inputs": {"images": ["decode", 0],
-                 "filename_prefix": "krea_deepstack_sweep/tmp"}},
+                 "filename_prefix": "claude-generations/krea-deepstack-sweep/spike"}},
     }
 
 
