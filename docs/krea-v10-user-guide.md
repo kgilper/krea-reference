@@ -269,6 +269,28 @@ layers: [0.25, 0.35, 0.45, 0.6, 0.8, 1.0, 1.0, 2.5, 5.0, 1.1, 4.0, 1.2]
 The same recipe as JSON is the same mapping with JSON syntax - both formats
 are equivalent.
 
+### Deriving the `layers` array
+
+`layers` is the only field without an obvious hand-set value. The 12
+positions are Krea 2's deepstack conditioning bands, mapped by the V9
+empirical sweeps: positions `0`-`4` carry layout and subject structure,
+`5`-`6` are a neutral transition, and the finish/palette response
+concentrates at `8` (strongest), `10`, then `7`, with `9` and `11` mild.
+
+Omit `layers` to use your role's tuned table - the right default. To derive
+your own: start from the closest family table, scale the front half (`0`-`5`)
+by how much structure should arrive, scale the back half (`6`-`11`) by how
+strongly the finish should arrive, and keep the spike ordering
+(`8` > `10` > `7`). Each entry lands as
+`clamp(effective strength x shape x gain, -6, +6)` on the token channel, so
+gains trade off against your `shape` value - and the `global` field carries
+the overall look independently of all twelve numbers.
+
+The family tables, the full chunk map, the math, a copy-paste derivation
+snippet (the same scaling the card's manual Structure/Finish dials apply),
+and a worked example live in
+[custom_recipes/README.md](../custom_recipes/README.md#deriving-the-layers-array).
+
 ### How validation behaves
 
 - **Strict about keys.** An unknown key (say, `colour`) rejects the recipe

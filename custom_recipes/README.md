@@ -48,6 +48,85 @@ Required: `label`, `role`. Unknown keys are rejected (typo protection).
 | `global` | no | `0.0` to `4.0` - overall look/style pull | role default |
 | `layers` | no | list of exactly 12 numbers (`0.0` to `8.0`) - per-layer conditioning gains | role table |
 
+## Deriving The `layers` Array
+
+`layers` is the only field with no obvious hand-set value, so here is exactly
+how the numbers work and how to derive your own.
+
+### What the 12 positions mean
+
+Krea 2's conditioning splits into 12 equal "deepstack" chunks, one per list
+position. The V9 empirical sweeps (single-chunk spike renders, documented in
+the [technical paper section 16.4](../docs/krea-v9-technical-paper.md#164-re-tune-layer-gains-for-a-new-checkpoint))
+mapped what each band carries:
+
+| Positions | Carry | Family tables put here |
+| --- | --- | --- |
+| `0`-`4` | Layout, subject structure, spatial composition | Ramp `0.15` to `0.85` (suppressed) for look-borrowing; `1.0` for structure jobs |
+| `5`-`6` | Transition | `1.0` |
+| `7` | First finish band (palette/surface response) | `2.0`-`2.8` |
+| `8` | **Strongest** palette/finish band | `4.0`-`5.5` |
+| `9` | Mild | `1.1`-`1.4` |
+| `10` | Second-strongest finish band | `3.0`-`4.5` |
+| `11` | Mild | `1.1`-`1.2` |
+
+### The built-in family tables (your starting points)
+
+```yaml
+even:      [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]      # balanced, identity, composition, framing, shape only
+style:     [0.25, 0.35, 0.45, 0.6, 0.8, 1.0, 1.0, 2.5, 5.0, 1.1, 4.0, 1.2]   # style, environment, loose
+palette:   [0.15, 0.2, 0.3, 0.45, 0.7, 1.0, 1.0, 2.8, 5.5, 1.3, 4.5, 1.2]    # palette
+material:  [0.2, 0.3, 0.45, 0.65, 0.85, 1.0, 1.0, 2.0, 4.0, 1.2, 3.0, 1.1]   # material
+lighting:  [0.2, 0.25, 0.35, 0.5, 0.8, 1.0, 1.0, 2.2, 4.5, 1.4, 4.0, 1.2]    # lighting
+guard:     [0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15]  # text/logo safe
+```
+
+Omitting `layers` uses your `role`'s table - the right default for most
+recipes.
+
+### How a gain actually lands (the math)
+
+Each position's effective scale is
+`clamp(strength_after_feel_curve x shape x gain, -6, +6)` - the gains
+multiply the card's **token-channel** target per band, and the encoder
+soft-caps the product at 6. Two consequences:
+
+1. **Gains and `shape` trade off.** Look-borrowing recipes run low `shape`
+   (`0.05`-`0.35`) so structure stays suppressed everywhere, and the spikes
+   at 7/8/10 restore just the finish bands. A spike of `5.0` on a
+   `shape 0.3` card at effective strength `0.5` lands at
+   `0.5 x 0.3 x 5.0 = 0.75` - still below native, just *least* suppressed.
+2. **`layers` never touches the overall look channel.** The `global` field
+   (pooled channel) carries palette/atmosphere independently; if your recipe
+   is "pure look, zero structure", low `shape` + high `global` matters more
+   than fine layer tuning.
+
+### Derivation procedure
+
+1. Start from the family table that matches the recipe's *intent* (not
+   necessarily its role).
+2. Scale positions `0`-`5` by how much layout/structure should arrive
+   (`x0.3` to suppress harder, `x1.2`-`x1.5` for structure jobs).
+3. Scale positions `6`-`11` by how strongly the finish should arrive; keep
+   the spike ordering (`8` > `10` > `7` >> `9`,`11`).
+4. Stay within `0.0`-`8.0` per entry (schema limit) and remember effective
+   scale caps at 6 regardless.
+
+Copy-paste helper (same math as the card's manual Structure/Finish dials):
+
+```python
+STYLE = [0.25, 0.35, 0.45, 0.6, 0.8, 1.0, 1.0, 2.5, 5.0, 1.1, 4.0, 1.2]
+structure, finish = 0.6, 1.2   # your emphasis choices
+layers = [round(min(g * (structure if i < 6 else finish), 8.0), 3)
+          for i, g in enumerate(STYLE)]
+print(layers)
+```
+
+Worked example - "watercolor paper texture, absolutely no layout influence":
+start from `material`, halve structure, keep finish:
+`[0.1, 0.15, 0.225, 0.325, 0.425, 0.5, 1.0, 2.0, 4.0, 1.2, 3.0, 1.1]`
+with `shape: 0.15`, `global: 1.4`, `treatment: strong blur`, `detail: 0.05`.
+
 ## Validation
 
 Every file is validated on load. Invalid recipes are skipped with a warning

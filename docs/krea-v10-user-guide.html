@@ -532,6 +532,23 @@ layers: [0.25, 0.35, 0.45, 0.6, 0.8,
         <tr><td><code>layers</code></td><td>Exactly 12 numbers, 0.0-8.0: per-layer gains.</td><td>role table</td></tr>
         <tr><td><code>description</code></td><td>Free text for humans reading the file.</td><td>empty</td></tr>
       </table>
+      <h3 style="margin-top: 18px;">Deriving the <code>layers</code> array</h3>
+      <p class="small">
+        The 12 positions are Krea 2's deepstack bands: <code>0</code>-<code>4</code>
+        carry layout and subject structure, <code>5</code>-<code>6</code> are
+        neutral, and finish/palette response concentrates at <code>8</code>
+        (strongest), <code>10</code>, then <code>7</code>. Omit
+        <code>layers</code> to use your role's tuned table. To derive your
+        own: start from the closest family table, scale positions
+        <code>0</code>-<code>5</code> by how much structure should arrive and
+        <code>6</code>-<code>11</code> by how strongly the finish should,
+        keeping the spike ordering. Each entry lands as
+        <code>clamp(strength &times; shape &times; gain, -6, +6)</code> on the
+        token channel, so gains trade off against <code>shape</code> - and
+        <code>global</code> carries the overall look independently. Family
+        tables, the full chunk map, a copy-paste derivation snippet, and a
+        worked example: <code>custom_recipes/README.md</code>.
+      </p>
       <div class="callout" style="margin-top: 16px;">
         <strong>Validation is strict about keys, forgiving about omissions.</strong>
         An unknown key (say, <code>colour</code>) rejects the recipe with a
