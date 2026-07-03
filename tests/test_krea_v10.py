@@ -691,6 +691,21 @@ class KreaV10CustomRecipeTests(unittest.TestCase):
         self.assertEqual(recipes_map, {})
         self.assertEqual(errors, [])
 
+    @unittest.skipUnless(__import__("importlib.util", fromlist=["util"]).find_spec("yaml"), "PyYAML not installed")
+    def test_shipped_starter_pack_loads_cleanly(self):
+        shipped = Path(__file__).resolve().parents[1] / "custom_recipes" / "starter-pack.yaml"
+        self.assertTrue(shipped.is_file(), "starter-pack.yaml must ship with the pack")
+        reserved = frozenset(set(self.card_cls.PURPOSE_LABELS) | set(self.card_cls.QUICK_RECIPES))
+        loaded, errors = self.custom.load_recipe_file(shipped, reserved)
+        self.assertEqual(errors, [])
+        self.assertEqual(
+            sorted(loaded),
+            ["borrow the clothing style", "borrow the weather", "cinematic color grade"],
+        )
+        # Every starter recipe demonstrates the focus field.
+        for label, bundle in loaded.items():
+            self.assertTrue(bundle.get("focus"), "{} should carry a focus".format(label))
+
     def test_missing_custom_label_falls_back_to_balanced(self):
         card = self._build("ghost recipe that no longer exists")
         self.assertFalse(card["custom_recipe"])

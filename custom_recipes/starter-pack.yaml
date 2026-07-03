@@ -1,0 +1,75 @@
+# Starter recipes - loaded automatically (no leading underscore).
+#
+# Three ready-to-use custom recipes that showcase what recipe files can do,
+# including the `focus` field (telling the encoder WHICH aspect of the
+# reference to study). Every value here was render-validated on Krea 2;
+# delete this file (or prefix it with "_") if you don't want them in your
+# "Use image for" dropdown.
+#
+# How to read them / make your own: README.md in this folder, or open the
+# Recipe Builder (web/recipe-builder.html).
+
+recipes:
+  - label: borrow the weather
+    description: >-
+      Bring a reference's weather over - storm, fog, golden haze - onto your
+      own scene. Strong blur + a low detail keep the reference's objects
+      (poles, buildings, people) out while the sky and atmosphere arrive.
+      Lands clearly from strength ~0.7; try 0.85 for full drama.
+    role: lighting
+    treatment: strong blur
+    color: 1.0
+    detail: 0.15
+    study: "256"
+    framing: stack
+    subject: avoid
+    early: 1.0
+    late: 0.8
+    guard: false
+    cap: 1.1
+    shape: 0.75
+    global: 1.3
+    focus: the weather, sky condition, and overall atmosphere
+
+  - label: borrow the clothing style
+    description: >-
+      Study the outfit, not the person: the garment's cut, color, and styling
+      travel onto your prompt's subject while the wearer's identity and the
+      reference's background stay behind. The focus line does the semantic
+      separation - flip it to "the background environment only, not the
+      person or their clothing" for the exact inverse. Start near 0.75.
+    role: balanced
+    treatment: normal
+    color: 1.0
+    detail: 0.7
+    study: "384"
+    framing: stack
+    subject: avoid
+    early: 1.0
+    late: 1.0
+    guard: false
+    cap: 1.1
+    shape: 0.8
+    global: 1.0
+    focus: the clothing and garment style worn by the person, not the person's identity, face, or the background
+
+  - label: cinematic color grade
+    description: >-
+      A bolder sibling of "suggest the color palette": pulls the reference's
+      grade - tint, contrast mood, tonal temperature - over the whole frame
+      like a film LUT, subject untouched. Clear from ~0.6; capped at 1.2 so
+      it can push harder than the built-in palette recipe when asked.
+    role: palette
+    treatment: palette wash
+    color: 1.0
+    detail: 0.0
+    study: "256"
+    framing: stack
+    subject: avoid
+    early: 0.9
+    late: 0.9
+    guard: false
+    cap: 1.2
+    shape: 0.75
+    global: 1.75
+    focus: the color grading and tonal mood

@@ -133,6 +133,15 @@
       <p class="hint">Pick the one job this recipe is for. The right preparation, safety policy, and tuning follow automatically.</p>
       <div class="tiles" id="tiles"></div>
       <div class="honesty" id="honesty"></div>
+      <label class="field" for="focus">Focus on one aspect <span style="opacity:.6">(optional)</span></label>
+      <input type="text" id="focus" maxlength="300" autocomplete="off"
+             placeholder='e.g. "the clothing and garment style, not the person" or "the weather and sky"'>
+      <div class="filehint">
+        Names WHAT the encoder studies from the image. Naming what to skip
+        works too ("&hellip;not the person or the background"). Strongest on
+        object-bound aspects like clothing; broad moods like weather mostly
+        ride the image itself.
+      </div>
     </div>
 
     <div class="card" id="loudcard">
@@ -338,6 +347,11 @@ function buildRecipe(opts) {
       ? round2(clamp(parseFloat(opts.capOverride), 0, 3)) : loud.cap,
     shape: loud.shape, global: b.global
   };
+  // Optional semantic focus: what the encoder should study from the image
+  // ("the clothing and garment style, not the person"). Whitespace-normalized
+  // and length-capped to match the node's schema.
+  var focus = (opts.focus || "").split(/\s+/).join(" ").trim();
+  if (focus) r.focus = focus.slice(0, 300);
   var sm = opts.emphStruct === undefined ? 1.0 : opts.emphStruct;
   var fm = opts.emphFinish === undefined ? 1.0 : opts.emphFinish;
   if (sm !== 1.0 || fm !== 1.0) r.layers = applyEmphasis(b.table, sm, fm);
@@ -379,6 +393,7 @@ function toYaml(r) {
   if (r.cap !== null && r.cap !== undefined) lines.push("cap: " + r.cap);
   lines.push("shape: " + r.shape);
   lines.push("global: " + r.global + "   # no effect on Krea 2; kept for other models");
+  if (r.focus) lines.push("focus: " + yamlQuote(r.focus));
   if (r.layers) lines.push("layers: [" + r.layers.join(", ") + "]");
   return lines.join("\n") + "\n";
 }
@@ -392,6 +407,7 @@ function toJson(r) {
   if (r.guard) o.guard = true;
   if (r.cap !== null && r.cap !== undefined) o.cap = r.cap;
   o.shape = r.shape; o["global"] = r.global;
+  if (r.focus) o.focus = r.focus;
   if (r.layers) o.layers = r.layers;
   return JSON.stringify(o, null, 2) + "\n";
 }
@@ -430,7 +446,7 @@ if (typeof module !== "undefined" && module.exports) {
     segEl.appendChild(b);
   });
 
-  ["label", "desc", "capOverride"].forEach(function (id) { $(id).addEventListener("input", render); });
+  ["label", "desc", "capOverride", "focus"].forEach(function (id) { $(id).addEventListener("input", render); });
   $("subjectallow").addEventListener("change", render);
   [["emphStruct", "emphStructOut"], ["emphFinish", "emphFinishOut"]].forEach(function (pair) {
     $(pair[0]).addEventListener("input", function () {
@@ -447,6 +463,7 @@ if (typeof module !== "undefined" && module.exports) {
       description: $("desc").value.trim(),
       intent: state.intent,
       loudness: state.loudness,
+      focus: $("focus").value,
       subjectAllow: $("subjectallow").checked,
       emphStruct: parseFloat($("emphStruct").value),
       emphFinish: parseFloat($("emphFinish").value),
