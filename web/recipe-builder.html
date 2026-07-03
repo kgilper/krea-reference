@@ -204,6 +204,12 @@
         <li>In ComfyUI, refresh node definitions (or restart).</li>
         <li>Your recipe now appears in <code>Use image for</code> on the V10 guide card.</li>
       </ol>
+      <p class="testbox" style="margin: 10px 0 0;">
+        Working examples to compare against ship in
+        <code>custom_recipes/starter-pack.yaml</code>: <em>borrow the
+        weather</em>, <em>borrow the clothing style</em> (a focus recipe),
+        and <em>cinematic color grade</em>.
+      </p>
     </div>
     <div class="card testbox">
       <b>Two-minute check</b> &mdash; fix a seed and render at card strength
@@ -293,14 +299,18 @@ var LOUDNESS = [
   { id: "bold", title: "Bold", blurb: "Unmistakable, still subject-safe." }
 ];
 
-// Labels reserved by the node (built-in dropdown labels + internal recipe keys).
+// Labels reserved by the node (built-in dropdown labels + internal recipe
+// keys), plus the shipped starter-pack labels (custom_recipes/starter-pack.yaml
+// loads them automatically, and across recipe files the first definition of a
+// label wins - so a new file reusing one would silently lose).
 var RESERVED = [
   "manual tuning", "balanced", "keep the same subject", "copy pose and layout",
   "copy lighting and mood", "suggest the visual style", "suggest material or texture",
   "copy big shapes only", "avoid copying text/logos", "suggest the color palette",
   "use the background/setting", "copy the camera framing", "mood board only",
   "identity", "composition", "lighting", "style gentle", "texture gentle",
-  "shape only", "text/logo safe", "palette only", "environment", "framing", "mood board"
+  "shape only", "text/logo safe", "palette only", "environment", "framing", "mood board",
+  "borrow the weather", "borrow the clothing style", "cinematic color grade"
 ];
 
 function round2(x) { return Math.round(x * 100) / 100; }
