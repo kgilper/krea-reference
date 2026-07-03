@@ -91,10 +91,12 @@ it as such.
 
 ## 4. How to derive the values reliably (the methodology + harness)
 
-Nobody has yet *measured*, on Krea 2, what each tap does. The reliable way to
-do it - and to re-derive the tables for any future checkpoint - is a four-stage
-pipeline, from cheapest/most-targeted to definitive. Stages 0-1 are built and
-run/validated here today; Stages 2-3 need renders on a V10 box.
+Deriving these reliably - and re-deriving them for any future checkpoint - is a
+four-stage pipeline, from cheapest/most-targeted to definitive. Stages 0-1 are
+built and have been run (Stage 1 once, see its result below); Stages 2-3 add
+render-based validation and optimization on a V10 box. This replaces the way
+the shipped values were actually set (borrow a template + eyeball), which
+Stages 0-1 show does not match how the model behaves.
 
 ### Stage 0 - the model's own prior (free, no rendering) - DONE
 
@@ -116,15 +118,12 @@ motivation to re-derive. (Caveat: the projector weights *processed* taps while
 the node's gains hit the *raw* delta, so this is a prior/smell-test, not ground
 truth.) Prior values: [model_prior.json](model_prior.json).
 
-### Stage 1 - representational selectivity (cheap, no rendering) - HARNESS READY
+### Stage 1 - representational selectivity (cheap, no rendering) - RUN ONCE
 
 Measure, at the conditioning level, what each tap encodes. Build a *controlled*
-reference set (vary one attribute at a time - a palette series with fixed
-subject, a structure series with fixed palette, etc.), encode each through a
-neutral V10 card, capture the per-tap signature with the probe node, and
-decompose variance: `eta2(tap, attribute)` = how much of a tap's contribution
-is explained by each attribute. High palette-eta2 + low structure-eta2 = a
-palette tap.
+reference set (vary one attribute at a time), encode each through a neutral V10
+card, capture the per-tap signature with the probe node, and decompose the
+variance per tap per attribute.
 
 ```bash
 python docs/deepstack-layers/probe_selectivity.py --selftest              # validate the math (passes)
@@ -133,10 +132,31 @@ python docs/deepstack-layers/generate_probe_graphs.py --dry-run           # buil
 python docs/deepstack-layers/probe_selectivity.py --probes <dir> --manifest probe_out/probe-manifest.json
 ```
 
-The selectivity math is validated (the self-test recovers an injected
-tap->attribute map exactly). Running it for real needs: the V10 nodes + the
-[probe node](probe_node/) installed on a ComfyUI box, and a controlled
-reference set (see below). It renders **nothing** - text-encoder passes only.
+**First measurement (2026-07-03, on the Krea 2 turbo model).** A 9-image
+controlled set (structure/texture varied by generation, palette/lighting by PIL
+transform) was encoded and the per-tap contribution deltas measured.
+
+- **Mechanism confirmed live:** the probe reported feature width **30720**,
+  divisible by 12, `tap_dim` 2560 - exactly the 12-tap stack; the split engages.
+  Tap magnitude rises with depth (tap 0 ~29 -> tap 11 ~293).
+- **No strong per-tap specialization.** After removing the depth-magnitude
+  confound, every tap carries essentially the *same* attribute mix (proportion
+  palette 0.20 / structure 0.33 / texture 0.35 / lighting 0.12) - cross-tap
+  std-dev only ~0.01. The taps differ by overall magnitude (depth), not by
+  which attribute they carry. There is a *faint* gradient in the design
+  direction (deepest tap marginally more palette/appearance, shallowest more
+  structure), but ~10x too weak to justify the tables' 5x per-tap spikes.
+- **Takeaway:** the per-tap tables act more like a depth-weighting than an
+  attribute router - consistent with the projector-misalignment (Stage 0) and
+  the borrowed-heuristic provenance (section 2). The "tap 8 = palette,
+  0-4 = structure" premise is not supported by this measurement.
+
+**Caveats (this is a first pass, not the last word):** the probe signature is
+the *sequence mean*, which can wash out spatially-expressed specialization; the
+near-neutral base weakened the palette axis specifically; one scene/seed. A
+per-token signature, a high-chroma base, magnitude-balanced stimuli, and more
+scenes would make it definitive. Full result + raw data:
+`local_records/2026-07-03-deepstack-layer-determination/stage1-measurement/`.
 
 ### Stage 2 - metric-scored render validation (moderate) - needs a V10 box
 

@@ -78,10 +78,29 @@ def build_graph(label, image):
     }
     if image is not None:
         g["load"] = {"class_type": "LoadImage", "inputs": {"image": image, "upload": "image"}}
+        # The API format requires every required widget; balanced ignores the
+        # manual rows but ComfyUI still validates their presence. Neutral card:
+        # strength 1.0 + literal feel -> stack output is the plain encode.
         g["card"] = {"class_type": "KGKrea2ImageGuideCardV10", "inputs": {
             "Reference image": ["load", 0],
             "How strongly this image guides": 1.0,
             "Use image for": "balanced",
+            "Manual mode borrows": "overall image",
+            "Prepare image by": "use image as-is",
+            "Color kept": 1.0,
+            "Small details kept": 1.0,
+            "Study this image at": "use stack setting",
+            "Frame this reference by": "use stack setting",
+            "Subject copying": "recipe decides",
+            "Early layout guidance": 1.0,
+            "Final detail copying": 1.0,
+            "Maximum image pull": 3.0,
+            "Shape copied": 1.0,
+            "Overall style reach": 1.0,
+            "Guide direction": "toward this image",
+            "When this card guides": "recipe decides",
+            "Structure layers pull": 1.0,
+            "Finish layers pull": 1.0,
         }}
     return g
 
