@@ -144,6 +144,9 @@ class KGKrea2ImageGuideCardV10:
             "shape_pull": bundle["shape"],
             "global_pull": bundle["global"],
             "layer_pull": list(bundle["layers"]),
+            # Optional semantic focus: what the encoder should study from
+            # this image ("the clothing and garment style only", ...).
+            "focus": bundle.get("focus", ""),
         }
 
     def build(self, **kwargs):
@@ -233,6 +236,7 @@ class KGKrea2ImageGuideCardV10:
             "finish_layers_pull": kwargs.get("Finish layers pull", 1.0),
             "custom_recipe": custom_recipe is not None,
             "custom_recipe_source": custom_recipe.get("source") if custom_recipe else None,
+            "resolved_focus": str(settings.get("focus", "") or ""),
             # Shared packet keys keep the guide card easy to inspect in tests
             # and future stack nodes.
             "preset": "manual",
@@ -246,5 +250,6 @@ class KGKrea2ImageGuideCardV10:
             "layer_pull": settings["layer_pull"],
             "direction": direction,
             "timing": timing,
+            "focus": str(settings.get("focus", "") or ""),
         }
         return (card,)

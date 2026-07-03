@@ -103,6 +103,9 @@ def _card_line(card, two_phase):
         }
         parts.append("Timing: {}.".format(timing_words.get(card["timing"], card["timing"])))
 
+    if card.get("focus"):
+        parts.append("Focus: {}.".format(card["focus"]))
+
     return " ".join(parts)
 
 

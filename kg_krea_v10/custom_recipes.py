@@ -62,8 +62,12 @@ REQUIRED_KEYS = frozenset(("label", "role"))
 ALLOWED_KEYS = frozenset((
     "label", "description", "role", "treatment", "color", "detail", "study",
     "framing", "subject", "early", "late", "guard", "cap", "shape", "global",
-    "layers",
+    "layers", "focus",
 ))
+
+# `focus` is free text handed to the vision encoder ("study only ... from
+# this image"), so it stays short: one aspect description, not a paragraph.
+FOCUS_MAX_LENGTH = 300
 
 # The pack-local drop folder ships with the package (README + template).
 _PACK_RECIPE_DIR = Path(__file__).resolve().parents[1] / "custom_recipes"
@@ -154,6 +158,16 @@ def validate_recipe(raw, reserved_labels):
     if not isinstance(description, str):
         raise RecipeError("description must be a string")
     bundle["description"] = description.strip()
+
+    focus = raw.get("focus", "")
+    if not isinstance(focus, str):
+        raise RecipeError("focus must be a string (what the encoder should study from this image)")
+    focus = " ".join(focus.split())
+    if len(focus) > FOCUS_MAX_LENGTH:
+        raise RecipeError("focus must be at most {} characters".format(FOCUS_MAX_LENGTH))
+    if focus:
+        bundle["focus"] = focus
+
     bundle["custom"] = True
     return label, bundle
 

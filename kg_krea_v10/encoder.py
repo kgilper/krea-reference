@@ -310,6 +310,9 @@ class KGTextEncodeKreaImageReferencesV10:
                 "shape_pull": max(0.0, float(shape_pull)),
                 "global_pull": max(0.0, float(global_pull)),
                 "layer_pull": [max(0.0, float(value)) for value in list(layer_pull)],
+                # Semantic focus: forwarded to the encoder instruction line
+                # ("study only ..."); empty for V9 cards and focus-less recipes.
+                "focus": str(self._card_value(card, "resolved_focus", "focus", "") or "").strip(),
                 # Report bookkeeping (never read by the conditioning math).
                 "card_index": index,
                 "purpose": card.get("purpose", "hand-built packet"),
@@ -530,6 +533,7 @@ class KGTextEncodeKreaImageReferencesV10:
                 "index": ref["card_index"],
                 "purpose": ref["purpose"],
                 "direction": ref["direction"],
+                "focus": ref.get("focus", ""),
                 "requested": ref["requested_strength"],
                 "packet_strength": ref["packet_strength"],
                 "effective": ref["strength"],

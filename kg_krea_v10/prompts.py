@@ -60,14 +60,21 @@ def role_system_prompt(refs, blank_surface_guard):
         role = ref["role"]
         direction = ref.get("direction", "toward")
         subject_policy = ref.get("subject_policy", "recipe")
+        focus = str(ref.get("focus") or "").strip()
         if blank_surface_guard and role == "text/logo safe":
             lines.append("Input {}: blank panel shape only, smooth empty interior.".format(i))
             continue
         if direction == "away":
             instruction = REPEL_ROLE_INSTRUCTIONS.get(role, REPEL_ROLE_INSTRUCTIONS["balanced"])
             lines.append("Input {} role: {}.".format(i, instruction))
+            if focus:
+                lines.append("Input {} focus: only {} from this image; its other aspects do not apply.".format(i, focus))
             continue
         lines.append("Input {} role: {}.".format(i, ROLE_INSTRUCTIONS.get(role, ROLE_INSTRUCTIONS["balanced"])))
+        if focus:
+            lines.append(
+                "Input {} focus: study only {} from this image; ignore everything else about it.".format(i, focus)
+            )
         policy_text = SUBJECT_POLICY_INSTRUCTIONS.get(subject_policy)
         if policy_text and subject_policy != "recipe":
             lines.append("Input {} subject rule: {}.".format(i, policy_text))

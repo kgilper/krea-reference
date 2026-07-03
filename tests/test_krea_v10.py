@@ -619,6 +619,41 @@ class KreaV10CustomRecipeTests(unittest.TestCase):
         self.assertAlmostEqual(card["resolved_early_multiplier"], 1.0)
         self.assertAlmostEqual(card["resolved_late_multiplier"], 1.0)
 
+    def test_focus_field_validates_and_reaches_the_card_packet(self):
+        recipe = dict(self.FULL_RECIPE)
+        recipe["label"] = "clothing borrower"
+        recipe["focus"] = "  the clothing and garment style,\n   not the person  "
+        self._write("clothing.json", json.dumps(recipe))
+        recipes_map, errors = self._refresh()
+        self.assertEqual(errors, [])
+        # Whitespace is normalized; the bundle carries the focus text.
+        self.assertEqual(
+            recipes_map["clothing borrower"]["focus"],
+            "the clothing and garment style, not the person",
+        )
+        card = self._build("clothing borrower")
+        self.assertEqual(card["resolved_focus"], "the clothing and garment style, not the person")
+        self.assertEqual(card["focus"], "the clothing and garment style, not the person")
+        # Built-in recipes carry an empty focus (key present, no text).
+        builtin = self._build("suggest the visual style")
+        self.assertEqual(builtin["resolved_focus"], "")
+
+    def test_focus_without_text_is_omitted_from_the_bundle(self):
+        self._write("nofocus.json", json.dumps({"label": "plain style", "role": "style", "focus": "   "}))
+        recipes_map, errors = self._refresh()
+        self.assertEqual(errors, [])
+        self.assertNotIn("focus", recipes_map["plain style"])
+
+    def test_focus_rejects_non_string_and_overlong_values(self):
+        self._write("bad-focus-type.json", json.dumps({"label": "bad focus", "role": "style", "focus": 5}))
+        self._write("bad-focus-long.json", json.dumps({
+            "label": "long focus", "role": "style", "focus": "x" * 301}))
+        recipes_map, errors = self._refresh()
+        self.assertEqual(recipes_map, {})
+        joined = "\n".join(errors)
+        self.assertIn("focus must be a string", joined)
+        self.assertIn("focus must be at most 300 characters", joined)
+
     def test_invalid_recipes_are_skipped_with_reasons(self):
         self._write("a-valid.json", json.dumps({"label": "still fine", "role": "style"}))
         self._write("bad-key.json", json.dumps({"label": "typo", "role": "style", "colour": 0.5}))
@@ -680,6 +715,34 @@ class KreaV10PromptTests(unittest.TestCase):
         self.assertIn("Input 1 role: treat as a style counter-example", text)
         self.assertIn("Input 2 role: preserve the main source subject", text)
         self.assertIn("Input 2 subject rule:", text)
+
+    def test_focus_line_appears_in_the_system_prompt(self):
+        refs = [
+            {"role": "style", "subject_policy": "avoid", "direction": "toward",
+             "focus": "the clothing and garment style"},
+            {"role": "lighting", "subject_policy": "avoid", "direction": "toward"},
+        ]
+        text = self.prompts.role_system_prompt(refs, False)
+        self.assertIn(
+            "Input 1 focus: study only the clothing and garment style from this image; "
+            "ignore everything else about it.",
+            text,
+        )
+        # The focus line sits between the role line and the subject rule.
+        self.assertLess(text.index("Input 1 role:"), text.index("Input 1 focus:"))
+        self.assertLess(text.index("Input 1 focus:"), text.index("Input 1 subject rule:"))
+        # A ref without focus gains no focus line.
+        self.assertNotIn("Input 2 focus:", text)
+
+    def test_focus_scopes_away_cards_too(self):
+        refs = [{"role": "style", "subject_policy": "avoid", "direction": "away",
+                 "focus": "the color palette"}]
+        text = self.prompts.role_system_prompt(refs, False)
+        self.assertIn("Input 1 role: treat as a style counter-example", text)
+        self.assertIn(
+            "Input 1 focus: only the color palette from this image; its other aspects do not apply.",
+            text,
+        )
 
     def test_blank_prompt_mentions_counter_examples(self):
         refs = [
