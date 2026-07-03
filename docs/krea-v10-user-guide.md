@@ -81,6 +81,9 @@ V10 controls). Saved V9 workflows keep working unchanged.
 | `copy the camera framing` | card | Framing-only quick recipe (was manual-only in V9). |
 | `mood board only` | card | Loose-inspiration quick recipe (was manual-only in V9). |
 | Custom recipes | card | Your own YAML/JSON recipe files appear in `Use image for` as first-class choices. |
+| `focus` recipe field | recipe file | A recipe can study **one named aspect** of its image - clothing, props, a setting - and skip the rest. |
+| Starter recipes | shipped | `borrow the weather`, `borrow the clothing style`, and `cinematic color grade` load out of the box from [starter-pack.yaml](../custom_recipes/starter-pack.yaml). |
+| Recipe Builder | `web/` | A single HTML page that turns three plain-language questions into a validated recipe file. |
 | `Guide direction` | card | `toward this image` (V9 behavior) or `away from this image` (counter-example). |
 | `When this card guides` | card | Per-card timing: recipe decides, whole image, early layout only, or final details only. |
 | `Structure layers pull` / `Finish layers pull` | card | Manual-mode dials over the structure-vs-finish conditioning layers. |
@@ -352,6 +355,46 @@ Three ready-made recipes ship enabled in
 `borrow the weather`, `borrow the clothing style` (a `focus` recipe), and
 `cinematic color grade` - as working examples to copy from. Delete or
 underscore the file to remove them from your dropdown.
+[krea-v10-starter-recipe-workflow.json](../example_workflows/krea-v10-starter-recipe-workflow.json)
+runs one of them out of the box.
+
+### Focus: recipes that study one aspect
+
+The numeric fields select visual channels (color vs structure); they cannot
+separate a dress from the person wearing it. The `focus` field can: it is
+free text the encoder is told to study -
+`study only <your text> from this image; ignore everything else about it.`
+
+```yaml
+label: borrow the clothing style
+role: balanced
+treatment: normal
+detail: 0.7
+study: "384"
+subject: avoid
+cap: 1.1
+shape: 0.8
+focus: the clothing and garment style worn by the person, not the person's identity, face, or the background
+```
+
+What the render tests showed (same reference, same seed, only the focus text
+changed):
+
+- **Selecting works** - the clothing-focused recipe kept the reference's red
+  raincoat and picked up garment details the unfocused run missed.
+- **De-selecting is the power move** - focusing the same photo on "the
+  background environment only, *not the person or their clothing*" removed
+  the red coat entirely. Name what to skip and it stays behind.
+- **Know its limits** - scene-wide moods (weather, seasons, time of day)
+  mostly ride the image itself at working strengths; use treatment +
+  strength for those (that is exactly what `borrow the weather` does) and
+  save `focus` for object-bound aspects: clothing, props, hairstyles,
+  furniture, vehicles.
+
+Focus biases what the encoder studies; it does not replace the treatment
+guarantees - keep `subject: avoid` and a job-appropriate treatment, and
+render-check like everything else. The stack report prints each card's
+focus so you can confirm it reached the encoder.
 
 A complete example (the shipped template - render-validated values):
 
@@ -732,6 +775,7 @@ If a loaded demo reports missing images, copy
 | --- | --- |
 | A card seems to do nothing. | Read the stack report: the feel curve, a recipe cap, or the guard is usually named on that card's line. Appearance recipes (palette/style/lighting/material/environment/mood) are tuned to land from about strength `0.6` - below that they whisper by design. |
 | A custom recipe seems to do nothing at any strength. | Its `shape` is too low (below ~`0.5` the card is effectively off on Krea 2) or its `study` too fine. Raise `shape` toward the built-ins' `0.7`-`1.0`; raising `global` will not help on this model. |
+| A `focus` seems ignored. | Check the stack report - the card's line prints its focus. Focus is strongest on object-bound aspects (clothing, props); scene-wide moods ride the image itself. Rephrase to name what to *skip* ("..., not the person or the background") - de-selection is the reliable move. |
 | Away card makes the image muddy or empty. | Lower its strength below `0.30`, and make sure something positive (prompt or toward card) says what you *do* want. |
 | Many cards fight each other. | Turn on `gentle balance`, or lower the two strongest cards. The report shows the applied scale. |
 | Style card drags its subject in. | Check the prepared-references preview; if the subject is visible there, lower detail or strengthen the treatment. In manual mode, lower `Structure layers pull`. |

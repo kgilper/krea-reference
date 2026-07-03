@@ -44,6 +44,23 @@ Load Image -> KG Krea 2 Image Guide Card V10 -> KG Krea 2 Reference Stack Encode
 
 Plus the two feedback wires: `stack_report -> Preview Any` and `prepared_references -> Preview Image`.
 
+## V10 Starter Recipe (custom recipes in action)
+
+File: [krea-v10-starter-recipe-workflow.json](krea-v10-starter-recipe-workflow.json)
+
+One card running `cinematic color grade` - one of the three custom recipes
+that ship enabled in [custom_recipes/starter-pack.yaml](../custom_recipes/starter-pack.yaml)
+(no extra install needed):
+
+- Reference 1: `cinematic color grade`, strength `0.70`, on the style
+  reference asset - the scene takes the reference's grade like a film LUT
+  while the prompt keeps the subject.
+
+Swap the dropdown to `borrow the weather` or `borrow the clothing style`
+(with a suitable reference) to try the other starter recipes, or open the
+[Recipe Builder](../web/recipe-builder.html) to make your own - the stack
+report names the recipe on its card line either way.
+
 ## V9 Full Showcase
 
 File: [krea-v9-full-showcase-workflow.json](krea-v9-full-showcase-workflow.json)

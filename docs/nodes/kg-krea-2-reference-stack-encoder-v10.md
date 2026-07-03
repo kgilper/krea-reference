@@ -4,7 +4,7 @@ Class: `KGTextEncodeKreaImageReferencesV10`
 Node key: `KGTextEncodeKreaImageReferencesV10`  
 Category: `advanced/conditioning`  
 Source: `kg_krea_v10/encoder.py`  
-Deep dive: [V9 technical paper](../krea-v9-technical-paper.md) (V10 shares the V9 delta architecture in sections 4, 5, and 9)
+Deep dive: [V10 technical reference](../krea-v10-technical-paper.md) (standalone - every widget, the delta architecture, and all the math)
 
 ## What It Does
 
@@ -38,7 +38,7 @@ Reuse assumes the connected CLIP is unchanged between runs (it is validated by o
 ## Outputs
 
 - `conditioning`: Krea conditioning for the KSampler positive input (same as V9).
-- `stack_report`: a plain-language account of the run. Per card: what was requested, what it actually got, and why (feel curve, recipe cap, text/logo guard); plus prompt handling notes, balance decisions, timing, encoder pass counts, and skipped cards. Wire it into any text-display node when a card seems to be doing nothing.
+- `stack_report`: a plain-language account of the run. Per card: what was requested, what it actually got, and why (feel curve, recipe cap, text/logo guard); the card's recipe `focus` when set; plus prompt handling notes, balance decisions, timing, encoder pass counts, and skipped cards. Wire it into any text-display node when a card seems to be doing nothing.
 - `prepared_references`: a contact sheet of exactly what the vision encoder studied after framing, washes, color, and detail reduction, one frame per active card. Wire it into a Preview Image node to see what survived preparation - if a style card still shows a recognizable subject, lower its detail or strengthen its treatment.
 
 ## Performance

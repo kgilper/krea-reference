@@ -67,6 +67,9 @@ cross-connect, and saved V9 workflows keep working unchanged.
 | --- | --- |
 | Four more quick recipes | `suggest the color palette`, `use the background/setting`, `copy the camera framing`, and `mood board only` - jobs that previously required manual tuning. |
 | Your own recipes | Drop schema-validated YAML/JSON files into [custom_recipes/](custom_recipes/README.md) and they appear in `Use image for` as first-class choices. |
+| Aspect-focus recipes | A recipe's `focus` field names **which aspect** of its image to study - "the clothing and garment style, not the person" - so recipes can target clothing, props, or other object-bound aspects. |
+| Starter recipes included | Three ready-made custom recipes load out of the box: `borrow the weather`, `borrow the clothing style`, and `cinematic color grade`. |
+| Recipe Builder | `web/recipe-builder.html` (also served at `/extensions/<pack folder>/recipe-builder.html`): three plain-language questions become a validated recipe file - no schema knowledge needed. |
 | `Guide direction` | A card can steer *away* from its image: a counter-example for a palette, composition, subject, or style you do not want. |
 | `When this card guides` | Per-card timing: whole image, early layout only, or final details only. |
 | `Structure/Finish layers pull` | Manual-mode dials over the structure-vs-finish conditioning layers. |
@@ -138,6 +141,7 @@ or drag it into ComfyUI to load the embedded workflow.
 | [krea-v10-full-showcase-workflow.json](example_workflows/krea-v10-full-showcase-workflow.json) | First V10 run. Six cards including the new palette, environment, and framing recipes, per-card timing, gentle balance, and both feedback outputs. |
 | [krea-v10-counter-example-workflow.json](example_workflows/krea-v10-counter-example-workflow.json) | The V10 `away from this image` direction: keep the subject, push a style out. |
 | [krea-v10-reference-stack-workflow.json](example_workflows/krea-v10-reference-stack-workflow.json) | Compact V10 starter graph with the report and prepared-references previews wired. |
+| [krea-v10-starter-recipe-workflow.json](example_workflows/krea-v10-starter-recipe-workflow.json) | A shipped custom recipe in action: `cinematic color grade` (from the auto-loaded starter pack) grading the scene from a style reference. |
 | [krea-v9-full-showcase-workflow.json](example_workflows/krea-v9-full-showcase-workflow.json) | First V9 run. Shows content, style, material, lighting, and text/logo guard cards together. |
 | [krea-v9-no-prompt-style-transfer-workflow.json](example_workflows/krea-v9-no-prompt-style-transfer-workflow.json) | Applying image 2's style to image 1 with no written prompt. |
 | [krea-v9-reference-stack-workflow.json](example_workflows/krea-v9-reference-stack-workflow.json) | Compact starter graph for building your own multi-reference workflow. |

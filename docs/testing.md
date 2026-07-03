@@ -46,12 +46,15 @@ Then load the example workflows and replace placeholder Load Image filenames wit
 - The prepared-references contact sheet (Preview Image) shows one treated frame per active card.
 - A second queue with only a strength change reports zero new encoder passes when `Reuse image studies` is on.
 - The counter-example workflow's away card is marked in the report with negative targets.
+- The three starter recipes (`borrow the weather`, `borrow the clothing style`, `cinematic color grade`) appear in `Use image for` out of the box, and the starter-recipe workflow queues cleanly.
+- A recipe with a `focus` prints `Focus: ...` on its report card line.
+- The Recipe Builder is served at `/extensions/<pack folder>/recipe-builder.html` and its downloaded files validate (drop one in `custom_recipes/`, refresh node definitions, confirm it appears).
 
 ## V10 Demo Renders (release checklist)
 
-The initial V10 demo set (ten journeys: the four new recipes with a palette before/after pair, the timing pair, the direction journey, and the full showcase) lives under `docs/assets/krea-v10/demos/` with per-demo settings in its `guide-demo-manifest.json`. Each PNG embeds the matching V10 workflow.
+The V10 demo set (twenty journeys: one demo per built-in recipe - the twelve-recipe gallery with its labeled contact sheet - plus the palette before/after pair, the timing pair, the three-step direction journey including the away render, and the balance off/gentle showcase pair) lives under `docs/assets/krea-v10/demos/` with per-demo settings in its `guide-demo-manifest.json`. Every demo was rendered through the real V10 nodes with the current recipe tuning; each PNG embeds the exact V10 workflow that rendered it.
 
-Still pending, because they require the V10 nodes installed on the render machine (the current set was rendered through mathematically identical V9 manual-mode graphs, per the manifest's `engine_note`): the away-direction result (step 3 of the direction journey, seed `972106`) and a balance on/off comparison. Once V10 is installed on the render box, produce both from the shipped `krea-v10-counter-example-workflow.json` and `krea-v10-full-showcase-workflow.json`, save with embedded workflows in the same format, and replace the "pending" notes in the V10 guides and manifest.
+To regenerate after a recipe change: `python docs/recipe-lab/generate_guide_demos.py` (renders on the configured ComfyUI box, re-embeds workflows, and rebuilds the manifest and the recipe-gallery contact sheet; `--only <slugs>` re-renders a subset).
 
 ## Test Images
 

@@ -317,6 +317,14 @@
           <h3>Your own recipes</h3>
           <p>Drop a small YAML or JSON file into <code>custom_recipes/</code> and it becomes a first-class <code>Use image for</code> choice - no code.</p>
         </div>
+        <div>
+          <h3>Aspect focus</h3>
+          <p>A recipe's <code>focus</code> field studies <em>one named aspect</em> of its image - "the clothing and garment style, not the person" - and demonstrably leaves the rest behind.</p>
+        </div>
+        <div>
+          <h3>Starter recipes + Builder</h3>
+          <p>Three ready-made recipes load out of the box (<em>borrow the weather</em>, <em>borrow the clothing style</em>, <em>cinematic color grade</em>), and the bundled Recipe Builder writes new ones from three plain-language questions.</p>
+        </div>
       </div>
     </section>
 
@@ -614,6 +622,12 @@ layers: [0.25, 0.35, 0.45, 0.6, 0.8,
         emphasized</strong> - second-order polish; it cannot rescue a
         too-low <code>shape</code>.
         <strong>4. <code>global</code> does nothing on Krea 2.</strong>
+        <strong>5. <code>focus</code> picks ONE aspect by name</strong> -
+        "the clothing and garment style, not the person" - written into the
+        encoder's instructions. Render-verified: selecting works, and
+        naming what to <em>skip</em> reliably keeps it out; scene-wide
+        moods (weather) ride the image itself, so save focus for
+        object-bound aspects.
       </p>
       <h3 style="margin-top: 18px;">Deriving the <code>layers</code> array</h3>
       <p class="small">
@@ -908,6 +922,7 @@ Studies: 7 encoder passes this run;
         <tr><th>Problem</th><th>What to try</th></tr>
         <tr><td>A card seems to do nothing.</td><td>Read its stack report line: the feel curve, a recipe cap, or the guard is usually named there. Appearance recipes are tuned to land from about strength 0.6 - below that they whisper by design.</td></tr>
         <tr><td>A custom recipe does nothing at any strength.</td><td>Its <code>shape</code> is too low (below ~0.5 the card is effectively off on Krea 2) or its <code>study</code> too fine. Raise <code>shape</code> toward 0.7-1.0; raising <code>global</code> will not help on this model.</td></tr>
+        <tr><td>A <code>focus</code> seems ignored.</td><td>The stack report prints each card's focus - confirm it arrived. Focus is strongest on object-bound aspects (clothing, props); broad moods ride the image itself. Rephrase to name what to <em>skip</em> - de-selection is the reliable move.</td></tr>
         <tr><td>Away card makes the image muddy or empty.</td><td>Lower it below 0.30 and make sure something positive says what you do want.</td></tr>
         <tr><td>Many cards fight each other.</td><td>Turn on gentle balance, or lower the two strongest cards. The report shows the applied scale.</td></tr>
         <tr><td>Style card drags its subject in.</td><td>Check the prepared-references preview; if the subject is visible there, lower detail or strengthen the treatment. In manual mode, lower Structure layers pull.</td></tr>
