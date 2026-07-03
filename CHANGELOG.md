@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased - Krea 2 V10 Nodes
+## 0.2.0 - Krea 2 V10 Nodes
 
 - Fixed the pixel-block artifact in `palette wash` preparation (affects every palette-wash recipe on V9 and V10: the style, palette, lighting, material, environment, and mood-board recipes and the starter pack). The wash reduced the reference to a coarse color grid and upscaled it with hard-edged nearest-neighbor cells; with the retuned live `shape` the model reproduced those cells literally, rendering subjects and surfaces as large pixel-art blocks. The upscale is now bilinear, so the same coarse palette relationships arrive as smooth color gradients - render-verified on identical seeds: the mosaic disappears entirely, the palette transfer and structure safety are unchanged.
 
