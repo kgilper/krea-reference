@@ -89,6 +89,59 @@ template (section 2), so their consensus reflects a single design, not four
 independent measurements. It is a self-consistent, principled *design*; treat
 it as such.
 
+## 3.5 The authoritative design basis (Krea 2 report + UniFusion) - and how it points to improvement
+
+The [Krea 2 Technical Report](https://www.krea.ai/blog/krea-2-technical-report)
+states the design directly: rather than the last VLM layer, Krea 2 "introduce[s]
+a shallow attention layer that aggregates hidden features across layers" to
+"dynamically select **coarse-to-fine** text representations," explicitly
+"inspired by **UniFusion**," because "the last-layer features of an
+autoregressive LLM are suboptimal... optimized for next-token prediction rather
+than image generation."
+
+[UniFusion](https://arxiv.org/abs/2510.12789) (the method Krea 2 builds on)
+names the mechanism **Layerwise Attention Pooling (LAP)** - a **learned**
+attention over "**every third layer**" (matching Krea 2's
+`hidden_states[2,5,8,...,35]`) - and reports the load-bearing empirical finding:
+
+> "higher weights to **early-to-middle VLM layers**... semantic information
+> useful for downstream finetuning lives in the **earlier part of a VLM**." and
+> "the **penultimate VLM layer contributes the least**."
+
+So the "correct" per-layer weighting is the one the model **learned** (its
+`txtfusion` LAP), and the design favors **early-to-middle** layers, with the
+**deepest/penultimate contributing least**. (Qwen3-VL's own "DeepStack" is a
+*separate* mechanism - 3 *vision* taps - which is why "deepstack" here is a
+misnomer for these text-layer taps.)
+
+**This is misaligned with the shipped tables**, which spike the *deep* taps.
+Mapping taps to layers (`layer = 2 + 3*tap`) and comparing the model's learned
+emphasis (`|txtfusion.projector|`, Stage 0) to the shipped STYLE table:
+
+- Both value tap 7 (layer 23) and drop the earliest taps - aligned.
+- The table's biggest spike is **tap 8** (layer 26) - only the model's #5.
+- The table **suppresses tap 4** (layer 14) - the model's #3 and squarely in
+  UniFusion's favored band.
+- The table over-weights **tap 11** (layer 35, penultimate) - which the model
+  and UniFusion rank nearly last.
+
+The table's emphasis is **shifted deeper** than the design intends (a legacy of
+the borrowed deep-spike template). **Improvement directions** (all validated via
+the render harness below, since render measurement is the only reliable judge):
+
+1. **Track the model's learned weighting** - lift taps 4 and 9, moderate the
+   tap-8 over-spike, drop tap 11 (a table proportional to the projector prior,
+   `model_prior.json`).
+2. **Use the coarse-to-fine axis to differentiate recipes** - broad/semantic
+   jobs emphasize the early-to-middle taps; fine-detail jobs allow more of the
+   deep taps. The borrowed template used ~one spike shape for every role.
+3. **Consider per-tap magnitude normalization in the node** - render tests show
+   the delta-reweighting is magnitude-dominated (deep taps move the image,
+   shallow taps barely do), so gains on the semantically-useful early taps have
+   little effect as-is. Normalizing per-tap magnitude before the gain would let
+   the tables emphasize early-middle layers as the design intends. This is the
+   biggest lever, and a node-mechanism change rather than a table edit.
+
 ## 4. How to derive the values reliably (the methodology + harness)
 
 Deriving these reliably - and re-deriving them for any future checkpoint - is a
