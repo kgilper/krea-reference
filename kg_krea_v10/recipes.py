@@ -52,10 +52,14 @@ QUICK_RECIPES.update({
     },
     "environment": {
         "role": "environment",
-        "treatment": "soft blur",
+        # Render-tuned 2026-07-03: soft blur pulled the reference's FORM onto the
+        # subject (a bowl became a jar) - the conditioning is non-spatial, so it
+        # cannot place a scene *behind* the subject. Palette wash keeps it
+        # structure-safe: it borrows the setting's palette/mood, subject intact.
+        "treatment": "palette wash",
         "color": 1.0,
-        "detail": 0.6,
-        "study": "stack",
+        "detail": 0.3,
+        "study": "256",
         "framing": "stack",
         "subject": "avoid",
         "early": 1.1,
@@ -84,17 +88,21 @@ QUICK_RECIPES.update({
     },
     "mood board": {
         "role": "loose",
-        "treatment": "soft blur",
+        # Render-tuned 2026-07-03: palette wash + a live shape so the loose vibe
+        # actually reads a gentle borrowed palette (old shape 0.15 / cap 0.6 on
+        # the inert global axis showed nothing). Kept soft via a lower shape than
+        # palette and a modest cap.
+        "treatment": "palette wash",
         "color": 1.0,
-        "detail": 0.35,
+        "detail": 0.2,
         "study": "256",
         "framing": "stack",
         "subject": "avoid",
         "early": 0.8,
         "late": 0.8,
         "guard": False,
-        "cap": 0.6,
-        "shape": 0.15,
+        "cap": 0.9,
+        "shape": 0.65,
         "global": 0.7,
         "layers": STYLE_LAYER_PULL,
     },

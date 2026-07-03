@@ -26,10 +26,10 @@ ROLE_PULL_DEFAULTS = {
     "composition": {"shape": 1.25, "global": 0.35},
     "framing": {"shape": 0.9, "global": 0.25},
     "identity": {"shape": 1.0, "global": 1.0},
-    "environment": {"shape": 0.65, "global": 0.8},
-    "lighting": {"shape": 0.25, "global": 1.25},
-    "material": {"shape": 0.18, "global": 1.2},
-    "loose": {"shape": 0.12, "global": 0.65},
+    "environment": {"shape": 0.7, "global": 0.8},
+    "lighting": {"shape": 0.8, "global": 1.25},
+    "material": {"shape": 1.0, "global": 1.2},
+    "loose": {"shape": 0.65, "global": 0.65},
     "shape only": {"shape": 1.2, "global": 0.05},
     "text/logo safe": {"shape": 0.08, "global": 0.0},
 }
@@ -115,17 +115,19 @@ QUICK_RECIPES = {
     },
     "lighting": {
         "role": "lighting",
-        "treatment": "soft blur",
+        "treatment": "palette wash",
         "color": 0.85,
-        "detail": 0.55,
-        "study": "stack",
+        # Render-tuned 2026-07-03: soft blur leaked the reference's form onto the
+        # subject; palette wash + live shape borrows the light/tone palette safely.
+        "detail": 0.15,
+        "study": "256",
         "framing": "stack",
         "subject": "avoid",
         "early": 1.0,
         "late": 0.55,
         "guard": False,
         "cap": 1.25,
-        "shape": 0.25,
+        "shape": 0.8,
         "global": 1.3,
         "layers": LIGHTING_LAYER_PULL,
     },
@@ -152,17 +154,22 @@ QUICK_RECIPES = {
     },
     "texture gentle": {
         "role": "material",
-        "treatment": "strong blur",
-        "color": 0.65,
-        "detail": 0.05,
-        "study": "stack",
+        "treatment": "palette wash",
+        # Render-tuned 2026-07-03: strong blur at a live shape leaked the whole
+        # reference into frame; palette wash keeps it structure-safe. Material's
+        # layer table has weaker deep-tap spikes than style/palette, so it needs
+        # a higher shape (1.0) to fire at demo strength. Transfers the reference's
+        # surface/finish palette - literal texture-on-surface is not reachable.
+        "color": 0.8,
+        "detail": 0.1,
+        "study": "256",
         "framing": "stack",
         "subject": "avoid",
         "early": 0.5,
         "late": 0.75,
         "guard": False,
         "cap": 0.95,
-        "shape": 0.35,
+        "shape": 1.0,
         "global": 1.55,
         "layers": MATERIAL_LAYER_PULL,
     },
