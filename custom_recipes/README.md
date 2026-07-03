@@ -11,6 +11,18 @@ until you copy and rename it).
 
 ## Quick Start
 
+**The easy way - no schema knowledge needed:** open the
+[Recipe Builder](../web/recipe-builder.html) (`web/recipe-builder.html`).
+Answer three plain-language questions (name, what the reference should give,
+how strongly) and download a ready-to-drop-in file with every number filled
+from the render-validated tuning tables. On a running ComfyUI with this pack
+installed it is also served at
+`http://<your-comfy>/extensions/<this pack's folder name>/recipe-builder.html`
+(e.g. `http://127.0.0.1:8188/extensions/krea-reference/recipe-builder.html`
+for a git-clone install).
+
+**The manual way:**
+
 1. Copy [_example-vintage-postcard.yaml](_example-vintage-postcard.yaml) to a
    new name without the leading underscore, e.g. `my-style.yaml`.
 2. Edit the `label` (the dropdown text) and the fields you care about.

@@ -243,6 +243,15 @@ own. A custom recipe is a small YAML or JSON file; every file that passes
 validation appears in `Use image for` as a first-class choice,
 indistinguishable from a built-in.
 
+> **No schema required:** the pack ships a
+> [Recipe Builder](../web/recipe-builder.html) (`web/recipe-builder.html`) -
+> a single HTML page you can open in any browser (or from a running ComfyUI
+> at `/extensions/<pack folder>/recipe-builder.html`). Pick what the
+> reference should give, pick a loudness, download the file. Every number is
+> filled from the render-validated tables below, and the page tells you
+> honestly what each job can and cannot do. The rest of this section is for
+> when you want to understand or hand-tune what the builder produces.
+
 ### Where recipe files go
 
 | Location | Notes |

@@ -32,6 +32,10 @@ Drop schema-validated `.yaml`/`.yml`/`.json` files into the pack's
 `custom_recipes/` folder (or `<ComfyUI user dir>/krea_reference/recipes/`)
 and each valid recipe appears in `Use image for` as a first-class choice
 after the built-ins, picked up on node-definition refresh without a restart.
+The bundled [Recipe Builder](../../web/recipe-builder.html)
+(`web/recipe-builder.html`, also served at
+`/extensions/<pack folder>/recipe-builder.html`) generates these files from
+three plain-language questions - no schema knowledge needed.
 Only `label` and `role` are required; everything else defaults from the
 role's tuning tables, and invalid files are skipped with a logged warning so
 the node always loads. Custom recipes compose with direction, timing, and

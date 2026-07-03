@@ -1,0 +1,520 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Krea Recipe Builder</title>
+<style>
+  :root {
+    --bg: #101216; --panel: #181b21; --panel-2: #1f232b; --line: #2a2f39;
+    --text: #e8eaee; --muted: #9aa3b2; --accent: #6fb2ff; --accent-2: #8ee0c2;
+    --warn: #ffb86b; --err: #ff7d7d; --code-bg: #0b0d10;
+    --radius: 12px; font-size: 16px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 15px/1.55 system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  header { padding: 28px 22px 10px; max-width: 1180px; margin: 0 auto; }
+  header h1 { margin: 0 0 6px; font-size: 26px; letter-spacing: 0.2px; }
+  header p { margin: 0; color: var(--muted); max-width: 70ch; }
+  main {
+    max-width: 1180px; margin: 18px auto 60px; padding: 0 22px;
+    display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 20px;
+    align-items: start;
+  }
+  @media (max-width: 940px) { main { grid-template-columns: 1fr; } .out { position: static !important; } }
+  .card {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 18px 18px 16px; margin-bottom: 18px;
+  }
+  .card h2 { margin: 0 0 4px; font-size: 17px; }
+  .card h2 .step { color: var(--accent); margin-right: 8px; }
+  .card > p.hint { margin: 0 0 14px; color: var(--muted); font-size: 13.5px; }
+  label.field { display: block; font-size: 13px; color: var(--muted); margin: 10px 0 4px; }
+  input[type="text"] {
+    width: 100%; padding: 9px 11px; border-radius: 8px; border: 1px solid var(--line);
+    background: var(--panel-2); color: var(--text); font-size: 14.5px;
+  }
+  input[type="text"]:focus { outline: 1px solid var(--accent); }
+  .filehint { font-size: 12.5px; color: var(--muted); margin-top: 5px; }
+  .error { color: var(--err); font-size: 13px; margin-top: 6px; display: none; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 10px; }
+  .tile {
+    border: 1px solid var(--line); background: var(--panel-2); border-radius: 10px;
+    padding: 11px 12px; cursor: pointer; transition: border-color .12s, background .12s;
+  }
+  .tile:hover { border-color: #3b4250; }
+  .tile.sel { border-color: var(--accent); background: #1c2634; }
+  .tile b { display: block; font-size: 14px; margin-bottom: 3px; }
+  .tile span { font-size: 12px; color: var(--muted); line-height: 1.4; display: block; }
+  .honesty {
+    margin-top: 14px; border-left: 3px solid var(--accent-2); background: var(--panel-2);
+    border-radius: 0 8px 8px 0; padding: 10px 12px; font-size: 13.5px; display: none;
+  }
+  .honesty b { color: var(--accent-2); }
+  .seg { display: flex; gap: 8px; flex-wrap: wrap; }
+  .seg button {
+    flex: 1 1 120px; padding: 10px 10px 8px; border-radius: 10px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--panel-2); color: var(--text);
+    font: inherit; text-align: left;
+  }
+  .seg button.sel { border-color: var(--accent); background: #1c2634; }
+  .seg button b { display: block; font-size: 14px; }
+  .seg button span { font-size: 12px; color: var(--muted); }
+  details {
+    border: 1px solid var(--line); border-radius: 10px; background: var(--panel-2);
+    padding: 10px 14px; margin-top: 6px;
+  }
+  details summary { cursor: pointer; font-size: 14px; color: var(--muted); }
+  details[open] summary { margin-bottom: 8px; }
+  .adv-row { display: flex; align-items: center; gap: 10px; margin: 12px 0; flex-wrap: wrap; }
+  .adv-row label { font-size: 13.5px; min-width: 200px; }
+  .adv-row input[type="range"] { flex: 1; min-width: 140px; accent-color: var(--accent); }
+  .adv-row output { font-size: 13px; color: var(--accent); min-width: 40px; text-align: right; }
+  .adv-row input[type="checkbox"] { accent-color: var(--accent); width: 16px; height: 16px; }
+  .adv-note { font-size: 12.5px; color: var(--muted); margin: 2px 0 0; }
+  .out { position: sticky; top: 14px; }
+  .out .card { margin-bottom: 14px; }
+  .tabs { display: flex; gap: 6px; margin-bottom: 10px; }
+  .tabs button {
+    padding: 5px 14px; border-radius: 999px; border: 1px solid var(--line);
+    background: var(--panel-2); color: var(--muted); cursor: pointer; font: inherit; font-size: 13px;
+  }
+  .tabs button.sel { color: var(--text); border-color: var(--accent); }
+  pre#code {
+    background: var(--code-bg); border: 1px solid var(--line); border-radius: 10px;
+    padding: 13px 14px; margin: 0; font: 12.5px/1.55 ui-monospace, Consolas, monospace;
+    color: #d7e3f4; overflow-x: auto; max-height: 430px;
+  }
+  .btns { display: flex; gap: 10px; margin-top: 12px; }
+  .btns button {
+    flex: 1; padding: 10px; border-radius: 9px; font: inherit; font-size: 14px;
+    cursor: pointer; border: 1px solid var(--line); background: var(--panel-2); color: var(--text);
+  }
+  .btns button.primary { background: var(--accent); border-color: var(--accent); color: #0b1523; font-weight: 600; }
+  .btns button:disabled { opacity: 0.45; cursor: not-allowed; }
+  ol.install { margin: 8px 0 0; padding-left: 20px; font-size: 13.5px; color: var(--muted); }
+  ol.install li { margin-bottom: 5px; }
+  ol.install code, .testbox code, .honesty code { background: var(--code-bg); border-radius: 4px; padding: 1px 5px; font-size: 12px; }
+  .testbox { font-size: 13.5px; color: var(--muted); }
+  .testbox b { color: var(--text); }
+  footer { max-width: 1180px; margin: 0 auto 40px; padding: 0 22px; color: var(--muted); font-size: 12.5px; }
+  footer a { color: var(--accent); }
+  .copied { color: var(--accent-2) !important; border-color: var(--accent-2) !important; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Krea Recipe Builder</h1>
+  <p>
+    Answer three questions and download a ready-to-use recipe for the
+    <strong>KG Krea 2 Image Guide Card V10</strong>. Every number is filled in
+    from the render-validated tuning tables &mdash; no knowledge of treatments,
+    pulls, or layer arrays required.
+  </p>
+</header>
+<main>
+  <div class="steps">
+    <div class="card">
+      <h2><span class="step">1</span>Name it</h2>
+      <p class="hint">The name becomes the choice in the card's <code>Use image for</code> dropdown.</p>
+      <label class="field" for="label">Recipe name</label>
+      <input type="text" id="label" placeholder="e.g. warm autumn palette" maxlength="60" autocomplete="off">
+      <div class="filehint" id="filehint"></div>
+      <div class="error" id="labelerr"></div>
+      <label class="field" for="desc">One-line description <span style="opacity:.6">(optional, for humans reading the file)</span></label>
+      <input type="text" id="desc" placeholder="e.g. Cozy oranges and teals without copying the photo" maxlength="140" autocomplete="off">
+    </div>
+
+    <div class="card">
+      <h2><span class="step">2</span>What should the reference image give your picture?</h2>
+      <p class="hint">Pick the one job this recipe is for. The right preparation, safety policy, and tuning follow automatically.</p>
+      <div class="tiles" id="tiles"></div>
+      <div class="honesty" id="honesty"></div>
+    </div>
+
+    <div class="card" id="loudcard">
+      <h2><span class="step">3</span>How strongly should it come through?</h2>
+      <p class="hint">This sets the recipe's response band. The card's strength slider still rides on top &mdash; these choices decide what that slider feels like.</p>
+      <div class="seg" id="loudseg"></div>
+    </div>
+
+    <div class="card">
+      <h2><span class="step">4</span>Fine-tune <span style="color:var(--muted);font-weight:400;font-size:13px">(optional &mdash; the defaults are the tested values)</span></h2>
+      <details id="advdetails">
+        <summary>Open fine-tuning</summary>
+        <div class="adv-row" id="subjectrow">
+          <input type="checkbox" id="subjectallow">
+          <label for="subjectallow" style="min-width:0">The reference's own subject may appear in the result</label>
+        </div>
+        <p class="adv-note" id="subjectnote"></p>
+        <div class="adv-row">
+          <label for="emphStruct">Layout influence (structure bands)</label>
+          <input type="range" id="emphStruct" min="0.3" max="1.5" step="0.05" value="1.0">
+          <output id="emphStructOut">1.0&times;</output>
+        </div>
+        <div class="adv-row">
+          <label for="emphFinish">Color &amp; finish influence (finish bands)</label>
+          <input type="range" id="emphFinish" min="0.5" max="1.5" step="0.05" value="1.0">
+          <output id="emphFinishOut">1.0&times;</output>
+        </div>
+        <p class="adv-note">
+          These scale the recipe's 12-band layer table exactly like the card's manual
+          <code>Structure layers pull</code> / <code>Finish layers pull</code> dials.
+          At 1.0&times; the tested family table is used as-is (and omitted from the file).
+        </p>
+        <div class="adv-row">
+          <label for="capOverride">Strength ceiling (cap)</label>
+          <input type="text" id="capOverride" inputmode="decimal" placeholder="auto" style="width:90px">
+          <span class="adv-note" style="margin:0">Hard limit the card can't exceed, whatever the slider says. Leave blank for the tested value.</span>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <div class="out">
+    <div class="card">
+      <h2>Your recipe file</h2>
+      <div class="tabs">
+        <button id="tabYaml" class="sel">YAML</button>
+        <button id="tabJson">JSON</button>
+      </div>
+      <pre id="code"></pre>
+      <div class="btns">
+        <button class="primary" id="btnDownload">Download</button>
+        <button id="btnCopy">Copy</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Install it</h2>
+      <ol class="install">
+        <li>Save the file into the node pack's <code>custom_recipes/</code> folder
+            (or <code>&lt;ComfyUI user dir&gt;/krea_reference/recipes/</code>).</li>
+        <li>In ComfyUI, refresh node definitions (or restart).</li>
+        <li>Your recipe now appears in <code>Use image for</code> on the V10 guide card.</li>
+      </ol>
+    </div>
+    <div class="card testbox">
+      <b>Two-minute check</b> &mdash; fix a seed and render at card strength
+      <code>0.4</code>, <code>0.65</code>, and <code>0.9</code>. You should get
+      quiet &rarr; clear &rarr; strong. If the reference's subject sneaks in,
+      untick "may appear" above; if nothing changes, pick a bolder loudness.
+      The stack's <code>prepared_references</code> output shows exactly what
+      the encoder studied.
+    </div>
+  </div>
+</main>
+<footer>
+  Values follow the pack's render-validated tables (see
+  <a href="https://github.com/kgilper/krea-reference/blob/main/custom_recipes/README.md">custom_recipes/README.md</a>
+  and the <a href="https://github.com/kgilper/krea-reference/blob/main/docs/krea-v10-user-guide.md#create-your-own-recipes">V10 guide</a>).
+  Full schema, layer math, and the manual derivation procedure live there for when you outgrow the builder.
+</footer>
+
+<script>
+/*LOGIC-START*/
+// ---- Data: render-validated base bundles (mirrors kg_krea_v9/kg_krea_v10 recipes.py, 2026-07 retune) ----
+var LAYER_TABLES = {
+  even:     [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+  style:    [0.25, 0.35, 0.45, 0.6, 0.8, 1.0, 1.0, 2.5, 5.0, 1.1, 4.0, 1.2],
+  palette:  [0.15, 0.2, 0.3, 0.45, 0.7, 1.0, 1.0, 2.8, 5.5, 1.3, 4.5, 1.2],
+  material: [0.2, 0.3, 0.45, 0.65, 0.85, 1.0, 1.0, 2.0, 4.0, 1.2, 3.0, 1.1],
+  lighting: [0.2, 0.25, 0.35, 0.5, 0.8, 1.0, 1.0, 2.2, 4.5, 1.4, 4.0, 1.2],
+  flat:     [0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15]
+};
+
+// Each intent: artist wording + the validated bundle it starts from.
+// "family" = appearance | structure | anchor | guard drives the loudness math.
+var INTENTS = [
+  { id: "palette", title: "Borrow its colors", blurb: "The palette and tonal feel, as soft color fields.",
+    family: "appearance", cant: "Its shapes and subject cannot arrive - the image is reduced to color blocks before the AI ever sees it.",
+    base: { role: "palette", treatment: "palette wash", color: 1.0, detail: 0.0, study: "256", framing: "stack",
+            subject: "avoid", early: 0.9, late: 0.9, guard: false, cap: 0.9, shape: 0.7, global: 1.8, table: "palette" } },
+  { id: "style", title: "Borrow its overall look", blurb: "Palette plus finish energy - the broader art direction.",
+    family: "appearance", cant: "Its subject cannot arrive; the look lands as color and finish, not as its brushwork repainted onto your object.",
+    base: { role: "style", treatment: "palette wash", color: 0.85, detail: 0.0, study: "256", framing: "stack",
+            subject: "avoid", early: 0.85, late: 0.85, guard: false, cap: 0.9, shape: 0.8, global: 1.85, table: "style" } },
+  { id: "lighting", title: "Borrow its lighting & mood", blurb: "Light color, contrast, and atmosphere as a scene-wide cast.",
+    family: "appearance", cant: "Its shapes and subject cannot arrive.",
+    base: { role: "lighting", treatment: "palette wash", color: 0.85, detail: 0.15, study: "256", framing: "stack",
+            subject: "avoid", early: 1.0, late: 0.55, guard: false, cap: 1.25, shape: 0.8, global: 1.3, table: "lighting" } },
+  { id: "material", title: "Borrow its surface feel", blurb: "The material's palette and finish - a recolor, not a texture decal.",
+    family: "appearance", cant: "Exact grain, marks, or the subject cannot arrive.",
+    base: { role: "material", treatment: "palette wash", color: 0.8, detail: 0.1, study: "256", framing: "stack",
+            subject: "avoid", early: 0.5, late: 0.75, guard: false, cap: 0.95, shape: 1.0, global: 1.55, table: "material" } },
+  { id: "environment", title: "Borrow its setting's vibe", blurb: "The place's palette and room mood around your subject.",
+    family: "appearance", cant: "It sets the atmosphere; it does not paste the literal room behind your subject, and it cannot reshape your subject.",
+    base: { role: "environment", treatment: "palette wash", color: 1.0, detail: 0.3, study: "256", framing: "stack",
+            subject: "avoid", early: 1.1, late: 0.6, guard: false, cap: 1.2, shape: 0.7, global: 0.85, table: "style" } },
+  { id: "mood", title: "Just a loose vibe", blurb: "Gentle mood-board inspiration that never dictates.",
+    family: "appearance", cant: "Specific content, layout, or details cannot arrive - this one is capped soft on purpose.",
+    base: { role: "loose", treatment: "palette wash", color: 1.0, detail: 0.2, study: "256", framing: "stack",
+            subject: "avoid", early: 0.8, late: 0.8, guard: false, cap: 0.9, shape: 0.65, global: 0.7, table: "style" } },
+  { id: "composition", title: "Copy its arrangement", blurb: "Pose, placement, camera angle, and layout.",
+    family: "structure", cant: "Its colors and surface cannot arrive - it is studied as a grayscale blur.",
+    base: { role: "composition", treatment: "grayscale blur", color: 0.0, detail: 0.25, study: "stack", framing: "stack",
+            subject: "avoid", early: 1.2, late: 0.2, guard: false, cap: 1.25, shape: 1.3, global: 0.3, table: "even" } },
+  { id: "framing", title: "Copy its camera framing", blurb: "Distance, crop, and viewpoint only.",
+    family: "structure", cant: "Subject, palette, and surface stay yours.",
+    base: { role: "framing", treatment: "grayscale blur", color: 0.0, detail: 0.15, study: "256", framing: "preserve aspect",
+            subject: "avoid", early: 1.2, late: 0.15, guard: false, cap: 1.2, shape: 0.95, global: 0.25, table: "even" } },
+  { id: "shapes", title: "Copy its big shapes", blurb: "Silhouette and massing steer the composition.",
+    family: "structure", cant: "Color, texture, and small details cannot arrive.",
+    base: { role: "shape only", treatment: "shape wash", color: 0.0, detail: 0.0, study: "256", framing: "stack",
+            subject: "avoid", early: 1.1, late: 0.0, guard: false, cap: 1.0, shape: 1.2, global: 0.05, table: "even" } },
+  { id: "identity", title: "Keep its subject", blurb: "The person, product, or object travels into your new scene.",
+    family: "anchor", cant: "Note: it copies faithfully - printed markings too. Add an 'avoid copying text/logos' card if you don't want them.",
+    base: { role: "identity", treatment: "normal", color: 1.0, detail: 1.0, study: "stack", framing: "stack",
+            subject: "preserve", early: 1.0, late: 1.0, guard: false, cap: null, shape: 1.0, global: 1.0, table: "even" } },
+  { id: "balanced", title: "A bit of everything", blurb: "Subject, palette, and layout each arrive a little.",
+    family: "anchor", cant: "Nothing is filtered out - use a more specific job when you want guarantees.",
+    base: { role: "balanced", treatment: "normal", color: 1.0, detail: 1.0, study: "stack", framing: "stack",
+            subject: "recipe", early: 1.0, late: 1.0, guard: false, cap: null, shape: 1.0, global: 1.0, table: "even" } },
+  { id: "guard", title: "Block text & logos", blurb: "Use label-covered references safely - nothing readable copies.",
+    family: "guard", cant: "This card is clamped to a whisper (0.03) and rewrites the prompt toward blank surfaces; loudness does not apply.",
+    base: { role: "text/logo safe", treatment: "shape wash", color: 0.0, detail: 0.0, study: "256", framing: "stack",
+            subject: "avoid", early: 0.75, late: 0.0, guard: true, cap: 0.03, shape: 0.08, global: 0.0, table: "flat" } }
+];
+
+var LOUDNESS = [
+  { id: "whisper", title: "Whisper", blurb: "A hint, even with the card turned up." },
+  { id: "gentle", title: "Clear", blurb: "The tested default: lands clearly from card strength ≈0.65." },
+  { id: "bold", title: "Bold", blurb: "Unmistakable, still subject-safe." }
+];
+
+// Labels reserved by the node (built-in dropdown labels + internal recipe keys).
+var RESERVED = [
+  "manual tuning", "balanced", "keep the same subject", "copy pose and layout",
+  "copy lighting and mood", "suggest the visual style", "suggest material or texture",
+  "copy big shapes only", "avoid copying text/logos", "suggest the color palette",
+  "use the background/setting", "copy the camera framing", "mood board only",
+  "identity", "composition", "lighting", "style gentle", "texture gentle",
+  "shape only", "text/logo safe", "palette only", "environment", "framing", "mood board"
+];
+
+function round2(x) { return Math.round(x * 100) / 100; }
+function clamp(x, lo, hi) { return Math.min(hi, Math.max(lo, x)); }
+
+// Loudness scales shape within the render-calibrated bands and sets the cap.
+function applyLoudness(base, family, loudness) {
+  var shape = base.shape, cap = base.cap;
+  if (family === "guard") return { shape: shape, cap: cap };
+  if (loudness === "whisper") {
+    shape = shape * 0.75;
+    cap = cap === null ? 0.8 : Math.min(cap, 0.6);
+  } else if (loudness === "bold") {
+    shape = shape * (family === "appearance" ? 1.25 : 1.15);
+    if (cap !== null) cap = Math.min(cap + 0.25, 1.5);
+  }
+  return { shape: clamp(round2(shape), 0, 3), cap: cap === null ? null : round2(clamp(cap, 0, 3)) };
+}
+
+// The card's Structure/Finish dial math over the family layer table.
+function applyEmphasis(tableName, structMult, finishMult) {
+  var table = LAYER_TABLES[tableName];
+  return table.map(function (g, i) {
+    var m = i < 6 ? structMult : finishMult;
+    return Math.round(Math.min(g * m, 8.0) * 1000) / 1000;
+  });
+}
+
+// Build the final recipe object from the artist's choices.
+function buildRecipe(opts) {
+  var intent = null;
+  for (var i = 0; i < INTENTS.length; i++) if (INTENTS[i].id === opts.intent) intent = INTENTS[i];
+  if (!intent) throw new Error("unknown intent " + opts.intent);
+  var b = intent.base;
+  var loud = applyLoudness(b, intent.family, intent.family === "guard" ? "gentle" : (opts.loudness || "gentle"));
+  var r = {
+    label: opts.label,
+    description: opts.description || "",
+    role: b.role, treatment: b.treatment, color: b.color, detail: b.detail,
+    study: b.study, framing: b.framing,
+    subject: (opts.subjectAllow && (intent.family === "appearance")) ? "allow" : b.subject,
+    early: b.early, late: b.late, guard: b.guard,
+    cap: (opts.capOverride !== undefined && opts.capOverride !== null && opts.capOverride !== "" && isFinite(parseFloat(opts.capOverride)))
+      ? round2(clamp(parseFloat(opts.capOverride), 0, 3)) : loud.cap,
+    shape: loud.shape, global: b.global
+  };
+  var sm = opts.emphStruct === undefined ? 1.0 : opts.emphStruct;
+  var fm = opts.emphFinish === undefined ? 1.0 : opts.emphFinish;
+  if (sm !== 1.0 || fm !== 1.0) r.layers = applyEmphasis(b.table, sm, fm);
+  return r;
+}
+
+function labelProblem(label) {
+  var t = (label || "").trim();
+  if (!t) return "Give the recipe a name.";
+  for (var i = 0; i < RESERVED.length; i++) {
+    if (RESERVED[i] === t) return '"' + t + '" is taken by a built-in choice - pick another name.';
+  }
+  return null;
+}
+
+function kebab(label) {
+  return (label || "recipe").trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "recipe";
+}
+
+function yamlQuote(s) {
+  if (/[:#"'{}\[\],&*?|>%@`]|^\s|\s$|^$/.test(s)) return '"' + s.replace(/\\/g, "\\\\").replace(/"/g, '\\"') + '"';
+  return s;
+}
+
+function toYaml(r) {
+  var lines = [];
+  lines.push("label: " + yamlQuote(r.label));
+  if (r.description) lines.push("description: " + yamlQuote(r.description));
+  lines.push("role: " + yamlQuote(r.role));
+  lines.push("treatment: " + yamlQuote(r.treatment));
+  lines.push("color: " + r.color);
+  lines.push("detail: " + r.detail);
+  lines.push('study: "' + r.study + '"');
+  lines.push("framing: " + yamlQuote(r.framing));
+  lines.push("subject: " + r.subject);
+  lines.push("early: " + r.early);
+  lines.push("late: " + r.late);
+  if (r.guard) lines.push("guard: true");
+  if (r.cap !== null && r.cap !== undefined) lines.push("cap: " + r.cap);
+  lines.push("shape: " + r.shape);
+  lines.push("global: " + r.global + "   # no effect on Krea 2; kept for other models");
+  if (r.layers) lines.push("layers: [" + r.layers.join(", ") + "]");
+  return lines.join("\n") + "\n";
+}
+
+function toJson(r) {
+  var o = { label: r.label };
+  if (r.description) o.description = r.description;
+  o.role = r.role; o.treatment = r.treatment; o.color = r.color; o.detail = r.detail;
+  o.study = r.study; o.framing = r.framing; o.subject = r.subject;
+  o.early = r.early; o.late = r.late;
+  if (r.guard) o.guard = true;
+  if (r.cap !== null && r.cap !== undefined) o.cap = r.cap;
+  o.shape = r.shape; o["global"] = r.global;
+  if (r.layers) o.layers = r.layers;
+  return JSON.stringify(o, null, 2) + "\n";
+}
+
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = { INTENTS: INTENTS, LOUDNESS: LOUDNESS, RESERVED: RESERVED,
+    buildRecipe: buildRecipe, toYaml: toYaml, toJson: toJson, labelProblem: labelProblem, kebab: kebab };
+}
+/*LOGIC-END*/
+
+// ---- UI wiring (browser only) ----
+(function () {
+  if (typeof document === "undefined") return;
+  var state = { intent: "palette", loudness: "gentle", format: "yaml" };
+  var $ = function (id) { return document.getElementById(id); };
+
+  // intent tiles
+  var tilesEl = $("tiles");
+  INTENTS.forEach(function (it) {
+    var d = document.createElement("div");
+    d.className = "tile"; d.dataset.id = it.id; d.tabIndex = 0; d.setAttribute("role", "button");
+    d.innerHTML = "<b>" + it.title + "</b><span>" + it.blurb + "</span>";
+    function pick() { state.intent = it.id; render(); }
+    d.addEventListener("click", pick);
+    d.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); } });
+    tilesEl.appendChild(d);
+  });
+
+  // loudness segment
+  var segEl = $("loudseg");
+  LOUDNESS.forEach(function (l) {
+    var b = document.createElement("button");
+    b.dataset.id = l.id;
+    b.innerHTML = "<b>" + l.title + "</b><span>" + l.blurb + "</span>";
+    b.addEventListener("click", function () { state.loudness = l.id; render(); });
+    segEl.appendChild(b);
+  });
+
+  ["label", "desc", "capOverride"].forEach(function (id) { $(id).addEventListener("input", render); });
+  $("subjectallow").addEventListener("change", render);
+  [["emphStruct", "emphStructOut"], ["emphFinish", "emphFinishOut"]].forEach(function (pair) {
+    $(pair[0]).addEventListener("input", function () {
+      $(pair[1]).innerHTML = parseFloat($(pair[0]).value).toFixed(2).replace(/0$/, "") + "&times;";
+      render();
+    });
+  });
+  $("tabYaml").addEventListener("click", function () { state.format = "yaml"; render(); });
+  $("tabJson").addEventListener("click", function () { state.format = "json"; render(); });
+
+  function currentRecipe() {
+    return buildRecipe({
+      label: $("label").value.trim() || "my recipe",
+      description: $("desc").value.trim(),
+      intent: state.intent,
+      loudness: state.loudness,
+      subjectAllow: $("subjectallow").checked,
+      emphStruct: parseFloat($("emphStruct").value),
+      emphFinish: parseFloat($("emphFinish").value),
+      capOverride: $("capOverride").value.trim()
+    });
+  }
+
+  function render() {
+    var intent = INTENTS.filter(function (i) { return i.id === state.intent; })[0];
+    // selections
+    Array.prototype.forEach.call(tilesEl.children, function (t) { t.classList.toggle("sel", t.dataset.id === state.intent); });
+    Array.prototype.forEach.call(segEl.children, function (b) { b.classList.toggle("sel", b.dataset.id === state.loudness); });
+    $("tabYaml").classList.toggle("sel", state.format === "yaml");
+    $("tabJson").classList.toggle("sel", state.format === "json");
+    // honesty strip
+    var h = $("honesty");
+    h.style.display = "block";
+    h.innerHTML = "<b>What this cannot do:</b> " + intent.cant;
+    // loudness applies?
+    $("loudcard").style.opacity = intent.family === "guard" ? 0.45 : 1;
+    Array.prototype.forEach.call(segEl.children, function (b) { b.disabled = intent.family === "guard"; });
+    // subject checkbox only where it means something
+    var subjRow = $("subjectrow");
+    var showSubj = intent.family === "appearance";
+    subjRow.style.display = showSubj ? "flex" : "none";
+    $("subjectnote").style.display = showSubj ? "block" : "none";
+    $("subjectnote").textContent = showSubj
+      ? "Off (recommended): the recipe actively steers the reference's subject out. On: the model may include it."
+      : "";
+    // label check + filename
+    var problem = labelProblem($("label").value);
+    var err = $("labelerr");
+    if (problem && $("label").value.trim() !== "") { err.style.display = "block"; err.textContent = problem; }
+    else { err.style.display = "none"; }
+    var fname = kebab($("label").value) + (state.format === "yaml" ? ".yaml" : ".json");
+    $("filehint").textContent = "File name: custom_recipes/" + fname;
+    // output
+    var r = currentRecipe();
+    $("code").textContent = state.format === "yaml" ? toYaml(r) : toJson(r);
+    $("btnDownload").disabled = !!problem;
+    $("btnCopy").disabled = !!problem;
+  }
+
+  $("btnDownload").addEventListener("click", function () {
+    var text = $("code").textContent;
+    var fname = kebab($("label").value) + (state.format === "yaml" ? ".yaml" : ".json");
+    var blob = new Blob([text], { type: "text/plain" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = fname;
+    document.body.appendChild(a); a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  });
+  $("btnCopy").addEventListener("click", function () {
+    var btn = $("btnCopy");
+    function done() { btn.textContent = "Copied!"; btn.classList.add("copied");
+      setTimeout(function () { btn.textContent = "Copy"; btn.classList.remove("copied"); }, 1400); }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText($("code").textContent).then(done);
+    } else {
+      var ta = document.createElement("textarea"); ta.value = $("code").textContent;
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand("copy"); done(); } catch (e) {}
+      ta.remove();
+    }
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
