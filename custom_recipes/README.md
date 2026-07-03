@@ -1,8 +1,18 @@
-# Custom Recipes
+# Custom Recipes - the Recipe Kit
 
 Drop `.yaml`, `.yml`, or `.json` files into this folder and they become
 first-class choices in the V10 guide card's `Use image for` dropdown -
 indistinguishable from the built-in recipes. No code required.
+
+This folder is the complete kit for creating recipes:
+
+| Piece | What it gives you |
+| --- | --- |
+| [Recipe Builder](../web/recipe-builder.html) (`web/recipe-builder.html`) | Three plain-language questions -> a validated, downloadable recipe file. Also served by a running ComfyUI at `/extensions/<pack folder>/recipe-builder.html`. |
+| [starter-pack.yaml](starter-pack.yaml) | Three ready-made recipes, **loaded automatically**: `borrow the weather`, `borrow the clothing style`, `cinematic color grade`. Working examples to copy from; delete or underscore the file to opt out. |
+| [_example-vintage-postcard.yaml](_example-vintage-postcard.yaml) | A fully-commented single-recipe template (disabled until you rename it). |
+| This README | The schema, what every field really does on Krea 2, the `focus` field, the layer math, and the render-validation ritual. |
+| [Technical reference](../docs/krea-v10-technical-paper.md) | The standalone V10 paper: every widget, every table, all the math. |
 
 Files can also live in `<ComfyUI user dir>/krea_reference/recipes/`, which
 survives reinstalling or updating this node pack. Files whose names start
@@ -106,6 +116,44 @@ Required: `label`, `role`. Unknown keys are rejected (typo protection).
 | `shape` | no | `0.0` to `3.0` - **the main transfer volume** (see the anchors above) | role default |
 | `global` | no | `0.0` to `4.0` - pooled overall-look pull; **inert on Krea 2**, kept for other models | role default |
 | `layers` | no | list of exactly 12 numbers (`0.0` to `8.0`) - per-band fine-tuning gains | role table |
+| `focus` | no | string, up to 300 chars - **which aspect** of the image the encoder should study (see below) | none |
+
+## The `focus` Field - Aspect-Only Recipes
+
+The numeric fields select *visual channels* (color vs structure); they
+cannot separate semantic categories - a dress and the person wearing it
+share both. `focus` is the semantic scalpel: free text that the encoder is
+told to study, written into its instructions as
+`study only <your text> from this image; ignore everything else about it.`
+
+```yaml
+label: borrow the clothing style
+role: balanced
+treatment: normal
+detail: 0.7
+study: "384"
+subject: avoid
+cap: 1.1
+shape: 0.8
+focus: the clothing and garment style worn by the person, not the person's identity, face, or the background
+```
+
+Render-verified behavior (same reference, same seed, only the focus text
+changed):
+
+- **Selecting works:** clothing-focus kept the reference's red raincoat and
+  added garment detail the unfocused run lacked.
+- **De-selecting is powerful:** focusing the same photo on "the background
+  environment only, *not the person or their clothing*" removed the red
+  coat entirely - name what to skip and it stays behind.
+- **Boundary:** scene-wide moods (weather, seasons) mostly ride the image
+  itself at working strengths - use the treatment + strength for those
+  (see `borrow the weather` in the starter pack) and save `focus` for
+  object-bound aspects: clothing, props, hairstyles, furniture, vehicles.
+
+`focus` biases what the encoder studies; it does not replace the treatment
+guarantees. Keep `subject: avoid` and the treatment appropriate to the job,
+and render-validate like everything else.
 
 ## The `layers` Array, Exactly
 

@@ -345,6 +345,13 @@ A file holds one recipe, or a pack: `{"recipes": [recipe, recipe, ...]}`.
 | `shape` | no | `0.0`-`3.0`: **the main transfer volume** (anchors above). | role default |
 | `global` | no | `0.0`-`4.0`: pooled overall-look pull - **inert on Krea 2**, kept for other models. | role default |
 | `layers` | no | Exactly 12 numbers (`0.0`-`8.0`): per-band fine-tuning gains. | role table |
+| `focus` | no | Up to 300 chars: **which aspect** the encoder studies - "the clothing and garment style, not the person". Naming what to skip works remarkably well. Strongest on object-bound aspects; broad moods ride the image itself. | none |
+
+Three ready-made recipes ship enabled in
+[custom_recipes/starter-pack.yaml](../custom_recipes/starter-pack.yaml) -
+`borrow the weather`, `borrow the clothing style` (a `focus` recipe), and
+`cinematic color grade` - as working examples to copy from. Delete or
+underscore the file to remove them from your dropdown.
 
 A complete example (the shipped template - render-validated values):
 

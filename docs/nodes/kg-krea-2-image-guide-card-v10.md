@@ -35,7 +35,12 @@ after the built-ins, picked up on node-definition refresh without a restart.
 The bundled [Recipe Builder](../../web/recipe-builder.html)
 (`web/recipe-builder.html`, also served at
 `/extensions/<pack folder>/recipe-builder.html`) generates these files from
-three plain-language questions - no schema knowledge needed.
+three plain-language questions - no schema knowledge needed. Three starter
+recipes ship enabled in `custom_recipes/starter-pack.yaml` (`borrow the
+weather`, `borrow the clothing style`, `cinematic color grade`), and the
+`focus` recipe field lets a recipe study **one named aspect** of its image
+("the clothing and garment style, not the person") - see the
+[recipe kit README](../../custom_recipes/README.md).
 Only `label` and `role` are required; everything else defaults from the
 role's tuning tables, and invalid files are skipped with a logged warning so
 the node always loads. Custom recipes compose with direction, timing, and
