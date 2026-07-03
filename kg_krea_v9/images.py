@@ -23,13 +23,22 @@ def blur_samples(samples, kernel_size):
 
 
 def palette_wash_samples(samples):
-    """Reduce an image to a blurred coarse color grid (palette-only signal)."""
+    """Reduce an image to a smooth coarse color field (palette-only signal).
+
+    The adaptive pool destroys structure (that is the safety guarantee); the
+    upscale back is bilinear ON PURPOSE. The original nearest upscale left
+    hard-edged giant cells, and with a live shape pull the model reproduced
+    them literally - palette-wash recipes rendered subjects as pixel-art
+    mosaics. Bilinear melts the same palette relationships into gradients:
+    render-verified (same seed) to keep the color transfer and subject
+    safety while eliminating the block artifact entirely.
+    """
     height = int(samples.shape[2])
     width = int(samples.shape[3])
     grid_h = min(10, max(2, height // 48))
     grid_w = min(10, max(2, width // 48))
     palette = torch.nn.functional.adaptive_avg_pool2d(samples, (grid_h, grid_w))
-    palette = torch.nn.functional.interpolate(palette, size=(height, width), mode="nearest")
+    palette = torch.nn.functional.interpolate(palette, size=(height, width), mode="bilinear", align_corners=False)
     average_color = samples.mean(dim=(2, 3), keepdim=True)
     palette = palette * 0.85 + average_color * 0.15
     return blur_samples(palette, 9)
