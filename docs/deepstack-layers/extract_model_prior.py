@@ -33,10 +33,13 @@ def read_tensor(path, name):
         raw = f.read(end - start)
     dt = meta["dtype"]
     if dt == "BF16":
-        u = array.array("H"); u.frombytes(raw)
+        u = array.array("H")
+        u.frombytes(raw)
         vals = [struct.unpack("<f", struct.pack("<I", x << 16))[0] for x in u]
     elif dt == "F32":
-        fa = array.array("f"); fa.frombytes(raw); vals = list(fa)
+        fa = array.array("f")
+        fa.frombytes(raw)
+        vals = list(fa)
     elif dt == "F16":
         import numpy as np
         vals = np.frombuffer(raw, dtype=np.float16).astype(float).tolist()

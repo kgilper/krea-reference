@@ -54,7 +54,8 @@ def build_graph(label, ref, prompt, strength, seed, name):
          "latent": {"class_type": "EmptyLatentImage", "inputs": {"width": 512, "height": 512, "batch_size": 1}},
          "decode": {"class_type": "VAEDecode", "inputs": {"samples": ["sampler", 0], "vae": ["vae", 0]}},
          "save": {"class_type": "SaveImage", "inputs": {"images": ["decode", 0], "filename_prefix": "claude-generations/recipe-lab/" + name}}}
-    card_in = dict(CARD_DEFAULTS); card_in.update({"Reference image": ["load", 0], "How strongly this image guides": strength, "Use image for": label})
+    card_in = dict(CARD_DEFAULTS)
+    card_in.update({"Reference image": ["load", 0], "How strongly this image guides": strength, "Use image for": label})
     g["card"] = {"class_type": "KGKrea2ImageGuideCardV10", "inputs": card_in}
     g["pos"] = stack(prompt, card=True)
     g["sampler"] = {"class_type": "KSampler", "inputs": {"seed": seed, "steps": 8, "cfg": 1.0, "sampler_name": "euler",
@@ -86,9 +87,12 @@ def fetch(server, info):
 
 
 def hist(img, bins=8):
-    img = img.resize((128, 128)); h = [0.0] * (bins * 3)
+    img = img.resize((128, 128))
+    h = [0.0] * (bins * 3)
     for r, g, b in img.getdata():
-        h[r*bins//256] += 1; h[bins+g*bins//256] += 1; h[2*bins+b*bins//256] += 1
+        h[r*bins//256] += 1
+        h[bins+g*bins//256] += 1
+        h[2*bins+b*bins//256] += 1
     return [x / (128*128) for x in h]
 
 
@@ -97,23 +101,31 @@ def gray(img):
 
 
 def struct_sim(a, b):
-    n = len(a); ma = sum(a)/n; mb = sum(b)/n
+    n = len(a)
+    ma = sum(a)/n
+    mb = sum(b)/n
     num = sum((a[i]-ma)*(b[i]-mb) for i in range(n))
-    da = sum((a[i]-ma)**2 for i in range(n))**0.5; db = sum((b[i]-mb)**2 for i in range(n))**0.5
+    da = sum((a[i]-ma)**2 for i in range(n))**0.5
+    db = sum((b[i]-mb)**2 for i in range(n))**0.5
     return num/(da*db) if da and db else 0.0
 
 
 def lapvar(img):
     px = list(img.convert("L").resize((256, 256)).filter(ImageFilter.FIND_EDGES).getdata())
-    m = sum(px)/len(px); return sum((p-m)**2 for p in px)/len(px)
+    m = sum(px)/len(px)
+    return sum((p-m)**2 for p in px)/len(px)
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--builtin"); ap.add_argument("--recipe-json")
-    ap.add_argument("--ref", required=True); ap.add_argument("--prompt", required=True)
-    ap.add_argument("--strength", type=float, default=0.6); ap.add_argument("--seed", type=int, default=424242)
-    ap.add_argument("--name", required=True); ap.add_argument("--server", default=DEFAULT_SERVER)
+    ap.add_argument("--builtin")
+    ap.add_argument("--recipe-json")
+    ap.add_argument("--ref", required=True)
+    ap.add_argument("--prompt", required=True)
+    ap.add_argument("--strength", type=float, default=0.6)
+    ap.add_argument("--seed", type=int, default=424242)
+    ap.add_argument("--name", required=True)
+    ap.add_argument("--server", default=DEFAULT_SERVER)
     ap.add_argument("--ref-is-input", action="store_true", help="reference lives in ComfyUI input/ (default true)")
     args = ap.parse_args()
     OUTDIR.mkdir(parents=True, exist_ok=True)
@@ -126,12 +138,14 @@ def main():
     elif args.builtin:
         label = args.builtin
     else:
-        print(json.dumps({"error": "need --builtin or --recipe-json"})); return 2
+        print(json.dumps({"error": "need --builtin or --recipe-json"}))
+        return 2
 
     server = args.server.rstrip("/")
     info = submit(server, build_graph(label, args.ref, args.prompt, args.strength, args.seed, args.name))
     out = fetch(server, info)
-    local = OUTDIR / (args.name + ".png"); out.save(local)
+    local = OUTDIR / (args.name + ".png")
+    out.save(local)
     ref_img = fetch(server, {"filename": Path(args.ref).name, "subfolder": str(Path(args.ref).parent).replace("\\", "/"), "type": "input"})
     metrics = {
         "palette_dist_to_ref": round(sum(abs(a-b) for a, b in zip(hist(out), hist(ref_img))), 3),
