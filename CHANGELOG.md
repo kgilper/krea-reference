@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.2.1 - Sharper Listing Description
+
+- The package description now says exactly what the nodes do - guide cards
+  with plain-language recipes, per-card strength/direction/timing, custom
+  recipes - instead of naming internal node generations. This is what the
+  Comfy Registry directory shows on the listing card.
+- The V9 guide demo set and the README front-page gallery were re-rendered
+  on the current tuning (retuned appearance recipes, smooth palette wash),
+  so the repository images show what a current install actually produces.
+  Two demos carry re-validated values: the style demo runs at `0.50` and the
+  manual-tuning demo keeps `Shape copied` live at `0.8` under the palette
+  wash. Documentation only - installed behavior is unchanged from 0.2.0.
+
 ## 0.2.0 - Krea 2 V10 Nodes
 
 - Fixed the pixel-block artifact in `palette wash` preparation (affects every palette-wash recipe on V9 and V10: the style, palette, lighting, material, environment, and mood-board recipes and the starter pack). The wash reduced the reference to a coarse color grid and upscaled it with hard-edged nearest-neighbor cells; with the retuned live `shape` the model reproduced those cells literally, rendering subjects and surfaces as large pixel-art blocks. The upscale is now bilinear, so the same coarse palette relationships arrive as smooth color gradients - render-verified on identical seeds: the mosaic disappears entirely, the palette transfer and structure safety are unchanged.

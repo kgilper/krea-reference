@@ -1,7 +1,7 @@
 [project]
 name = "comfyui-krea-reference"
-version = "0.2.0"
-description = "ComfyUI custom nodes for Krea 2 image-reference conditioning (V9 and V10)."
+version = "0.2.1"
+description = "Guide Krea 2 with reference images: stack up to 12 guide cards using plain-language recipes - keep the subject, borrow style/palette/lighting/material, copy pose or shapes, avoid text/logos - with per-card strength, toward/away direction, timing, and user-defined custom recipes."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { file = "LICENSE" }
