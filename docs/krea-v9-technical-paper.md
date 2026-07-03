@@ -325,6 +325,8 @@ The gain tables ([`kg_krea_v9/recipes.py`](../kg_krea_v9/recipes.py)):
 
 **Where these numbers come from, stated plainly:** my tuning sweeps, documented in the source comments. Chunks 8 and 10 carried the strongest palette/finish response, and early chunks carry subject structure. The style-family tables therefore *suppress* early chunks (0.15 to 0.25) and *spike* late ones (up to 5.5), which is how a style card imports rendering finish without dragging the style image's subject along. Nothing in this table is derived from first principles. It is measured behavior, encoded as data, and you can re-derive it with the sweep methodology in §16.4.
 
+**A full determination of what each chunk carries** - verified from code, then established by a convergent-evidence analysis of the tables above (the four appearance tables were tuned independently for four different jobs yet agree chunk-for-chunk: 0-4 structure, monotonic ramp; 5-6 transition; 7/8/10 appearance, chunk 8 strongest), plus a turnkey single-chunk sweep kit for the fresh measurement - lives in [`docs/deepstack-layers/`](deepstack-layers/README.md). Run `python docs/deepstack-layers/analyze_tables.py` to reproduce the convergent-evidence table from the live code.
+
 ### 5.3 The soft cap: bounding worst-case extrapolation
 
 The cap $L_{\max} = 6.0$ (`MAX_LAYER_SCALE`, [`kg_krea_v9/encoder.py`](../kg_krea_v9/encoder.py)) exists because three multiplicative dials compound. Worst case without it:

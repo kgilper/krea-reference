@@ -290,6 +290,9 @@ The family tables, the full chunk map, the math, a copy-paste derivation
 snippet (the same scaling the card's manual Structure/Finish dials apply),
 and a worked example live in
 [custom_recipes/README.md](../custom_recipes/README.md#deriving-the-layers-array).
+The full determination of what each of the 12 bands carries - verified from
+code, established by convergent evidence, and with a turnkey measurement kit -
+is documented in [docs/deepstack-layers/](deepstack-layers/README.md).
 
 ### How validation behaves
 

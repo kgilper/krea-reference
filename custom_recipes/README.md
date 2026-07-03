@@ -56,9 +56,11 @@ how the numbers work and how to derive your own.
 ### What the 12 positions mean
 
 Krea 2's conditioning splits into 12 equal "deepstack" chunks, one per list
-position. The V9 empirical sweeps (single-chunk spike renders, documented in
-the [technical paper section 16.4](../docs/krea-v9-technical-paper.md#164-re-tune-layer-gains-for-a-new-checkpoint))
-mapped what each band carries:
+position. The V9 empirical sweeps mapped what each band carries; the full
+determination (verified structure, a convergent-evidence analysis you can
+reproduce with `python docs/deepstack-layers/analyze_tables.py`, and a
+turnkey fresh-measurement kit) lives in
+[docs/deepstack-layers/](../docs/deepstack-layers/README.md):
 
 | Positions | Carry | Family tables put here |
 | --- | --- | --- |
