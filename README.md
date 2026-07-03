@@ -75,10 +75,16 @@ cross-connect, and saved V9 workflows keep working unchanged.
 | `stack_report` output | A plain-language account of what every card requested, what it got, and why. |
 | `prepared_references` output | A contact sheet of exactly what the vision encoder studied after treatments. |
 
+![Krea V10 demo output gallery](docs/assets/krea-v10/demos/recipe-gallery.png)
+
+The V10 demo images above were generated with the V10 recipes and have the
+matching V10 workflow embedded - drag one into ComfyUI to inspect the exact
+setup. Each demo's full journey (input images, settings, prompt, result) is
+documented in the [V10 user guide](docs/krea-v10-user-guide.md).
+
 Per-node details: [V10 guide card](docs/nodes/kg-krea-2-image-guide-card-v10.md)
 and [V10 stack encoder](docs/nodes/kg-krea-2-reference-stack-encoder-v10.md).
-Full walkthrough: [V10 user guide](docs/krea-v10-user-guide.md). Try
-[krea-v10-full-showcase-workflow.json](example_workflows/krea-v10-full-showcase-workflow.json)
+Try [krea-v10-full-showcase-workflow.json](example_workflows/krea-v10-full-showcase-workflow.json)
 for all of it in one graph.
 
 ## Install

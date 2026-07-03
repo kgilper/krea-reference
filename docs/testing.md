@@ -49,7 +49,9 @@ Then load the example workflows and replace placeholder Load Image filenames wit
 
 ## V10 Demo Renders (release checklist)
 
-The V10 release mirrors the V9 demo gallery: on a live Krea 2 ComfyUI, render one demo per new control (the four new recipes, an away-card pair, and a per-card timing example), save the PNGs with embedded workflow metadata under `docs/assets/krea-v10/demos/`, and link them from the V10 guides - the same format as `docs/assets/krea-v9/demos/`.
+The initial V10 demo set (ten journeys: the four new recipes with a palette before/after pair, the timing pair, the direction journey, and the full showcase) lives under `docs/assets/krea-v10/demos/` with per-demo settings in its `guide-demo-manifest.json`. Each PNG embeds the matching V10 workflow.
+
+Still pending, because they require the V10 nodes installed on the render machine (the current set was rendered through mathematically identical V9 manual-mode graphs, per the manifest's `engine_note`): the away-direction result (step 3 of the direction journey, seed `972106`) and a balance on/off comparison. Once V10 is installed on the render box, produce both from the shipped `krea-v10-counter-example-workflow.json` and `krea-v10-full-showcase-workflow.json`, save with embedded workflows in the same format, and replace the "pending" notes in the V10 guides and manifest.
 
 ## Test Images
 

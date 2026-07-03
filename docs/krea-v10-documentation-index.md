@@ -35,13 +35,26 @@ stacks, a study cache, and two feedback outputs. The
 | [KG Krea 2 Reference Stack Encoder V10](nodes/kg-krea-2-reference-stack-encoder-v10.md) | Balance, study reuse, the stack report, and the prepared-references output. |
 | [Node documentation index](nodes/README.md) | Short index of all included node pages. |
 
-## Recipe Demo Images
+## Demo Journeys
 
-The V9 demo gallery lives at [assets/krea-v9/demos](assets/krea-v9/demos/).
-V10 demo renders with embedded workflows (matching the V9 gallery format,
-covering the four new recipes, direction, and timing) are produced on a live
-Krea 2 ComfyUI as part of the V10 release checklist and will land under
-`assets/krea-v10/demos/`.
+Every demo shows the full journey - input images, recipe and settings, the
+exact prompt, and the result - and every PNG below has the matching V10
+workflow embedded (drag it into ComfyUI):
+
+![Krea V10 demo output gallery](assets/krea-v10/demos/recipe-gallery.png)
+
+- [suggest-color-palette.png](assets/krea-v10/demos/suggest-color-palette.png) (+ [prompt-only baseline](assets/krea-v10/demos/suggest-color-palette-off.png))
+- [use-background-setting.png](assets/krea-v10/demos/use-background-setting.png)
+- [copy-camera-framing.png](assets/krea-v10/demos/copy-camera-framing.png)
+- [mood-board-only.png](assets/krea-v10/demos/mood-board-only.png)
+- [timing-style-early-only.png](assets/krea-v10/demos/timing-style-early-only.png) vs [timing-style-final-only.png](assets/krea-v10/demos/timing-style-final-only.png)
+- [counter-example-baseline.png](assets/krea-v10/demos/counter-example-baseline.png) vs [counter-example-toward.png](assets/krea-v10/demos/counter-example-toward.png)
+- [full-showcase.png](assets/krea-v10/demos/full-showcase.png)
+
+Per-demo settings: [guide-demo-manifest.json](assets/krea-v10/demos/guide-demo-manifest.json).
+Two renders wait for the V10 nodes to reach the render machine: the
+away-direction result and a balance comparison (their workflows already
+ship). The V9 gallery lives at [assets/krea-v9/demos](assets/krea-v9/demos/).
 
 ## Key Benefits
 

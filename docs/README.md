@@ -39,6 +39,6 @@ Start here if you want to understand, install, or extend Krea Reference.
 
 ## Demo Assets
 
+- [V10 demo journeys with embedded workflows](assets/krea-v10/demos/) - input, settings, prompt, and result per demo
 - [V9 recipe demo PNGs with embedded workflows](assets/krea-v9/demos/)
 - [Synthetic source images](../example_assets/krea-reference-examples/)
-- V10 demo renders land under `assets/krea-v10/demos/` with the V10 release (see the [testing guide](testing.md)).

@@ -1,0 +1,779 @@
+{
+  "id": "kg-krea-v10-demo-counter-example-baseline",
+  "revision": 0,
+  "last_node_id": 12,
+  "last_link_id": 12,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "UNETLoader",
+      "pos": [
+        80,
+        80
+      ],
+      "size": [
+        270,
+        82
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            3
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.26.2",
+        "Node name for S&R": "UNETLoader"
+      },
+      "widgets_values": [
+        "krea2\\krea2_turbo_nvfp4.safetensors",
+        "default"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "CLIPLoader",
+      "pos": [
+        80,
+        240
+      ],
+      "size": [
+        270,
+        106
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            1,
+            2
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.26.2",
+        "Node name for S&R": "CLIPLoader"
+      },
+      "widgets_values": [
+        "krea2\\qwen3vl_4b_fp8_scaled.safetensors",
+        "krea2",
+        "default"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "VAELoader",
+      "pos": [
+        80,
+        400
+      ],
+      "size": [
+        270,
+        58
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            9
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.26.2",
+        "Node name for S&R": "VAELoader"
+      },
+      "widgets_values": [
+        "krea2\\qwen_image_vae.safetensors"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "ModelSamplingAuraFlow",
+      "pos": [
+        400,
+        80
+      ],
+      "size": [
+        270,
+        58
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 3
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            4
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.26.2",
+        "Node name for S&R": "ModelSamplingAuraFlow"
+      },
+      "widgets_values": [
+        3.14
+      ]
+    },
+    {
+      "id": 5,
+      "type": "KGTextEncodeKreaImageReferencesV10",
+      "pos": [
+        1030,
+        520
+      ],
+      "size": [
+        640,
+        520
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "Krea CLIP",
+          "type": "CLIP",
+          "link": 1
+        },
+        {
+          "name": "Final image prompt",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "Final image prompt"
+          }
+        },
+        {
+          "name": "Written prompt strength",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "Written prompt strength"
+          }
+        },
+        {
+          "name": "Image slider feel",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Image slider feel"
+          }
+        },
+        {
+          "name": "Image detail level",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Image detail level"
+          }
+        },
+        {
+          "name": "Image framing",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Image framing"
+          }
+        },
+        {
+          "name": "When images guide",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "When images guide"
+          }
+        },
+        {
+          "name": "Early-to-final handoff",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "Early-to-final handoff"
+          }
+        },
+        {
+          "name": "Text/logo guard prompt handling",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Text/logo guard prompt handling"
+          }
+        },
+        {
+          "name": "Balance strong cards",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Balance strong cards"
+          }
+        },
+        {
+          "name": "Reuse image studies",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Reuse image studies"
+          }
+        },
+        {
+          "name": "Reference 1 guide card",
+          "type": "KG_KREA_REFERENCE",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "links": [
+            5
+          ]
+        },
+        {
+          "name": "stack_report",
+          "type": "STRING",
+          "links": [
+            11
+          ]
+        },
+        {
+          "name": "prepared_references",
+          "type": "IMAGE",
+          "links": [
+            12
+          ]
+        }
+      ],
+      "properties": {
+        "aux_id": "kgilper/krea-reference",
+        "Node name for S&R": "KGTextEncodeKreaImageReferencesV10"
+      },
+      "widgets_values": [
+        "a sculptural table lamp in a clean studio product photo, no readable text",
+        1.25,
+        "artist friendly - soft at low values",
+        "medium - balanced default (384)",
+        "keep full image shape",
+        "smart per-card timing",
+        0.4,
+        "full guard - rewrite my prompt",
+        "off - use my values",
+        "reuse between runs - faster tuning"
+      ],
+      "title": "Krea V10 reference stack encoder"
+    },
+    {
+      "id": 6,
+      "type": "KGTextEncodeKreaImageReferencesV10",
+      "pos": [
+        1030,
+        1100
+      ],
+      "size": [
+        420,
+        320
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "Krea CLIP",
+          "type": "CLIP",
+          "link": 2
+        },
+        {
+          "name": "Final image prompt",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "Final image prompt"
+          }
+        },
+        {
+          "name": "Written prompt strength",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "Written prompt strength"
+          }
+        },
+        {
+          "name": "Image slider feel",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Image slider feel"
+          }
+        },
+        {
+          "name": "Image detail level",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Image detail level"
+          }
+        },
+        {
+          "name": "Image framing",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Image framing"
+          }
+        },
+        {
+          "name": "When images guide",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "When images guide"
+          }
+        },
+        {
+          "name": "Early-to-final handoff",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "Early-to-final handoff"
+          }
+        },
+        {
+          "name": "Text/logo guard prompt handling",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Text/logo guard prompt handling"
+          }
+        },
+        {
+          "name": "Balance strong cards",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Balance strong cards"
+          }
+        },
+        {
+          "name": "Reuse image studies",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Reuse image studies"
+          }
+        },
+        {
+          "name": "Reference 1 guide card",
+          "type": "KG_KREA_REFERENCE",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "links": [
+            6
+          ]
+        },
+        {
+          "name": "stack_report",
+          "type": "STRING",
+          "links": null
+        },
+        {
+          "name": "prepared_references",
+          "type": "IMAGE",
+          "links": null
+        }
+      ],
+      "properties": {
+        "aux_id": "kgilper/krea-reference",
+        "Node name for S&R": "KGTextEncodeKreaImageReferencesV10"
+      },
+      "widgets_values": [
+        "boring, dull, blurry, low-quality, fake letters, readable text, logo, watermark, oversaturated colours",
+        1.0,
+        "literal slider values",
+        "low - loose idea (256)",
+        "keep full image shape",
+        "guide the whole image",
+        0.4,
+        "gentle guard - keep my prompt words",
+        "off - use my values",
+        "always re-study"
+      ],
+      "title": "Krea V10 negative prompt encoder - no references"
+    },
+    {
+      "id": 7,
+      "type": "EmptyLatentImage",
+      "pos": [
+        1030,
+        1470
+      ],
+      "size": [
+        270,
+        106
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            7
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.26.2",
+        "Node name for S&R": "EmptyLatentImage"
+      },
+      "widgets_values": [
+        512,
+        768,
+        1
+      ]
+    },
+    {
+      "id": 8,
+      "type": "KSampler",
+      "pos": [
+        1750,
+        520
+      ],
+      "size": [
+        270,
+        262
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 4
+        },
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 5
+        },
+        {
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 6
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            8
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.26.2",
+        "Node name for S&R": "KSampler"
+      },
+      "widgets_values": [
+        972106,
+        "fixed",
+        8,
+        1.0,
+        "euler",
+        "simple",
+        1.0
+      ]
+    },
+    {
+      "id": 9,
+      "type": "VAEDecode",
+      "pos": [
+        2060,
+        520
+      ],
+      "size": [
+        140,
+        46
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 8
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 9
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            10
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.26.2",
+        "Node name for S&R": "VAEDecode"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 10,
+      "type": "SaveImage",
+      "pos": [
+        2060,
+        640
+      ],
+      "size": [
+        270,
+        270
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 10
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.26.2",
+        "Node name for S&R": "SaveImage"
+      },
+      "widgets_values": [
+        "krea_reference_v10_guide/counter-example-baseline"
+      ]
+    },
+    {
+      "id": 11,
+      "type": "PreviewAny",
+      "pos": [
+        1750,
+        850
+      ],
+      "size": [
+        420,
+        280
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "source",
+          "type": "*",
+          "link": 11
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.26.2",
+        "Node name for S&R": "PreviewAny"
+      },
+      "widgets_values": [],
+      "title": "V10 stack report"
+    },
+    {
+      "id": 12,
+      "type": "PreviewImage",
+      "pos": [
+        2200,
+        850
+      ],
+      "size": [
+        320,
+        340
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 12
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.26.2",
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [],
+      "title": "What the encoder studied"
+    }
+  ],
+  "links": [
+    [
+      1,
+      2,
+      0,
+      5,
+      0,
+      "CLIP"
+    ],
+    [
+      2,
+      2,
+      0,
+      6,
+      0,
+      "CLIP"
+    ],
+    [
+      3,
+      1,
+      0,
+      4,
+      0,
+      "MODEL"
+    ],
+    [
+      4,
+      4,
+      0,
+      8,
+      0,
+      "MODEL"
+    ],
+    [
+      5,
+      5,
+      0,
+      8,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      6,
+      6,
+      0,
+      8,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      7,
+      7,
+      0,
+      8,
+      3,
+      "LATENT"
+    ],
+    [
+      8,
+      8,
+      0,
+      9,
+      0,
+      "LATENT"
+    ],
+    [
+      9,
+      3,
+      0,
+      9,
+      1,
+      "VAE"
+    ],
+    [
+      10,
+      9,
+      0,
+      10,
+      0,
+      "IMAGE"
+    ],
+    [
+      11,
+      5,
+      1,
+      11,
+      0,
+      "STRING"
+    ],
+    [
+      12,
+      5,
+      2,
+      12,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "frontendVersion": "1.45.19",
+    "workflow_name": "Krea V10 demo - Counter-example journey: prompt only"
+  },
+  "version": 0.4
+}

@@ -106,6 +106,8 @@ workflow.
 | Recipe | `balanced` |
 | Demo strength | `0.45` |
 | Best for | General image reference behavior when one source should guide subject, camera, color, and mood. |
+| Demo prompt | `a refined editorial product photograph of a sculptural table lamp on a simple wooden surface, calm neutral background, clean design, no readable text` |
+| Demo seed | `972002` |
 | Demo files | [embedded-workflow PNG](assets/krea-v9/demos/balanced.png), [workflow JSON](assets/krea-v9/demos/balanced.workflow.json) |
 
 Use `balanced` when a source image should influence the result broadly, but no
@@ -122,6 +124,8 @@ single role needs to dominate. It is the best general-purpose starting point.
 | Recipe | `keep the same subject` |
 | Demo strength | `0.80` |
 | Best for | Product, character, outfit, person, or object consistency. |
+| Demo prompt | `the same cone-shaped sculptural table lamp redesigned as a premium ceramic product, editorial studio photo, soft shadows, no readable text` |
+| Demo seed | `972003` |
 | Demo files | [embedded-workflow PNG](assets/krea-v9/demos/keep-same-subject.png), [workflow JSON](assets/krea-v9/demos/keep-same-subject.workflow.json) |
 
 Use this when the core subject must remain recognizable. This is the one quick
@@ -138,6 +142,8 @@ recipe where high values such as `0.70` to `0.85` often make sense.
 | Recipe | `suggest the visual style` |
 | Demo strength | `0.65` |
 | Best for | Palette, finish, medium, art direction, and atmosphere. |
+| Demo prompt | `a modern table lamp in a clean studio product photo, teal coral graphite art direction, abstract editorial styling, no readable text` |
+| Demo seed | `972006` |
 | Demo files | [embedded-workflow PNG](assets/krea-v9/demos/suggest-visual-style.png), [workflow JSON](assets/krea-v9/demos/suggest-visual-style.workflow.json) |
 
 This is the main style-transfer recipe. It borrows palette and finish while
@@ -155,6 +161,8 @@ much, lower strength toward `0.35` to `0.50`.
 | Recipe | `copy lighting and mood` |
 | Demo strength | `0.42` |
 | Best for | Light direction, shadow behavior, glow, haze, contrast, and color cast. |
+| Demo prompt | `a spherical glass desk lamp on a dark blue tabletop, dramatic warm side beam, cinematic shadow, minimal editorial product photo, no readable text` |
+| Demo seed | `972005` |
 | Demo files | [embedded-workflow PNG](assets/krea-v9/demos/copy-lighting-mood.png), [workflow JSON](assets/krea-v9/demos/copy-lighting-mood.workflow.json) |
 
 Use this when you want atmosphere without identity. It is useful for product
@@ -171,6 +179,8 @@ shots, interiors, mood boards, and cinematic color direction.
 | Recipe | `suggest material or texture` |
 | Demo strength | `0.36` |
 | Best for | Woven ceramic, stone, paper grain, fabric, brushed metal, painted finish, and other surface qualities. |
+| Demo prompt | `a handcrafted ceramic table lamp with woven black-and-cream surface texture, editorial product photo, clean unmarked design` |
+| Demo seed | `972007` |
 | Demo files | [embedded-workflow PNG](assets/krea-v9/demos/suggest-material-texture.png), [workflow JSON](assets/krea-v9/demos/suggest-material-texture.workflow.json) |
 
 Use this for material feel. If the exact pattern copies too strongly, lower
@@ -187,6 +197,8 @@ strength or use manual tuning with lower `Small details kept`.
 | Recipe | `copy pose and layout` |
 | Demo strength | `0.38` |
 | Best for | Broad placement, camera angle, pose, crop, and spacing without copying the subject. |
+| Demo prompt | `four small ceramic fragrance bottles arranged on a diagonal display shelf, refined product photography, warm gallery light, no readable text` |
+| Demo seed | `972004` |
 | Demo files | [embedded-workflow PNG](assets/krea-v9/demos/copy-pose-layout.png), [workflow JSON](assets/krea-v9/demos/copy-pose-layout.workflow.json) |
 
 This recipe borrows structure. It suppresses color, subject identity, and exact
@@ -203,6 +215,8 @@ texture so the prompt can decide what appears inside that layout.
 | Recipe | `copy big shapes only` |
 | Demo strength | `0.34` |
 | Best for | Broad geometry, silhouette, massing, and spacing. |
+| Demo prompt | `a black sculptural perfume bottle with a bold triangular silhouette on a plinth, luxury product photo, minimal background, no readable text` |
+| Demo seed | `972008` |
 | Demo files | [embedded-workflow PNG](assets/krea-v9/demos/copy-big-shapes-only.png), [workflow JSON](assets/krea-v9/demos/copy-big-shapes-only.workflow.json) |
 
 Shape-only mode intentionally removes color and detail influence. Use it when
@@ -220,6 +234,8 @@ object, material, and finish.
 | Recipe | `avoid copying text/logos` |
 | Demo strength | `0.03` |
 | Best for | Signs, logos, UI, labels, screenshots, packaging labels, and letter-like marks. |
+| Demo prompt | `a clean gallery sign on a simple stand with a smooth blank center panel, plain unmarked surface, no readable words, no letters, no logo, soft daylight` |
+| Demo seed | `972009` |
 | Demo files | [embedded-workflow PNG](assets/krea-v9/demos/avoid-copying-text-logos.png), [workflow JSON](assets/krea-v9/demos/avoid-copying-text-logos.workflow.json) |
 
 Keep strength very low. Pair this recipe with blank-surface prompt wording such
@@ -236,6 +252,8 @@ as `blank`, `unmarked`, `plain`, `clean`, or `empty panel`.
 | Recipe | `manual tuning` |
 | Demo strength | `0.42` |
 | Best for | Deliberate custom combinations of style, shape, lighting, detail, timing, and preprocessing. |
+| Demo prompt | `a smooth ceramic vase on a white plinth, editorial product photograph, hand painted teal coral graphite accents, clean unmarked surface, soft studio light` |
+| Demo seed | `972001` |
 | Demo files | [embedded-workflow PNG](assets/krea-v9/demos/manual-tuning.png), [workflow JSON](assets/krea-v9/demos/manual-tuning.workflow.json) |
 
 Manual mode is for deliberate control. In this demo the card borrows

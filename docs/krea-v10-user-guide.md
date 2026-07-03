@@ -7,9 +7,14 @@ study cache for fast tuning, and two feedback outputs that show you what the
 stack actually did.
 
 If you are new to Krea Reference, read the [V9 guide](krea-v9-user-guide.md)
-first for the core mental model; this guide focuses on what V10 adds. Demo
-renders for the V10 recipes (matching the V9 demo gallery) land with the V10
-release; the bundled synthetic source images below ship today.
+first for the core mental model; this guide focuses on what V10 adds. Every
+demo below is a complete journey - input images, recipe and settings, the
+exact prompt, and the result - and every result PNG has the matching V10
+workflow embedded, so you can drag it into ComfyUI and inspect the setup.
+
+![Krea V10 demo output gallery](assets/krea-v10/demos/recipe-gallery.png)
+
+The synthetic source images used throughout ship with the repo:
 
 ![Synthetic reference images included with Krea Reference](../example_assets/krea-reference-examples/contact_sheet.png)
 
@@ -17,6 +22,7 @@ release; the bundled synthetic source images below ship today.
 
 - [Fast Start](#fast-start)
 - [What V10 Adds](#what-v10-adds)
+- [How The Demos Were Made](#how-the-demos-were-made)
 - [New Quick Recipes](#new-quick-recipes)
 - [Create Your Own Recipes](#create-your-own-recipes)
 - [Guide Direction: Counter-Examples](#guide-direction-counter-examples)
@@ -27,6 +33,7 @@ release; the bundled synthetic source images below ship today.
 - [Reading The Stack Report](#reading-the-stack-report)
 - [The Prepared-References Preview](#the-prepared-references-preview)
 - [Multi-Reference Recipes](#multi-reference-recipes)
+- [Embedded Demo Workflows](#embedded-demo-workflows)
 - [Troubleshooting](#troubleshooting)
 
 ## Fast Start
@@ -80,53 +87,106 @@ V10 controls). Saved V9 workflows keep working unchanged.
 The text/logo guard's full-guard prompt rewriter also understands common
 marking words in Spanish, French, German, Portuguese, and Italian.
 
+## How The Demos Were Made
+
+Every journey in this guide shares the same house setup, so the settings
+tables list only what changes per demo:
+
+| House setting | Value |
+| --- | --- |
+| Model / CLIP / VAE | `krea2_turbo_nvfp4` / `qwen3vl_4b_fp8_scaled` / `qwen_image_vae` |
+| Sampler | 8 steps, cfg `1.0`, `euler` / `simple`, AuraFlow shift `3.14`, 512x768, fixed seed per demo |
+| Stack | `artist friendly` feel, `medium (384)` detail, `keep full image shape`, `smart per-card timing`, handoff `0.40`, written prompt strength `1.25` |
+| Negative prompt | `boring, dull, blurry, low-quality, fake letters, readable text, logo, watermark, oversaturated colours` |
+
+Drag any result PNG into ComfyUI to load its embedded V10 workflow, or open
+the `.workflow.json` beside it in [assets/krea-v10/demos](assets/krea-v10/demos/).
+
 ## New Quick Recipes
 
 The four V10 recipes cover the jobs that previously required `manual tuning`.
+Each journey below shows the input, the card settings, the exact prompt, and
+the result.
 
 ### Suggest The Color Palette
+
+| Input | Result |
+| --- | --- |
+| <img src="../example_assets/krea-reference-examples/slot2_style_reference.png" alt="Palette source image" width="260"> | <img src="assets/krea-v10/demos/suggest-color-palette.png" alt="Suggest the color palette result" width="420"> |
 
 | Setting | Value |
 | --- | --- |
 | Recipe | `suggest the color palette` |
-| Source example | <img src="../example_assets/krea-reference-examples/slot4_lighting_mood.png" alt="Palette source example" width="220"> |
-| Start near | `0.30` to `0.45` |
-| Best for | Borrowing broad color palette, contrast, and tonal relationships with nothing else. |
+| Strength | `0.85` (demo; start near `0.30` to `0.45` in multi-card stacks) |
+| Seed | `972101` |
+| Prompt | `a matte ceramic sphere on a small plinth, neutral gray studio backdrop, soft even light, clean unmarked design, no readable text` |
+| Demo files | [result PNG](assets/krea-v10/demos/suggest-color-palette.png), [workflow JSON](assets/krea-v10/demos/suggest-color-palette.workflow.json) |
 
-The image is reduced to a palette wash at low study resolution, so almost
-nothing but color relationships survives. Check the prepared-references
-preview: seeing how little remains is the point.
+Palette-only is deliberately the gentlest recipe. Compare the pair below -
+same prompt, same seed, the only change is the card: the neutral gray canvas
+warms toward the source's cream-coral cast while the abstract source shapes
+stay out entirely. The image is reduced to a palette wash at low study
+resolution before the encoder sees it, so color relationships are all that
+*can* arrive.
+
+| Prompt only (no cards) | With the palette card |
+| --- | --- |
+| <img src="assets/krea-v10/demos/suggest-color-palette-off.png" alt="Palette journey prompt-only baseline" width="300"> | <img src="assets/krea-v10/demos/suggest-color-palette.png" alt="Palette journey with palette card" width="300"> |
 
 ### Use The Background/Setting
+
+| Input | Result |
+| --- | --- |
+| <img src="../example_assets/krea-reference-examples/slot8_background_environment.png" alt="Environment source image" width="260"> | <img src="assets/krea-v10/demos/use-background-setting.png" alt="Use the background/setting result" width="420"> |
 
 | Setting | Value |
 | --- | --- |
 | Recipe | `use the background/setting` |
-| Source example | <img src="../example_assets/krea-reference-examples/slot8_background_environment.png" alt="Environment source example" width="220"> |
-| Start near | `0.25` to `0.40` |
-| Best for | Location type, scene context, and spatial atmosphere without replacing the main subject. |
+| Strength | `0.35` |
+| Seed | `972102` |
+| Prompt | `a sculptural table lamp on a small side table, editorial product photo, cohesive interior scene, no readable text` |
+| Demo files | [result PNG](assets/krea-v10/demos/use-background-setting.png), [workflow JSON](assets/krea-v10/demos/use-background-setting.workflow.json) |
+
+The environment recipe brings location, spatial atmosphere, and context -
+the interior, side table, and room light arrive from the reference while the
+prompt keeps ownership of the lamp.
 
 ### Copy The Camera Framing
+
+| Input | Result |
+| --- | --- |
+| <img src="../example_assets/krea-reference-examples/slot6_pose_layout.png" alt="Framing source image" width="260"> | <img src="assets/krea-v10/demos/copy-camera-framing.png" alt="Copy the camera framing result" width="420"> |
 
 | Setting | Value |
 | --- | --- |
 | Recipe | `copy the camera framing` |
-| Source example | <img src="../example_assets/krea-reference-examples/slot6_pose_layout.png" alt="Framing source example" width="220"> |
-| Start near | `0.20` to `0.35` |
-| Best for | Camera distance, crop, lens feel, and viewpoint only - grayscale, structure-heavy early, quiet late. |
+| Strength | `0.30` |
+| Seed | `972103` |
+| Prompt | `three ceramic vases in a row on a low wooden table, plain unmarked surfaces, soft daylight, refined product photography, no readable text` |
+| Demo files | [result PNG](assets/krea-v10/demos/copy-camera-framing.png), [workflow JSON](assets/krea-v10/demos/copy-camera-framing.workflow.json) |
 
-This recipe preserves the reference's aspect ratio while studying it, because
-the frame *is* the information. It pairs well with `When this card guides` set
-to `early layout only`.
+Framing borrows camera distance, crop, and viewpoint only - the diagonal
+row arrangement echoes the reference while subject, palette, and surface
+come from the prompt. The recipe studies the reference in grayscale at its
+own aspect ratio, because the frame *is* the information. It pairs well with
+`When this card guides` set to `early layout only`.
 
 ### Mood Board Only
+
+| Input | Result |
+| --- | --- |
+| <img src="../example_assets/krea-reference-examples/slot2_style_reference.png" alt="Mood board source image" width="260"> | <img src="assets/krea-v10/demos/mood-board-only.png" alt="Mood board only result" width="420"> |
 
 | Setting | Value |
 | --- | --- |
 | Recipe | `mood board only` |
-| Source example | <img src="../example_assets/krea-reference-examples/slot2_style_reference.png" alt="Mood board source example" width="220"> |
-| Start near | `0.15` to `0.30` (capped at `0.6`) |
-| Best for | Loose inspiration that should whisper, never dictate. |
+| Strength | `0.25` (hard cap `0.6`) |
+| Seed | `972104` |
+| Prompt | `a calm desk scene with a small ceramic lamp and a closed notebook, editorial photo, no readable text` |
+| Demo files | [result PNG](assets/krea-v10/demos/mood-board-only.png), [workflow JSON](assets/krea-v10/demos/mood-board-only.workflow.json) |
+
+Mood board whispers: loose inspiration under a hard cap, suggesting a
+feeling without dictating content.
 
 ## Create Your Own Recipes
 
@@ -267,6 +327,32 @@ The job picks *what* to repel:
 | `away` + `copy pose and layout` | Not this composition. |
 | `away` + `keep the same subject` | Keep this subject out entirely. |
 
+### The direction journey
+
+The pair below shows exactly what an away card negates. Same prompt, same
+seed (`972106`); the only change is connecting the style card pulled
+`toward this image` at `0.65`:
+
+| Step 1: prompt only | Step 2: style pulled toward |
+| --- | --- |
+| <img src="assets/krea-v10/demos/counter-example-baseline.png" alt="Direction journey prompt-only baseline" width="300"> | <img src="assets/krea-v10/demos/counter-example-toward.png" alt="Direction journey with style pulled toward" width="300"> |
+
+| Setting | Value |
+| --- | --- |
+| Style source | <img src="../example_assets/krea-reference-examples/slot2_style_reference.png" alt="Style source image" width="180"> |
+| Prompt (both steps) | `a sculptural table lamp in a clean studio product photo, no readable text` |
+| Step 2 card | `suggest the visual style`, `toward this image`, strength `0.65` |
+| Demo files | [step 1 PNG](assets/krea-v10/demos/counter-example-baseline.png), [step 2 PNG](assets/krea-v10/demos/counter-example-toward.png) + `.workflow.json` beside each |
+
+The style source's organic, abstract form language arrives in step 2 - and
+that contribution is precisely what the same card set to
+`away from this image` pushes out of the result. Away also pushes harder per
+slider unit than toward, because it extrapolates past removal - which is why
+the rules below say start low. Step 3 (the away render, same seed) requires
+the V10 nodes on the render machine and lands with it; run
+[krea-v10-counter-example-workflow.json](../example_workflows/krea-v10-counter-example-workflow.json)
+to produce it yourself today.
+
 Rules of thumb:
 
 - Start low: `0.10` to `0.30`. Repulsion gets strange faster than attraction.
@@ -275,9 +361,6 @@ Rules of thumb:
 - A counter-example card always avoids subject copying, whatever
   `Subject copying` says.
 - The stack report marks away cards and prints their negative targets.
-
-Load [krea-v10-counter-example-workflow.json](../example_workflows/krea-v10-counter-example-workflow.json)
-to see a working toward + away pair.
 
 ## Per-Card Timing
 
@@ -295,6 +378,28 @@ Typical uses: a framing or layout card set to `early layout only` composes the
 image and then gets out of the way; a material card set to
 `final details only` touches only the finish. The text/logo guard still clamps
 last - a guarded card never regains late-phase influence.
+
+### The timing journey
+
+Same style card, same seed (`972105`), same prompt - the only change is
+`When this card guides`:
+
+| `early layout only` | `final details only` |
+| --- | --- |
+| <img src="assets/krea-v10/demos/timing-style-early-only.png" alt="Timing journey early layout only" width="300"> | <img src="assets/krea-v10/demos/timing-style-final-only.png" alt="Timing journey final details only" width="300"> |
+
+| Setting | Value |
+| --- | --- |
+| Style source | <img src="../example_assets/krea-reference-examples/slot2_style_reference.png" alt="Style source image" width="180"> |
+| Card | `suggest the visual style`, strength `0.75` |
+| Prompt (both) | `a modern table lamp in a clean studio product photo, no readable text` |
+| Demo files | [early-only PNG](assets/krea-v10/demos/timing-style-early-only.png), [final-only PNG](assets/krea-v10/demos/timing-style-final-only.png) + `.workflow.json` beside each |
+
+Early-only lets the style shape the composition - the graphite two-tone
+structure echoes the source - then hands the finish back to the prompt.
+Final-only is the mirror image: the prompt owns the layout and the style
+arrives only in the surface, bringing the source's coral into the frame and
+base. One widget, two very different pictures.
 
 ## Manual Layer Dials
 
@@ -393,7 +498,25 @@ palette card's frame is nothing but soft color blocks, it is doing its job.
 | "Anything but that" | Normal toward cards for what you want, plus one `away` card holding the look to avoid at `0.15` to `0.25`. |
 | Fast strength search | Any stack with `reuse between runs`; queue, read the report, tweak one card, repeat. |
 
-Typical V10 six-card stack (the full showcase):
+### The full showcase journey
+
+Six cards, one job each - rendered as a single journey:
+
+| Setting | Value |
+| --- | --- |
+| Cards | `keep the same subject` `0.80` (slot1) - `suggest the visual style` `0.55` (slot2) - `use the background/setting` `0.35` (slot8) - `suggest the color palette` `0.40` (slot4) - `copy the camera framing` `0.30`, `early layout only` (slot6) - `avoid copying text/logos` `0.03` (slot5) |
+| Prompt | `a ceramic travel mug on a wooden desk in a bright studio, no readable text` (strength `1.15`) |
+| Seed | `972107` |
+| Demo files | [result PNG](assets/krea-v10/demos/full-showcase.png), [workflow JSON](assets/krea-v10/demos/full-showcase.workflow.json) |
+
+<img src="assets/krea-v10/demos/full-showcase.png" alt="Full showcase result - six jobs" width="420">
+
+The mug is the prompt's, the desk and light read bright-studio, and the
+row-of-objects framing echoes the pose reference before handing off - notice
+even the second mug slipping in from the framing card's arrangement. This
+render used `off - use my values` balance; the shipped
+[showcase workflow](../example_workflows/krea-v10-full-showcase-workflow.json)
+turns `gentle balance` on as its starting point:
 
 ```text
 Reference 1: keep the same subject, 0.80
@@ -404,6 +527,33 @@ Reference 5: copy the camera framing, 0.30, early layout only
 Reference 6: avoid copying text/logos, 0.03
 Stack: gentle balance, reuse between runs
 ```
+
+## Embedded Demo Workflows
+
+Drag any demo PNG into ComfyUI to load its V10 workflow, or open the JSON
+beside it. Full per-demo settings live in
+[guide-demo-manifest.json](assets/krea-v10/demos/guide-demo-manifest.json).
+
+| Journey | PNG | JSON |
+| --- | --- | --- |
+| Suggest the color palette | [suggest-color-palette.png](assets/krea-v10/demos/suggest-color-palette.png) | [workflow](assets/krea-v10/demos/suggest-color-palette.workflow.json) |
+| Palette journey, prompt only | [suggest-color-palette-off.png](assets/krea-v10/demos/suggest-color-palette-off.png) | [workflow](assets/krea-v10/demos/suggest-color-palette-off.workflow.json) |
+| Use the background/setting | [use-background-setting.png](assets/krea-v10/demos/use-background-setting.png) | [workflow](assets/krea-v10/demos/use-background-setting.workflow.json) |
+| Copy the camera framing | [copy-camera-framing.png](assets/krea-v10/demos/copy-camera-framing.png) | [workflow](assets/krea-v10/demos/copy-camera-framing.workflow.json) |
+| Mood board only | [mood-board-only.png](assets/krea-v10/demos/mood-board-only.png) | [workflow](assets/krea-v10/demos/mood-board-only.workflow.json) |
+| Timing: early layout only | [timing-style-early-only.png](assets/krea-v10/demos/timing-style-early-only.png) | [workflow](assets/krea-v10/demos/timing-style-early-only.workflow.json) |
+| Timing: final details only | [timing-style-final-only.png](assets/krea-v10/demos/timing-style-final-only.png) | [workflow](assets/krea-v10/demos/timing-style-final-only.workflow.json) |
+| Direction journey: prompt only | [counter-example-baseline.png](assets/krea-v10/demos/counter-example-baseline.png) | [workflow](assets/krea-v10/demos/counter-example-baseline.workflow.json) |
+| Direction journey: style toward | [counter-example-toward.png](assets/krea-v10/demos/counter-example-toward.png) | [workflow](assets/krea-v10/demos/counter-example-toward.workflow.json) |
+| Full showcase | [full-showcase.png](assets/krea-v10/demos/full-showcase.png) | [workflow](assets/krea-v10/demos/full-showcase.workflow.json) |
+
+Two renders intentionally wait for the V10 nodes to reach the render
+machine: the away-direction result (step 3 of the direction journey) and a
+balance on/off comparison. Both workflows already ship, so you can produce
+them on your own V10 install today.
+
+If a loaded demo reports missing images, copy
+`example_assets/krea-reference-examples/` into your ComfyUI `input/` folder.
 
 ## Troubleshooting
 

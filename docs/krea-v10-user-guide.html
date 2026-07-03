@@ -273,10 +273,16 @@
         <code>away from this image</code> direction. V9 workflows keep working
         unchanged, and V9 and V10 cards cross-connect.
       </div>
-      <figure style="margin-top: 20px;">
-        <img src="../example_assets/krea-reference-examples/contact_sheet.png" alt="Synthetic reference images included with Krea Reference">
-        <figcaption class="caption">Synthetic reference images included with this repo. V10 demo renders matching the V9 gallery land with the V10 release.</figcaption>
-      </figure>
+      <div class="two" style="margin-top: 20px;">
+        <figure>
+          <img src="../example_assets/krea-reference-examples/contact_sheet.png" alt="Synthetic reference images included with Krea Reference">
+          <figcaption class="caption">Synthetic reference images included with this repo - the inputs for every journey below.</figcaption>
+        </figure>
+        <figure>
+          <img src="assets/krea-v10/demos/recipe-gallery.png" alt="Krea V10 demo output gallery">
+          <figcaption class="caption">ComfyUI-generated V10 demo outputs. Each individual demo PNG has the matching V10 workflow embedded - drag one into ComfyUI to inspect the setup.</figcaption>
+        </figure>
+      </div>
     </section>
 
     <section id="new">
@@ -324,22 +330,35 @@
         <h3>Suggest The Color Palette</h3>
         <div class="media">
           <figure class="source">
-            <img src="../example_assets/krea-reference-examples/slot4_lighting_mood.png" alt="Palette source example">
-            <figcaption class="caption">Palette source example</figcaption>
+            <img src="../example_assets/krea-reference-examples/slot2_style_reference.png" alt="Palette source image">
+            <figcaption class="caption">Input: palette source</figcaption>
           </figure>
           <div>
             <div class="meta">
-              <span class="pill">Start near 0.30&ndash;0.45</span>
+              <span class="pill">Strength 0.85 (demo)</span>
+              <span class="pill">Seed 972101</span>
               <span class="pill">Cap 0.9</span>
               <span class="pill">Palette wash, zero detail</span>
             </div>
+            <p><strong>Prompt:</strong> <code>a matte ceramic sphere on a small plinth, neutral gray studio backdrop, soft even light, clean unmarked design, no readable text</code></p>
             <p>
               Borrow broad color palette, contrast, and tonal relationships -
-              nothing else. The image is reduced to soft color blocks before the
-              encoder ever sees it; check the prepared-references preview and
-              you will see how little survives. That is the point.
+              nothing else. Palette-only is deliberately the gentlest recipe:
+              same prompt, same seed, the neutral gray canvas warms toward the
+              source's cream-coral cast while the abstract source shapes stay
+              out entirely.
             </p>
           </div>
+        </div>
+        <div class="two" style="margin-top: 14px;">
+          <figure>
+            <img src="assets/krea-v10/demos/suggest-color-palette-off.png" alt="Palette journey prompt-only baseline">
+            <figcaption class="caption">Prompt only (no cards)</figcaption>
+          </figure>
+          <figure>
+            <img src="assets/krea-v10/demos/suggest-color-palette.png" alt="Suggest the color palette result">
+            <figcaption class="caption">Result with the palette card</figcaption>
+          </figure>
         </div>
       </div>
 
@@ -347,61 +366,77 @@
         <h3>Use The Background/Setting</h3>
         <div class="media">
           <figure class="source">
-            <img src="../example_assets/krea-reference-examples/slot8_background_environment.png" alt="Environment source example">
-            <figcaption class="caption">Environment source example</figcaption>
+            <img src="../example_assets/krea-reference-examples/slot8_background_environment.png" alt="Environment source image">
+            <figcaption class="caption">Input: environment source</figcaption>
           </figure>
           <div>
             <div class="meta">
-              <span class="pill">Start near 0.25&ndash;0.40</span>
+              <span class="pill">Strength 0.35</span>
+              <span class="pill">Seed 972102</span>
               <span class="pill">Subject stays yours</span>
             </div>
+            <p><strong>Prompt:</strong> <code>a sculptural table lamp on a small side table, editorial product photo, cohesive interior scene, no readable text</code></p>
             <p>
               Borrow location type, scene context, and spatial atmosphere
-              without replacing the main subject. Pair it with
-              <code>keep the same subject</code> on the content card for
-              product-in-a-place shots.
+              without replacing the main subject - the interior, side table,
+              and room light arrive from the reference while the prompt keeps
+              ownership of the lamp. Pair it with
+              <code>keep the same subject</code> for product-in-a-place shots.
             </p>
           </div>
         </div>
+        <figure style="margin-top: 14px; max-width: 420px;">
+          <img src="assets/krea-v10/demos/use-background-setting.png" alt="Use the background/setting result">
+          <figcaption class="caption">Result</figcaption>
+        </figure>
       </div>
 
       <div class="recipe">
         <h3>Copy The Camera Framing</h3>
         <div class="media">
           <figure class="source">
-            <img src="../example_assets/krea-reference-examples/slot6_pose_layout.png" alt="Framing source example">
-            <figcaption class="caption">Framing source example</figcaption>
+            <img src="../example_assets/krea-reference-examples/slot6_pose_layout.png" alt="Framing source image">
+            <figcaption class="caption">Input: framing source</figcaption>
           </figure>
           <div>
             <div class="meta">
-              <span class="pill">Start near 0.20&ndash;0.35</span>
+              <span class="pill">Strength 0.30</span>
+              <span class="pill">Seed 972103</span>
               <span class="pill">Grayscale, aspect preserved</span>
               <span class="pill">Pairs with early layout only</span>
             </div>
+            <p><strong>Prompt:</strong> <code>three ceramic vases in a row on a low wooden table, plain unmarked surfaces, soft daylight, refined product photography, no readable text</code></p>
             <p>
-              Camera distance, crop, lens feel, and viewpoint only. The
-              reference keeps its aspect ratio during study because the frame
-              <em>is</em> the information. Set
-              <code>When this card guides</code> to
+              Camera distance, crop, and viewpoint only - the diagonal row
+              arrangement echoes the reference while subject, palette, and
+              surface come from the prompt. The reference keeps its aspect
+              ratio during study because the frame <em>is</em> the
+              information. Set <code>When this card guides</code> to
               <code>early layout only</code> so it composes the shot and then
               gets out of the way.
             </p>
           </div>
         </div>
+        <figure style="margin-top: 14px; max-width: 420px;">
+          <img src="assets/krea-v10/demos/copy-camera-framing.png" alt="Copy the camera framing result">
+          <figcaption class="caption">Result</figcaption>
+        </figure>
       </div>
 
       <div class="recipe">
         <h3>Mood Board Only</h3>
         <div class="media">
           <figure class="source">
-            <img src="../example_assets/krea-reference-examples/slot2_style_reference.png" alt="Mood board source example">
-            <figcaption class="caption">Mood board source example</figcaption>
+            <img src="../example_assets/krea-reference-examples/slot2_style_reference.png" alt="Mood board source image">
+            <figcaption class="caption">Input: mood board source</figcaption>
           </figure>
           <div>
             <div class="meta">
-              <span class="pill">Start near 0.15&ndash;0.30</span>
+              <span class="pill">Strength 0.25</span>
+              <span class="pill">Seed 972104</span>
               <span class="pill">Hard cap 0.6</span>
             </div>
+            <p><strong>Prompt:</strong> <code>a calm desk scene with a small ceramic lamp and a closed notebook, editorial photo, no readable text</code></p>
             <p>
               Loose inspiration that whispers and never dictates. The recipe is
               capped so a mood board can never take over the image, no matter
@@ -410,7 +445,21 @@
             </p>
           </div>
         </div>
+        <figure style="margin-top: 14px; max-width: 420px;">
+          <img src="assets/krea-v10/demos/mood-board-only.png" alt="Mood board only result">
+          <figcaption class="caption">Result</figcaption>
+        </figure>
       </div>
+
+      <p class="small" style="margin-top: 16px;">
+        House settings for every demo: krea2 turbo nvfp4, 8 steps, cfg 1.0,
+        euler/simple, AuraFlow shift 3.14, 512&times;768, fixed seed per demo;
+        stack at artist-friendly feel, medium (384) detail, smart per-card
+        timing, written prompt strength 1.25; negative prompt
+        <code>boring, dull, blurry, low-quality, fake letters, readable text,
+        logo, watermark, oversaturated colours</code>. Full per-demo settings:
+        <a href="assets/krea-v10/demos/guide-demo-manifest.json">guide-demo-manifest.json</a>.
+      </p>
     </section>
 
     <section id="custom-recipes">
@@ -525,8 +574,33 @@ layers: [0.25, 0.35, 0.45, 0.6, 0.8,
         always avoids subject copying, whatever <code>Subject copying</code>
         says.
       </div>
+      <h3 style="margin-top: 20px;">The direction journey</h3>
+      <p class="small">
+        Same prompt (<code>a sculptural table lamp in a clean studio product
+        photo, no readable text</code>), same seed (972106); the only change
+        is connecting the style card pulled <code>toward this image</code> at
+        0.65. What arrives in step 2 - the source's organic, abstract form
+        language - is exactly what the same card set to <code>away</code>
+        pushes out.
+      </p>
+      <div class="three" style="margin-top: 12px;">
+        <figure>
+          <img src="../example_assets/krea-reference-examples/slot2_style_reference.png" alt="Style source image">
+          <figcaption class="caption">Input: style source</figcaption>
+        </figure>
+        <figure>
+          <img src="assets/krea-v10/demos/counter-example-baseline.png" alt="Direction journey prompt-only baseline">
+          <figcaption class="caption">Step 1: prompt only</figcaption>
+        </figure>
+        <figure>
+          <img src="assets/krea-v10/demos/counter-example-toward.png" alt="Direction journey style pulled toward">
+          <figcaption class="caption">Step 2: style toward at 0.65</figcaption>
+        </figure>
+      </div>
       <p class="small" style="margin-top: 12px;">
-        Working example: <code>example_workflows/krea-v10-counter-example-workflow.json</code>
+        Step 3 - the away render on the same seed - needs the V10 nodes on the
+        render machine and lands with them. Produce it yourself today:
+        <code>example_workflows/krea-v10-counter-example-workflow.json</code>
         keeps a product with a toward card at 0.80 and pushes a style out with
         an away card at 0.25.
       </p>
@@ -556,6 +630,30 @@ layers: [0.25, 0.35, 0.45, 0.6, 0.8,
         The text/logo guard clamps last: a guarded card never regains
         late-phase influence, whatever the timing choice says.
       </p>
+      <h3 style="margin-top: 20px;">The timing journey</h3>
+      <p class="small">
+        Same style card (<code>suggest the visual style</code>, strength
+        0.75), same seed (972105), same prompt (<code>a modern table lamp in
+        a clean studio product photo, no readable text</code>) - the only
+        change is <code>When this card guides</code>. Early-only lets the
+        style shape the composition, then hands the finish back to the
+        prompt; final-only is the mirror image, bringing the source's coral
+        into the surface while the prompt owns the layout.
+      </p>
+      <div class="three" style="margin-top: 12px;">
+        <figure>
+          <img src="../example_assets/krea-reference-examples/slot2_style_reference.png" alt="Style source image">
+          <figcaption class="caption">Input: style source</figcaption>
+        </figure>
+        <figure>
+          <img src="assets/krea-v10/demos/timing-style-early-only.png" alt="Timing journey early layout only">
+          <figcaption class="caption">early layout only</figcaption>
+        </figure>
+        <figure>
+          <img src="assets/krea-v10/demos/timing-style-final-only.png" alt="Timing journey final details only">
+          <figcaption class="caption">final details only</figcaption>
+        </figure>
+      </div>
     </section>
 
     <section id="stack">
@@ -654,6 +752,33 @@ Studies: 7 encoder passes this run;
         ComfyUI <code>input/</code> folder first so the Load Image nodes find
         the bundled example images.
       </p>
+      <h3 style="margin-top: 20px;">The full showcase journey</h3>
+      <div class="media" style="display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); gap: 18px; align-items: start;">
+        <figure>
+          <img src="assets/krea-v10/demos/full-showcase.png" alt="Full showcase result - six jobs">
+          <figcaption class="caption">Result: six cards, one job each (seed 972107)</figcaption>
+        </figure>
+        <div>
+          <div class="meta">
+            <span class="pill">keep the same subject 0.80</span>
+            <span class="pill">suggest the visual style 0.55</span>
+            <span class="pill">use the background/setting 0.35</span>
+            <span class="pill">suggest the color palette 0.40</span>
+            <span class="pill">copy the camera framing 0.30, early only</span>
+            <span class="pill">avoid copying text/logos 0.03</span>
+          </div>
+          <p><strong>Prompt:</strong> <code>a ceramic travel mug on a wooden desk in a bright studio, no readable text</code> at strength 1.15.</p>
+          <p class="small">
+            The mug is the prompt's, the desk and light read bright-studio,
+            and the row-of-objects framing echoes the pose reference before
+            handing off - even the second mug slips in from the framing
+            card's arrangement. This render used balance off; the shipped
+            showcase workflow turns gentle balance on as its starting point.
+            Drag <a href="assets/krea-v10/demos/full-showcase.png">the result PNG</a>
+            into ComfyUI for the exact graph.
+          </p>
+        </div>
+      </div>
     </section>
 
     <section id="troubleshooting">
