@@ -239,6 +239,7 @@
         <a href="#quick-start">Quick Start</a>
         <a href="#new">What V10 Adds</a>
         <a href="#recipes">New Recipes</a>
+        <a href="#gallery">Recipe Gallery</a>
         <a href="#custom-recipes">Your Own Recipes</a>
         <a href="#direction">Direction</a>
         <a href="#feedback">Report &amp; Preview</a>
@@ -335,7 +336,7 @@
           </figure>
           <div>
             <div class="meta">
-              <span class="pill">Strength 0.85 (demo)</span>
+              <span class="pill">Strength 0.65</span>
               <span class="pill">Seed 972101</span>
               <span class="pill">Cap 0.9</span>
               <span class="pill">Palette wash, zero detail</span>
@@ -343,10 +344,11 @@
             <p><strong>Prompt:</strong> <code>a matte ceramic sphere on a small plinth, neutral gray studio backdrop, soft even light, clean unmarked design, no readable text</code></p>
             <p>
               Borrow broad color palette, contrast, and tonal relationships -
-              nothing else. Palette-only is deliberately the gentlest recipe:
-              same prompt, same seed, the neutral gray canvas warms toward the
-              source's cream-coral cast while the abstract source shapes stay
-              out entirely.
+              nothing else. Same prompt, same seed: the neutral sphere takes
+              on the source's pastel coral-teal-lavender relationships as soft
+              color fields while the abstract source shapes stay out entirely.
+              The recipe whispers below ~0.5, lands clearly from ~0.6, and
+              caps itself at 0.9.
             </p>
           </div>
         </div>
@@ -371,16 +373,17 @@
           </figure>
           <div>
             <div class="meta">
-              <span class="pill">Strength 0.35</span>
+              <span class="pill">Strength 0.65</span>
               <span class="pill">Seed 972102</span>
               <span class="pill">Subject stays yours</span>
             </div>
             <p><strong>Prompt:</strong> <code>a sculptural table lamp on a small side table, editorial product photo, cohesive interior scene, no readable text</code></p>
             <p>
-              Borrow location type, scene context, and spatial atmosphere
-              without replacing the main subject - the interior, side table,
-              and room light arrive from the reference while the prompt keeps
-              ownership of the lamp. Pair it with
+              Borrow the <em>feeling of the place</em>: the reference's warm
+              plaster palette and room mood arrive, and the model builds a
+              coherent interior around the prompt's lamp. The reference is
+              studied structure-free, so it sets the atmosphere without ever
+              reshaping your subject into its own forms. Pair it with
               <code>keep the same subject</code> for product-in-a-place shots.
             </p>
           </div>
@@ -432,16 +435,17 @@
           </figure>
           <div>
             <div class="meta">
-              <span class="pill">Strength 0.25</span>
+              <span class="pill">Strength 0.50</span>
               <span class="pill">Seed 972104</span>
-              <span class="pill">Hard cap 0.6</span>
+              <span class="pill">Hard cap 0.9</span>
             </div>
             <p><strong>Prompt:</strong> <code>a calm desk scene with a small ceramic lamp and a closed notebook, editorial photo, no readable text</code></p>
             <p>
-              Loose inspiration that whispers and never dictates. The recipe is
-              capped so a mood board can never take over the image, no matter
-              where the slider goes - the stack report will show the cap if you
-              push past it.
+              Loose inspiration that stays gentle and never dictates: the
+              sage-and-cream calm of the source settles over the desk without
+              touching the composition. The recipe is capped so a mood board
+              can never take over the image, no matter where the slider goes -
+              the stack report will show the cap if you push past it.
             </p>
           </div>
         </div>
@@ -457,7 +461,51 @@
         stack at artist-friendly feel, medium (384) detail, smart per-card
         timing, written prompt strength 1.25; negative prompt
         <code>boring, dull, blurry, low-quality, fake letters, readable text,
-        logo, watermark, oversaturated colours</code>. Full per-demo settings:
+        logo, watermark, oversaturated colours</code>. Every demo was rendered
+        through the real V10 nodes with the current recipe tuning - the
+        embedded workflow values are exactly what rendered. Full per-demo
+        settings:
+        <a href="assets/krea-v10/demos/guide-demo-manifest.json">guide-demo-manifest.json</a>.
+      </p>
+    </section>
+
+    <section id="gallery">
+      <h2>The Recipe Gallery: Every Job Demonstrated</h2>
+      <p class="lede">
+        One demo per built-in recipe - all twelve - on the bundled example
+        assets, so any row is reproducible. Drag any PNG in
+        <code>docs/assets/krea-v10/demos/</code> into ComfyUI to load its
+        exact workflow.
+      </p>
+      <figure>
+        <img src="assets/krea-v10/demos/recipe-gallery.png" alt="All twelve recipes demonstrated, one demo each">
+        <figcaption class="caption">
+          Row by row: balanced &middot; keep the same subject &middot; copy
+          pose and layout &middot; copy big shapes only &middot; copy the
+          camera framing &middot; avoid copying text/logos &middot; suggest
+          the color palette &middot; suggest the visual style &middot; copy
+          lighting and mood &middot; suggest material or texture &middot; use
+          the background/setting &middot; mood board only. The four sphere
+          demos share one prompt and seed, so the differences between the
+          appearance recipes are directly comparable.
+        </figcaption>
+      </figure>
+      <div class="callout" style="margin-top: 16px;">
+        <strong>Two honest notes on the appearance family</strong> (palette,
+        style, lighting, material, environment, mood board), tuned and
+        render-verified on Krea 2: they respond to the strength slider in a
+        controllable band - low strengths whisper, the borrow lands clearly
+        from about 0.6, and each recipe caps itself before "too much". And
+        they borrow <em>palette and mood, not paint</em>: colors arrive as
+        fields over the scene and subject; they do not repaint the source's
+        brushwork onto your subject or composite its scene behind it. Where
+        the color lands follows the prompt - sparse neutral scenes let it
+        settle on the subject itself, as in the sphere demos.
+      </div>
+      <p class="small" style="margin-top: 12px;">
+        Per-recipe references, strengths, seeds, and lessons:
+        <a href="krea-v10-user-guide.md#the-recipe-gallery">the gallery table
+        in the Markdown guide</a> and
         <a href="assets/krea-v10/demos/guide-demo-manifest.json">guide-demo-manifest.json</a>.
       </p>
     </section>
@@ -499,13 +547,13 @@ description: Warm faded palette, soft print finish.
 role: style
 treatment: palette wash
 color: 0.9
-detail: 0.05
-study: "384"
+detail: 0.0
+study: "256"
 subject: avoid
 early: 0.85
 late: 0.9
 cap: 0.85
-shape: 0.3
+shape: 0.75
 global: 1.7
 layers: [0.25, 0.35, 0.45, 0.6, 0.8,
          1.0, 1.0, 2.5, 5.0, 1.1, 4.0, 1.2]</pre>
@@ -528,10 +576,27 @@ layers: [0.25, 0.35, 0.45, 0.6, 0.8,
         <tr><td><code>early</code>, <code>late</code></td><td>0.0-5.0: phase multipliers.</td><td>1.0</td></tr>
         <tr><td><code>guard</code></td><td><code>true</code> applies the full text/logo blank-surface clamp.</td><td><code>false</code></td></tr>
         <tr><td><code>cap</code></td><td>0.0-3.0 hard ceiling on effective strength; omit for none.</td><td>none</td></tr>
-        <tr><td><code>shape</code>, <code>global</code></td><td>0.0-3.0 / 0.0-4.0: structure pull and overall-look pull.</td><td>role defaults</td></tr>
+        <tr><td><code>shape</code></td><td>0.0-3.0: <strong>the main transfer volume</strong>. Below ~0.4 a card is effectively off on Krea 2; appearance recipes work at 0.7-1.0, structure jobs at 1.0-1.3.</td><td>role default</td></tr>
+        <tr><td><code>global</code></td><td>0.0-4.0: pooled overall-look pull - <strong>inert on Krea 2</strong> (kept for other models). Fix a weak recipe by raising <code>shape</code>, never <code>global</code>.</td><td>role default</td></tr>
         <tr><td><code>layers</code></td><td>Exactly 12 numbers, 0.0-8.0: per-layer gains.</td><td>role table</td></tr>
         <tr><td><code>description</code></td><td>Free text for humans reading the file.</td><td>empty</td></tr>
       </table>
+      <h3 style="margin-top: 18px;">What each control really does (render-verified)</h3>
+      <p class="small">
+        <strong>1. <code>treatment</code> decides WHAT can transfer</strong> -
+        the reference is re-drawn before the encoder studies it. Colors only:
+        <code>palette wash</code> (structure-safe: the source's shapes are
+        destroyed, so its subject cannot leak in). Layout: <code>grayscale
+        blur</code>. Silhouette: <code>shape wash</code>. The actual subject:
+        <code>normal</code>. Careful with <code>soft/strong blur</code> - the
+        source's forms survive and tend to appear at working strengths.
+        <strong>2. <code>shape</code> is the volume knob</strong> - the one
+        channel that moves pixels on Krea 2 (anchors in the table above).
+        <strong>3. <code>layers</code> fine-tunes WHICH bands are
+        emphasized</strong> - second-order polish; it cannot rescue a
+        too-low <code>shape</code>.
+        <strong>4. <code>global</code> does nothing on Krea 2.</strong>
+      </p>
       <h3 style="margin-top: 18px;">Deriving the <code>layers</code> array</h3>
       <p class="small">
         The 12 positions are Krea 2's deepstack bands: <code>0</code>-<code>4</code>
@@ -543,11 +608,13 @@ layers: [0.25, 0.35, 0.45, 0.6, 0.8,
         <code>0</code>-<code>5</code> by how much structure should arrive and
         <code>6</code>-<code>11</code> by how strongly the finish should,
         keeping the spike ordering. Each entry lands as
-        <code>clamp(strength &times; shape &times; gain, -6, +6)</code> on the
-        token channel, so gains trade off against <code>shape</code> - and
-        <code>global</code> carries the overall look independently. Family
-        tables, the full chunk map, a copy-paste derivation snippet, and a
-        worked example: <code>custom_recipes/README.md</code>.
+        <code>clamp(strength &times; shape &times; gain, -6, +6)</code> per
+        band, so the gains multiply against <code>shape</code> and
+        <code>shape</code> sets the floor - a 5.0 spike on a shape-0.7 card is
+        loud, the same spike on a shape-0.1 card is a whisper. Family tables,
+        the full chunk map, a copy-paste derivation snippet, a
+        render-validated worked example, and a two-minute render-testing
+        protocol: <code>custom_recipes/README.md</code>.
       </p>
       <div class="callout" style="margin-top: 16px;">
         <strong>Validation is strict about keys, forgiving about omissions.</strong>
@@ -595,16 +662,14 @@ layers: [0.25, 0.35, 0.45, 0.6, 0.8,
       <p class="small">
         Same prompt (<code>a sculptural table lamp in a clean studio product
         photo, no readable text</code>), same seed (972106); the only change
-        is connecting the style card pulled <code>toward this image</code> at
-        0.65. What arrives in step 2 - the source's organic, abstract form
-        language - is exactly what the same card set to <code>away</code>
-        pushes out.
+        is the style card and its direction. Pulled toward at 0.65, the
+        source's pastel mosaic palette lands all over the lamp. Pushed away
+        at 0.40, the same card scrubs in the opposite direction - the lamp
+        comes out plainer and warmer-neutral than even the prompt-only
+        baseline, because the stack is actively steering out of the source's
+        palette and manner.
       </p>
       <div class="three" style="margin-top: 12px;">
-        <figure>
-          <img src="../example_assets/krea-reference-examples/slot2_style_reference.png" alt="Style source image">
-          <figcaption class="caption">Input: style source</figcaption>
-        </figure>
         <figure>
           <img src="assets/krea-v10/demos/counter-example-baseline.png" alt="Direction journey prompt-only baseline">
           <figcaption class="caption">Step 1: prompt only</figcaption>
@@ -613,13 +678,19 @@ layers: [0.25, 0.35, 0.45, 0.6, 0.8,
           <img src="assets/krea-v10/demos/counter-example-toward.png" alt="Direction journey style pulled toward">
           <figcaption class="caption">Step 2: style toward at 0.65</figcaption>
         </figure>
+        <figure>
+          <img src="assets/krea-v10/demos/counter-example-away.png" alt="Direction journey style pushed away">
+          <figcaption class="caption">Step 3: style away at 0.40</figcaption>
+        </figure>
       </div>
       <p class="small" style="margin-top: 12px;">
-        Step 3 - the away render on the same seed - needs the V10 nodes on the
-        render machine and lands with them. Produce it yourself today:
+        The style source for both cards is the pastel abstract
+        (<code>slot2_style_reference.png</code>). Away pushes harder per
+        slider unit than toward because it extrapolates past removal - hence
+        step 3 runs at 0.40.
         <code>example_workflows/krea-v10-counter-example-workflow.json</code>
-        keeps a product with a toward card at 0.80 and pushes a style out with
-        an away card at 0.25.
+        combines both directions: keep a product with a toward card at 0.80
+        and push a style out with an away card at 0.25.
       </p>
     </section>
 
@@ -652,10 +723,14 @@ layers: [0.25, 0.35, 0.45, 0.6, 0.8,
         Same style card (<code>suggest the visual style</code>, strength
         0.75), same seed (972105), same prompt (<code>a modern table lamp in
         a clean studio product photo, no readable text</code>) - the only
-        change is <code>When this card guides</code>. Early-only lets the
-        style shape the composition, then hands the finish back to the
-        prompt; final-only is the mirror image, bringing the source's coral
-        into the surface while the prompt owns the layout.
+        change is <code>When this card guides</code>. Both timings deliver
+        the borrowed palette (color commits in the first sampling steps);
+        what the widget moves is <em>how</em> it lands. Early-only lets the
+        source guide composition and broad color fields, then the prompt's
+        finish passes smooth the surfaces into a classic soft-graded shade.
+        Final-only is the mirror image: the prompt owns the early
+        composition and the source arrives in the detail passes, laying its
+        crisp mosaic finish onto the prompt's lamp.
       </p>
       <div class="three" style="margin-top: 12px;">
         <figure>
@@ -690,6 +765,16 @@ layers: [0.25, 0.35, 0.45, 0.6, 0.8,
             <tr><td><code>gentle balance</code></td><td>Four or more active cards, or two or three aggressive ones.</td></tr>
             <tr><td><code>strict balance</code></td><td>Conservative blends where fidelity beats punch.</td></tr>
           </table>
+          <div class="two" style="margin-top: 12px;">
+            <figure>
+              <img src="assets/krea-v10/demos/full-showcase.png" alt="Showcase with balance off">
+              <figcaption class="caption">Six cards, balance off</figcaption>
+            </figure>
+            <figure>
+              <img src="assets/krea-v10/demos/full-showcase-balanced.png" alt="Showcase with gentle balance">
+              <figcaption class="caption">Same seed, gentle balance - the ensemble blends a touch more evenly</figcaption>
+            </figure>
+          </div>
         </div>
         <div>
           <h3>Reuse image studies</h3>
@@ -786,12 +871,13 @@ Studies: 7 encoder passes this run;
           </div>
           <p><strong>Prompt:</strong> <code>a ceramic travel mug on a wooden desk in a bright studio, no readable text</code> at strength 1.15.</p>
           <p class="small">
-            The mug is the prompt's, the desk and light read bright-studio,
-            and the row-of-objects framing echoes the pose reference before
-            handing off - even the second mug slips in from the framing
-            card's arrangement. This render used balance off; the shipped
-            showcase workflow turns gentle balance on as its starting point.
-            Drag <a href="assets/krea-v10/demos/full-showcase.png">the result PNG</a>
+            The mug is the prompt's, anchored by the content card; the desk,
+            books, and window light read bright-studio; the style and palette
+            cards keep the grade quiet and warm; and no readable markings
+            survive the guard. This render used balance off - the
+            gentle-balance render of the same seed sits in the Balance
+            section above. Drag
+            <a href="assets/krea-v10/demos/full-showcase.png">the result PNG</a>
             into ComfyUI for the exact graph.
           </p>
         </div>
@@ -802,7 +888,8 @@ Studies: 7 encoder passes this run;
       <h2>Troubleshooting</h2>
       <table>
         <tr><th>Problem</th><th>What to try</th></tr>
-        <tr><td>A card seems to do nothing.</td><td>Read its stack report line: the feel curve, a recipe cap, or the guard is usually named there.</td></tr>
+        <tr><td>A card seems to do nothing.</td><td>Read its stack report line: the feel curve, a recipe cap, or the guard is usually named there. Appearance recipes are tuned to land from about strength 0.6 - below that they whisper by design.</td></tr>
+        <tr><td>A custom recipe does nothing at any strength.</td><td>Its <code>shape</code> is too low (below ~0.5 the card is effectively off on Krea 2) or its <code>study</code> too fine. Raise <code>shape</code> toward 0.7-1.0; raising <code>global</code> will not help on this model.</td></tr>
         <tr><td>Away card makes the image muddy or empty.</td><td>Lower it below 0.30 and make sure something positive says what you do want.</td></tr>
         <tr><td>Many cards fight each other.</td><td>Turn on gentle balance, or lower the two strongest cards. The report shows the applied scale.</td></tr>
         <tr><td>Style card drags its subject in.</td><td>Check the prepared-references preview; if the subject is visible there, lower detail or strengthen the treatment. In manual mode, lower Structure layers pull.</td></tr>

@@ -53,13 +53,17 @@ V9 defined twelve roles but shipped quick recipes for only eight; `palette`,
 tuning. V10 adds one settings bundle per orphaned role
 (`kg_krea_v10/recipes.py`), following V9 §16.1: each bundle carries all
 fourteen recipe keys, reuses the V9 role pull baselines and layer tables, and
-keeps the whisper-defaults philosophy (avoid-subject policies, strength caps
-of 0.6 to 1.2, destroy-before-encode treatments).
+keeps the controllable-defaults philosophy (avoid-subject policies, strength
+caps of 0.9 to 1.2, destroy-before-encode treatments).
 
 Two bundles are worth noting:
 
 - **`palette only`** studies at 256 with a palette wash and `detail 0`, so the
-  encoder can only ever see coarse color relationships. Shape pull is 0.05.
+  encoder can only ever see coarse color relationships. Shape pull is 0.7 -
+  on Krea 2 the token/shape path is the only live conditioning channel (the
+  pooled `global` axis is inert; see the V9 paper §5.1), so the palette
+  effect rides a live shape while the palette-wash preparation is what keeps
+  it structure-safe.
 - **`framing`** sets per-card `framing: "preserve aspect"` rather than
   deferring to the stack, because the aspect ratio *is* the framing signal.
 

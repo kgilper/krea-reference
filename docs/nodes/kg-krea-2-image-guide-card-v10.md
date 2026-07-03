@@ -21,10 +21,10 @@ The first fifteen rows repeat the [V9 card](kg-krea-2-image-guide-card-v9.md) ex
 `Use image for` adds four built-in choices, and additionally lists your own
 custom recipes (see below):
 
-- `suggest the color palette`: borrow broad color palette and tonal relationships only. Palette wash, zero detail, loose 256 study, quick-strength cap `0.9`.
-- `use the background/setting`: borrow location, scene context, and spatial atmosphere without replacing the main subject.
+- `suggest the color palette`: borrow broad color palette and tonal relationships only. Palette wash, zero detail, loose 256 study, quick-strength cap `0.9`. Lands clearly from about strength `0.6`; below that it whispers.
+- `use the background/setting`: borrow the setting's palette and room mood without replacing (or reshaping) the main subject - the reference is studied structure-free.
 - `copy the camera framing`: borrow camera distance, crop, lens feel, and viewpoint only. Grayscale, structure-heavy early, quiet late.
-- `mood board only`: loose inspiration with a gentle `0.6` cap; avoids copying specific details.
+- `mood board only`: loose inspiration with a gentle `0.9` cap; avoids copying specific details.
 
 ## Custom Recipes
 

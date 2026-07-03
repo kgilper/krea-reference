@@ -8,20 +8,29 @@
 #
 # Only "label" and "role" are required; every other field defaults from the
 # role's tuning tables. Full schema: README.md in this folder.
+#
+# Values below are render-validated on Krea 2. The two that matter most:
+# - treatment picks WHAT can transfer (palette wash = colors only, and it is
+#   the structure-safe choice: the source's shapes are destroyed before the
+#   encoder ever sees them).
+# - shape is the volume knob for how strongly the card lands. On Krea 2 an
+#   appearance recipe needs shape ~0.65-1.0 to be visible at normal card
+#   strengths; below ~0.4 it is effectively off. ("global" has no effect on
+#   Krea 2 - see the README.)
 
 label: vintage postcard style
 description: Warm faded palette and a soft print finish, without copying the source subject.
 role: style
 treatment: palette wash
 color: 0.9
-detail: 0.05
-study: "384"
+detail: 0.0
+study: "256"
 framing: stack
 subject: avoid
 early: 0.85
 late: 0.9
 guard: false
 cap: 0.85
-shape: 0.3
+shape: 0.75
 global: 1.7
 layers: [0.25, 0.35, 0.45, 0.6, 0.8, 1.0, 1.0, 2.5, 5.0, 1.1, 4.0, 1.2]

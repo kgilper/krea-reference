@@ -1,8 +1,8 @@
 {
-  "id": "kg-krea-v10-demo-suggest-color-palette-off",
+  "id": "kg-krea-v10-demo-counter-example-away",
   "revision": 0,
-  "last_node_id": 12,
-  "last_link_id": 12,
+  "last_node_id": 14,
+  "last_link_id": 14,
   "nodes": [
     {
       "id": 1,
@@ -24,7 +24,7 @@
           "name": "MODEL",
           "type": "MODEL",
           "links": [
-            3
+            5
           ]
         }
       ],
@@ -59,7 +59,7 @@
           "type": "CLIP",
           "links": [
             1,
-            2
+            4
           ]
         }
       ],
@@ -94,7 +94,7 @@
           "name": "VAE",
           "type": "VAE",
           "links": [
-            9
+            11
           ]
         }
       ],
@@ -125,7 +125,7 @@
         {
           "name": "model",
           "type": "MODEL",
-          "link": 3
+          "link": 5
         }
       ],
       "outputs": [
@@ -133,7 +133,7 @@
           "name": "MODEL",
           "type": "MODEL",
           "links": [
-            4
+            6
           ]
         }
       ],
@@ -249,6 +249,11 @@
         {
           "name": "Reference 1 guide card",
           "type": "KG_KREA_REFERENCE",
+          "link": 3
+        },
+        {
+          "name": "Reference 2 guide card",
+          "type": "KG_KREA_REFERENCE",
           "link": null
         }
       ],
@@ -257,21 +262,21 @@
           "name": "conditioning",
           "type": "CONDITIONING",
           "links": [
-            5
+            7
           ]
         },
         {
           "name": "stack_report",
           "type": "STRING",
           "links": [
-            11
+            13
           ]
         },
         {
           "name": "prepared_references",
           "type": "IMAGE",
           "links": [
-            12
+            14
           ]
         }
       ],
@@ -280,7 +285,7 @@
         "Node name for S&R": "KGTextEncodeKreaImageReferencesV10"
       },
       "widgets_values": [
-        "a matte ceramic sphere on a small plinth, neutral gray studio backdrop, soft even light, clean unmarked design, no readable text",
+        "a sculptural table lamp in a clean studio product photo, no readable text",
         1.25,
         "artist friendly - soft at low values",
         "medium - balanced default (384)",
@@ -295,6 +300,246 @@
     },
     {
       "id": 6,
+      "type": "LoadImage",
+      "pos": [
+        80,
+        560
+      ],
+      "size": [
+        283,
+        314
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            2
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.26.2",
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "krea-reference-examples/slot2_style_reference.png",
+        "image"
+      ],
+      "title": "Reference image 1"
+    },
+    {
+      "id": 7,
+      "type": "KGKrea2ImageGuideCardV10",
+      "pos": [
+        400,
+        420
+      ],
+      "size": [
+        530,
+        480
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "Reference image",
+          "type": "IMAGE",
+          "link": 2
+        },
+        {
+          "name": "How strongly this image guides",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "How strongly this image guides"
+          }
+        },
+        {
+          "name": "Use image for",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Use image for"
+          }
+        },
+        {
+          "name": "Manual mode borrows",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Manual mode borrows"
+          }
+        },
+        {
+          "name": "Prepare image by",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Prepare image by"
+          }
+        },
+        {
+          "name": "Color kept",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "Color kept"
+          }
+        },
+        {
+          "name": "Small details kept",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "Small details kept"
+          }
+        },
+        {
+          "name": "Study this image at",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Study this image at"
+          }
+        },
+        {
+          "name": "Frame this reference by",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Frame this reference by"
+          }
+        },
+        {
+          "name": "Subject copying",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Subject copying"
+          }
+        },
+        {
+          "name": "Early layout guidance",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "Early layout guidance"
+          }
+        },
+        {
+          "name": "Final detail copying",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "Final detail copying"
+          }
+        },
+        {
+          "name": "Maximum image pull",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "Maximum image pull"
+          }
+        },
+        {
+          "name": "Shape copied",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "Shape copied"
+          }
+        },
+        {
+          "name": "Overall style reach",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "Overall style reach"
+          }
+        },
+        {
+          "name": "Guide direction",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Guide direction"
+          }
+        },
+        {
+          "name": "When this card guides",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "When this card guides"
+          }
+        },
+        {
+          "name": "Structure layers pull",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "Structure layers pull"
+          }
+        },
+        {
+          "name": "Finish layers pull",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "Finish layers pull"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "guide_card",
+          "type": "KG_KREA_REFERENCE",
+          "links": [
+            3
+          ]
+        }
+      ],
+      "properties": {
+        "aux_id": "kgilper/krea-reference",
+        "Node name for S&R": "KGKrea2ImageGuideCardV10"
+      },
+      "widgets_values": [
+        0.4,
+        "suggest the visual style",
+        "overall image",
+        "use image as-is",
+        1.0,
+        1.0,
+        "use stack setting",
+        "use stack setting",
+        "recipe decides",
+        1.0,
+        1.0,
+        3.0,
+        1.0,
+        1.0,
+        "away from this image",
+        "recipe decides",
+        1.0,
+        1.0
+      ],
+      "title": "Guide Card V10 - suggest the visual style"
+    },
+    {
+      "id": 8,
       "type": "KGTextEncodeKreaImageReferencesV10",
       "pos": [
         1030,
@@ -305,13 +550,13 @@
         320
       ],
       "flags": {},
-      "order": 5,
+      "order": 7,
       "mode": 0,
       "inputs": [
         {
           "name": "Krea CLIP",
           "type": "CLIP",
-          "link": 2
+          "link": 4
         },
         {
           "name": "Final image prompt",
@@ -404,7 +649,7 @@
           "name": "conditioning",
           "type": "CONDITIONING",
           "links": [
-            6
+            8
           ]
         },
         {
@@ -437,7 +682,7 @@
       "title": "Krea V10 negative prompt encoder - no references"
     },
     {
-      "id": 7,
+      "id": 9,
       "type": "EmptyLatentImage",
       "pos": [
         1030,
@@ -448,7 +693,7 @@
         106
       ],
       "flags": {},
-      "order": 6,
+      "order": 8,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -456,7 +701,7 @@
           "name": "LATENT",
           "type": "LATENT",
           "links": [
-            7
+            9
           ]
         }
       ],
@@ -472,7 +717,7 @@
       ]
     },
     {
-      "id": 8,
+      "id": 10,
       "type": "KSampler",
       "pos": [
         1750,
@@ -483,28 +728,28 @@
         262
       ],
       "flags": {},
-      "order": 7,
+      "order": 9,
       "mode": 0,
       "inputs": [
         {
           "name": "model",
           "type": "MODEL",
-          "link": 4
+          "link": 6
         },
         {
           "name": "positive",
           "type": "CONDITIONING",
-          "link": 5
+          "link": 7
         },
         {
           "name": "negative",
           "type": "CONDITIONING",
-          "link": 6
+          "link": 8
         },
         {
           "name": "latent_image",
           "type": "LATENT",
-          "link": 7
+          "link": 9
         }
       ],
       "outputs": [
@@ -512,7 +757,7 @@
           "name": "LATENT",
           "type": "LATENT",
           "links": [
-            8
+            10
           ]
         }
       ],
@@ -522,7 +767,7 @@
         "Node name for S&R": "KSampler"
       },
       "widgets_values": [
-        972101,
+        972106,
         "fixed",
         8,
         1.0,
@@ -532,7 +777,7 @@
       ]
     },
     {
-      "id": 9,
+      "id": 11,
       "type": "VAEDecode",
       "pos": [
         2060,
@@ -543,18 +788,18 @@
         46
       ],
       "flags": {},
-      "order": 8,
+      "order": 10,
       "mode": 0,
       "inputs": [
         {
           "name": "samples",
           "type": "LATENT",
-          "link": 8
+          "link": 10
         },
         {
           "name": "vae",
           "type": "VAE",
-          "link": 9
+          "link": 11
         }
       ],
       "outputs": [
@@ -562,7 +807,7 @@
           "name": "IMAGE",
           "type": "IMAGE",
           "links": [
-            10
+            12
           ]
         }
       ],
@@ -574,7 +819,7 @@
       "widgets_values": []
     },
     {
-      "id": 10,
+      "id": 12,
       "type": "SaveImage",
       "pos": [
         2060,
@@ -585,13 +830,13 @@
         270
       ],
       "flags": {},
-      "order": 9,
+      "order": 11,
       "mode": 0,
       "inputs": [
         {
           "name": "images",
           "type": "IMAGE",
-          "link": 10
+          "link": 12
         }
       ],
       "outputs": [
@@ -607,11 +852,11 @@
         "Node name for S&R": "SaveImage"
       },
       "widgets_values": [
-        "krea_reference_v10_guide/suggest-color-palette-off"
+        "krea_reference_v10_guide/counter-example-away"
       ]
     },
     {
-      "id": 11,
+      "id": 13,
       "type": "PreviewAny",
       "pos": [
         1750,
@@ -622,13 +867,13 @@
         280
       ],
       "flags": {},
-      "order": 10,
+      "order": 12,
       "mode": 0,
       "inputs": [
         {
           "name": "source",
           "type": "*",
-          "link": 11
+          "link": 13
         }
       ],
       "outputs": [],
@@ -641,7 +886,7 @@
       "title": "V10 stack report"
     },
     {
-      "id": 12,
+      "id": 14,
       "type": "PreviewImage",
       "pos": [
         2200,
@@ -652,13 +897,13 @@
         340
       ],
       "flags": {},
-      "order": 11,
+      "order": 13,
       "mode": 0,
       "inputs": [
         {
           "name": "images",
           "type": "IMAGE",
-          "link": 12
+          "link": 14
         }
       ],
       "outputs": [],
@@ -682,89 +927,105 @@
     ],
     [
       2,
-      2,
-      0,
       6,
       0,
-      "CLIP"
-    ],
-    [
-      3,
-      1,
-      0,
-      4,
-      0,
-      "MODEL"
-    ],
-    [
-      4,
-      4,
-      0,
-      8,
-      0,
-      "MODEL"
-    ],
-    [
-      5,
-      5,
-      0,
-      8,
-      1,
-      "CONDITIONING"
-    ],
-    [
-      6,
-      6,
-      0,
-      8,
-      2,
-      "CONDITIONING"
-    ],
-    [
       7,
-      7,
-      0,
-      8,
-      3,
-      "LATENT"
-    ],
-    [
-      8,
-      8,
-      0,
-      9,
-      0,
-      "LATENT"
-    ],
-    [
-      9,
-      3,
-      0,
-      9,
-      1,
-      "VAE"
-    ],
-    [
-      10,
-      9,
-      0,
-      10,
       0,
       "IMAGE"
     ],
     [
+      3,
+      7,
+      0,
+      5,
       11,
+      "KG_KREA_REFERENCE"
+    ],
+    [
+      4,
+      2,
+      0,
+      8,
+      0,
+      "CLIP"
+    ],
+    [
       5,
       1,
+      0,
+      4,
+      0,
+      "MODEL"
+    ],
+    [
+      6,
+      4,
+      0,
+      10,
+      0,
+      "MODEL"
+    ],
+    [
+      7,
+      5,
+      0,
+      10,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      8,
+      8,
+      0,
+      10,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      9,
+      9,
+      0,
+      10,
+      3,
+      "LATENT"
+    ],
+    [
+      10,
+      10,
+      0,
       11,
+      0,
+      "LATENT"
+    ],
+    [
+      11,
+      3,
+      0,
+      11,
+      1,
+      "VAE"
+    ],
+    [
+      12,
+      11,
+      0,
+      12,
+      0,
+      "IMAGE"
+    ],
+    [
+      13,
+      5,
+      1,
+      13,
       0,
       "STRING"
     ],
     [
-      12,
+      14,
       5,
       2,
-      12,
+      14,
       0,
       "IMAGE"
     ]
@@ -773,7 +1034,7 @@
   "config": {},
   "extra": {
     "frontendVersion": "1.45.19",
-    "workflow_name": "Krea V10 demo - Palette journey: prompt only"
+    "workflow_name": "Krea V10 demo - Counter-example journey: style pushed away"
   },
   "version": 0.4
 }

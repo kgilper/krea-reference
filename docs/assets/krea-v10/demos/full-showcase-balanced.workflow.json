@@ -1,5 +1,5 @@
 {
-  "id": "kg-krea-v10-demo-full-showcase",
+  "id": "kg-krea-v10-demo-full-showcase-balanced",
   "revision": 0,
   "last_node_id": 24,
   "last_link_id": 24,
@@ -318,7 +318,7 @@
         "smart per-card timing",
         0.4,
         "full guard - rewrite my prompt",
-        "off - use my values",
+        "gentle balance",
         "reuse between runs - faster tuning"
       ],
       "title": "Krea V10 reference stack encoder"
@@ -2077,7 +2077,7 @@
         "Node name for S&R": "SaveImage"
       },
       "widgets_values": [
-        "krea_reference_v10_guide/full-showcase"
+        "krea_reference_v10_guide/full-showcase-balanced"
       ]
     },
     {
@@ -2339,7 +2339,7 @@
   "config": {},
   "extra": {
     "frontendVersion": "1.45.19",
-    "workflow_name": "Krea V10 demo - Full showcase - six jobs"
+    "workflow_name": "Krea V10 demo - Full showcase - gentle balance"
   },
   "version": 0.4
 }

@@ -35,7 +35,7 @@ The main job of the image.
 - `keep the same subject`: preserve a person, product, object, outfit, or character.
 - `copy pose and layout`: borrow pose, camera, crop, spacing, and structure while avoiding subject copying.
 - `copy lighting and mood`: borrow light direction, glow, contrast, shadow, and atmosphere.
-- `suggest the visual style`: borrow style, palette, finish, and atmosphere while avoiding the style image's subject. Uses a palette wash, very low detail, layer-aware spatial pull, stronger global style reach, and caps quick-style pull at `0.9`.
+- `suggest the visual style`: borrow style, palette, finish, and atmosphere while avoiding the style image's subject. Uses a palette wash (which destroys the source's structure before encoding), a coarse 256 study, a live layer-aware pull, and caps quick-style pull at `0.9`. Lands clearly from about strength `0.6`.
 - `suggest material or texture`: borrow surface feel without copying exact grain or tiny marks.
 - `copy big shapes only`: borrow broad shape and silhouette.
 - `avoid copying text/logos`: use signs, logos, UI, or labels as blank broad shapes. Caps effective strength at `0.03`.

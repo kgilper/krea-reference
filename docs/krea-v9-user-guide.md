@@ -82,9 +82,9 @@ fill in the lower-level manual controls for you.
 | Use one image as a broad reference | `balanced` | `0.45` |
 | Keep a product, object, person, outfit, or character recognizable | `keep the same subject` | `0.70` to `0.85` |
 | Borrow pose, crop, camera angle, or layout | `copy pose and layout` | `0.30` to `0.45` |
-| Borrow atmosphere, glow, contrast, or shadows | `copy lighting and mood` | `0.30` to `0.45` |
-| Borrow palette, medium, finish, or art direction | `suggest the visual style` | `0.35` to `0.65` |
-| Borrow a surface quality | `suggest material or texture` | `0.25` to `0.40` |
+| Borrow atmosphere, glow, contrast, or shadows | `copy lighting and mood` | `0.45` to `0.70` |
+| Borrow palette, medium, finish, or art direction | `suggest the visual style` | `0.50` to `0.80` |
+| Borrow a surface quality | `suggest material or texture` | `0.50` to `0.75` |
 | Borrow silhouette or massing only | `copy big shapes only` | `0.20` to `0.35` |
 | Prevent text, labels, logos, or UI from copying | `avoid copying text/logos` | `0.03` |
 | Tune every lower control yourself | `manual tuning` | depends on role |
@@ -94,6 +94,13 @@ fill in the lower-level manual controls for you.
 Each card below shows the source image, the output image, suggested use, and the
 embedded demo file. Open a PNG directly or drag it into ComfyUI to inspect the
 workflow.
+
+> **Note (2026-07):** the appearance recipes (`suggest the visual style`,
+> `copy lighting and mood`, `suggest material or texture`) have since been
+> retuned to transfer noticeably more at the same strengths - re-running these
+> demo workflows on a current install borrows the reference look more strongly
+> than the images below show. Fresh renders of every recipe on the current
+> tuning live in the [V10 guide's recipe gallery](krea-v10-user-guide.md#the-recipe-gallery).
 
 ### Balanced
 
@@ -257,8 +264,11 @@ as `blank`, `unmarked`, `plain`, `clean`, or `empty panel`.
 | Demo files | [embedded-workflow PNG](assets/krea-v9/demos/manual-tuning.png), [workflow JSON](assets/krea-v9/demos/manual-tuning.workflow.json) |
 
 Manual mode is for deliberate control. In this demo the card borrows
-`colors and art style`, uses `palette wash`, lowers `Shape copied`, and raises
-`Overall style reach`.
+`colors and art style` with a `palette wash` prep. (The demo predates the
+2026-07 retune, when it also lowered `Shape copied` and raised
+`Overall style reach` - on Krea 2 that combination is now known to mute the
+card: keep `Shape copied` alive and let the palette wash provide the
+structure safety.)
 
 ## Manual Controls
 
@@ -277,8 +287,8 @@ recipe mode, the recipe supplies tested values for the lower controls.
 | `Early layout guidance` | Controls how much the card helps early composition when timing is smart or two-phase. |
 | `Final detail copying` | Controls how much late detail can come through near the end. |
 | `Maximum image pull` | Caps a manual card even if the main strength is high. |
-| `Shape copied` | Spatial or subject-structure pull. Lower it for pure style, palette, lighting, or material. |
-| `Overall style reach` | Global tone, palette, finish, and atmosphere pull. Raise it when manual style is too subtle. |
+| `Shape copied` | The card's main transfer volume on Krea 2. Keep it alive (`0.7`-`1.0`) even for pure style/palette/lighting/material work - what keeps those jobs structure-safe is a structure-destroying `Prepare image by` (palette wash), not a near-zero shape. Below ~`0.4` the card is effectively silent. |
+| `Overall style reach` | Pooled overall-look pull. **Inert on Krea 2** (this model's text encoder has no pooled channel) - kept for other models. If manual style is too subtle, raise `Shape copied` under a palette-wash prep instead. |
 
 ## Reference Stack Encoder
 

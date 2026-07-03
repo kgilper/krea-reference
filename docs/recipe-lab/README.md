@@ -12,8 +12,14 @@ number, render it, and get a scored verdict from images."
 | --- | --- | --- |
 | [tweak_test.py](tweak_test.py) | Render engine: given a recipe (built-in label or a full tweak bundle) + reference + prompt + strength + seed, renders on the ComfyUI box and prints `{name, image, metrics}` as JSON. Pure mechanical work, no judgment. | a cheap agent (Haiku), or you directly |
 | the `recipe-tweak-test` workflow | Orchestrates: for each recipe, Haiku agents render the current settings + candidate tweaks in parallel, then a Fable agent **reads the images and scores** each against the recipe's stated intent, names the best, and recommends a change. | the Workflow tool |
+| [generate_guide_demos.py](generate_guide_demos.py) | Renders the V10 user-guide demo set (every recipe + the journeys) with the matching drag-in V10 workflow embedded in each PNG, and rebuilds the guide manifest + recipe-gallery contact sheet in `docs/assets/krea-v10/demos/`. `--only <slugs>` re-renders a subset; `--skip-render` rebuilds manifest/sheet only. | maintainer |
 | refs/ | Local copies of reference images so the judge agent can see them. | - |
 | runs/ | Local copies of every rendered variant (also saved on the box under `output/claude-generations/recipe-lab/`). | - |
+
+Gotcha: dropping a brand-new custom recipe label onto the box races
+ComfyUI's node-definition cache - the first `/prompt` after the drop can 400.
+Retry once (or hit `/object_info/KGKrea2ImageGuideCardV10` first to force a
+refresh).
 
 ## The loop
 

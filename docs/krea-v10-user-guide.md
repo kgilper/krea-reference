@@ -7,10 +7,14 @@ study cache for fast tuning, and two feedback outputs that show you what the
 stack actually did.
 
 If you are new to Krea Reference, read the [V9 guide](krea-v9-user-guide.md)
-first for the core mental model; this guide focuses on what V10 adds. Every
-demo below is a complete journey - input images, recipe and settings, the
-exact prompt, and the result - and every result PNG has the matching V10
-workflow embedded, so you can drag it into ComfyUI and inspect the setup.
+first for the core mental model; this guide focuses on what V10 adds - and it
+now demonstrates **every built-in recipe**, not just the new ones. Every demo
+below is a complete journey - input images, recipe and settings, the exact
+prompt, and the result - and every result PNG has the matching V10 workflow
+embedded, so you can drag it into ComfyUI and inspect the setup.
+
+All twelve recipes, one job each (details in
+[The Recipe Gallery](#the-recipe-gallery)):
 
 ![Krea V10 demo output gallery](assets/krea-v10/demos/recipe-gallery.png)
 
@@ -23,6 +27,7 @@ The synthetic source images used throughout ship with the repo:
 - [Fast Start](#fast-start)
 - [What V10 Adds](#what-v10-adds)
 - [How The Demos Were Made](#how-the-demos-were-made)
+- [The Recipe Gallery](#the-recipe-gallery)
 - [New Quick Recipes](#new-quick-recipes)
 - [Create Your Own Recipes](#create-your-own-recipes)
 - [Guide Direction: Counter-Examples](#guide-direction-counter-examples)
@@ -101,6 +106,45 @@ tables list only what changes per demo:
 
 Drag any result PNG into ComfyUI to load its embedded V10 workflow, or open
 the `.workflow.json` beside it in [assets/krea-v10/demos](assets/krea-v10/demos/).
+Every demo was rendered by ComfyUI through the real V10 nodes with the current
+recipe tuning - the embedded workflow values are exactly what rendered - using
+the maintainer script
+[docs/recipe-lab/generate_guide_demos.py](recipe-lab/generate_guide_demos.py).
+
+## The Recipe Gallery
+
+One demo per built-in recipe, all on the bundled example assets so you can
+reproduce any row. The four appearance journeys marked with the same prompt
+and seed are directly comparable - the only change between them is the card.
+
+| Recipe | Reference | Strength | Seed | Result | What arrives |
+| --- | --- | --- | --- | --- | --- |
+| `balanced` | slot1 content anchor | `0.60` | `972110` | [PNG](assets/krea-v10/demos/recipe-balanced.png) | A little of everything; the prompt still leads. |
+| `keep the same subject` | slot1 content anchor | `1.00` | `972111` | [PNG](assets/krea-v10/demos/recipe-keep-same-subject.png) | The reference's subject travels into the prompt's new scene - markings included (pair with the guard if you don't want them). Fires from ~`0.9` up. |
+| `copy pose and layout` | slot6 pose/layout | `0.90` | `972112` | [PNG](assets/krea-v10/demos/recipe-copy-pose-layout.png) | The arrangement, studied as a grayscale blur - placement arrives, color stays the prompt's. |
+| `copy big shapes only` | slot7 shape only | `0.90` | `972115` | [PNG](assets/krea-v10/demos/recipe-copy-big-shapes.png) | Silhouette guidance only - the big masses steer the composition. |
+| `copy the camera framing` | slot6 pose/layout | `0.30` | `972103` | [PNG](assets/krea-v10/demos/copy-camera-framing.png) | Camera distance, crop, and viewpoint - subject and palette stay the prompt's. |
+| `avoid copying text/logos` | slot5 text/logo guard | `0.50` (clamps to `0.03`) | `972116` | [PNG](assets/krea-v10/demos/recipe-avoid-text-logos.png) | Nothing readable: the guard clamps the card and rewrites the prompt toward blank surfaces. |
+| `suggest the color palette` | slot2 style reference | `0.65` | `972101` | [PNG](assets/krea-v10/demos/suggest-color-palette.png) | The reference's color relationships, as soft color fields - composition identical to the no-card baseline. |
+| `suggest the visual style` | slot2 style reference | `0.65` | `972101` | [PNG](assets/krea-v10/demos/recipe-suggest-visual-style.png) | Same inputs and seed as the palette row: a broader, softer overall grade - the look, not the source's shapes. |
+| `copy lighting and mood` | slot4 lighting/mood | `0.65` | `972113` | [PNG](assets/krea-v10/demos/recipe-copy-lighting-mood.png) | The reference's light color and tonal mood as a scene-wide cast. |
+| `suggest material or texture` | slot3 material/texture | `0.75` | `972114` | [PNG](assets/krea-v10/demos/recipe-suggest-material-texture.png) | The material's surface palette and finish energy - a stony recolor, not a literal texture decal. |
+| `use the background/setting` | slot8 background/environment | `0.65` | `972102` | [PNG](assets/krea-v10/demos/use-background-setting.png) | The setting's palette and room mood; the model builds a coherent place around the prompt's subject. |
+| `mood board only` | slot2 style reference | `0.50` | `972104` | [PNG](assets/krea-v10/demos/mood-board-only.png) | A gentle borrowed palette and feeling under a hard cap - never a dictated composition. |
+
+Two honest notes on the appearance family (palette, style, lighting,
+material, environment, mood board), tuned and render-verified on Krea 2:
+
+- **They respond to the strength slider in a controllable band.** Low
+  strengths whisper, the borrow lands clearly from about `0.6`, and each
+  recipe caps itself before "too much". If an appearance card seems silent,
+  raise its strength toward `0.65` first.
+- **They borrow palette and mood, not paint.** With their structure-safe
+  preparation the reference's colors arrive as color fields over the scene
+  and subject; they do not repaint the reference's brushwork onto your
+  subject's surface or composite its scene behind it. Where the color lands
+  follows the prompt: sparse neutral scenes let it settle on the subject
+  itself (as in the sphere demos).
 
 ## New Quick Recipes
 
@@ -117,17 +161,18 @@ the result.
 | Setting | Value |
 | --- | --- |
 | Recipe | `suggest the color palette` |
-| Strength | `0.85` (demo; start near `0.30` to `0.45` in multi-card stacks) |
+| Strength | `0.65` (whispers below ~`0.5`, clear from ~`0.6`, capped at `0.9`) |
 | Seed | `972101` |
 | Prompt | `a matte ceramic sphere on a small plinth, neutral gray studio backdrop, soft even light, clean unmarked design, no readable text` |
 | Demo files | [result PNG](assets/krea-v10/demos/suggest-color-palette.png), [workflow JSON](assets/krea-v10/demos/suggest-color-palette.workflow.json) |
 
-Palette-only is deliberately the gentlest recipe. Compare the pair below -
-same prompt, same seed, the only change is the card: the neutral gray canvas
-warms toward the source's cream-coral cast while the abstract source shapes
-stay out entirely. The image is reduced to a palette wash at low study
-resolution before the encoder sees it, so color relationships are all that
-*can* arrive.
+Compare the pair below - same prompt, same seed, the only change is the
+card: the neutral sphere takes on the source's pastel coral-teal-lavender
+relationships as soft color fields while the abstract source shapes stay out
+entirely. The image is reduced to a palette wash at low study resolution
+before the encoder sees it, so color relationships are all that *can*
+arrive - which is also why the composition is pixel-comparable to the
+baseline.
 
 | Prompt only (no cards) | With the palette card |
 | --- | --- |
@@ -142,14 +187,16 @@ resolution before the encoder sees it, so color relationships are all that
 | Setting | Value |
 | --- | --- |
 | Recipe | `use the background/setting` |
-| Strength | `0.35` |
+| Strength | `0.65` |
 | Seed | `972102` |
 | Prompt | `a sculptural table lamp on a small side table, editorial product photo, cohesive interior scene, no readable text` |
 | Demo files | [result PNG](assets/krea-v10/demos/use-background-setting.png), [workflow JSON](assets/krea-v10/demos/use-background-setting.workflow.json) |
 
-The environment recipe brings location, spatial atmosphere, and context -
-the interior, side table, and room light arrive from the reference while the
-prompt keeps ownership of the lamp.
+The environment recipe borrows the *feeling of the place*: the reference's
+warm plaster palette and room mood arrive, and the model builds a coherent
+interior around the prompt's lamp. It deliberately does not lift the
+reference's literal room - the reference is studied structure-free, so it can
+set the atmosphere without ever reshaping your subject into its own forms.
 
 ### Copy The Camera Framing
 
@@ -180,13 +227,14 @@ own aspect ratio, because the frame *is* the information. It pairs well with
 | Setting | Value |
 | --- | --- |
 | Recipe | `mood board only` |
-| Strength | `0.25` (hard cap `0.6`) |
+| Strength | `0.50` (hard cap `0.9`) |
 | Seed | `972104` |
 | Prompt | `a calm desk scene with a small ceramic lamp and a closed notebook, editorial photo, no readable text` |
 | Demo files | [result PNG](assets/krea-v10/demos/mood-board-only.png), [workflow JSON](assets/krea-v10/demos/mood-board-only.workflow.json) |
 
-Mood board whispers: loose inspiration under a hard cap, suggesting a
-feeling without dictating content.
+Mood board stays the quietest appearance recipe: a gentle borrowed palette
+and feeling - the sage-and-cream calm of the source settles over the desk -
+without ever dictating content or composition.
 
 ## Create Your Own Recipes
 
@@ -223,6 +271,50 @@ Only `label` (the dropdown text) and `role` (which built-in behavior family
 to start from) are required. Every omitted field defaults from the role's
 tuning tables, so a two-line recipe is already well-behaved.
 
+### What each control really does (read this before tuning numbers)
+
+Four facts, established by rendering controlled sweeps on the real model.
+They are the difference between a recipe that works and one that silently
+does nothing:
+
+1. **`treatment` decides WHAT can transfer.** The reference is re-drawn by
+   the treatment *before* the encoder studies it, so it is a hard filter on
+   what the card can possibly deliver:
+
+   | You want to borrow | Use treatment | Why it is safe |
+   | --- | --- | --- |
+   | colors / palette / mood | `palette wash` | the source's shapes are destroyed first, so its subject **cannot** leak in |
+   | layout / arrangement | `grayscale blur` | color is stripped, so placement arrives without recoloring |
+   | silhouette only | `shape wash` | everything but the big masses is removed |
+   | the actual subject | `normal` | nothing is removed - the subject can and will copy in |
+   | subject + softness | `soft blur` / `strong blur` | **caution:** the source's forms survive; at working strengths the source object tends to appear or reshape your subject |
+
+2. **`shape` is the volume knob.** It scales the one conditioning channel
+   that actually moves pixels on Krea 2:
+
+   | `shape` | What happens at normal card strengths |
+   | --- | --- |
+   | `0.0`-`0.4` | effectively **off** |
+   | `0.5`-`0.65` | onset - the borrow appears near the top of the strength range |
+   | `0.7`-`1.0` | the appearance recipes' working range - clear borrow by strength ~`0.65`, subject preserved (with a structure-destroying treatment) |
+   | `1.0`-`1.3` | structural jobs - layout and subject transfer |
+
+3. **`layers` fine-tunes WHICH bands are emphasized - it is second-order.**
+   The 12 gains reshape the signal `shape` lets through; they cannot rescue
+   a `shape` that is too low. Omit `layers` unless you are deliberately
+   fine-tuning.
+
+4. **`global` has no effect on Krea 2.** It scales a pooled conditioning
+   channel this model's text encoder does not produce. The field stays for
+   other/future models - but a weak recipe on Krea 2 is fixed by raising
+   `shape` (and hardening `treatment`), never by raising `global`.
+
+And one limit to design around: with a structure-destroying treatment the
+borrowed look arrives as palette and mood over the scene - not as brushwork
+painted onto your subject's surface, and not as the source's scene composited
+behind it. Recipes promising those need conditioning this model does not
+have.
+
 ### The full schema
 
 A file holds one recipe, or a pack: `{"recipes": [recipe, recipe, ...]}`.
@@ -241,11 +333,11 @@ A file holds one recipe, or a pack: `{"recipes": [recipe, recipe, ...]}`.
 | `early`, `late` | no | `0.0`-`5.0`: phase multipliers for two-phase timing. | `1.0` |
 | `guard` | no | `true` applies the full text/logo blank-surface clamp to this card. | `false` |
 | `cap` | no | `0.0`-`3.0`: hard ceiling on effective strength. Omit for no cap. | none |
-| `shape` | no | `0.0`-`3.0`: spatial/structure pull. | role default |
-| `global` | no | `0.0`-`4.0`: overall look/style pull. | role default |
-| `layers` | no | Exactly 12 numbers (`0.0`-`8.0`): per-layer conditioning gains. | role table |
+| `shape` | no | `0.0`-`3.0`: **the main transfer volume** (anchors above). | role default |
+| `global` | no | `0.0`-`4.0`: pooled overall-look pull - **inert on Krea 2**, kept for other models. | role default |
+| `layers` | no | Exactly 12 numbers (`0.0`-`8.0`): per-band fine-tuning gains. | role table |
 
-A complete example (the shipped template):
+A complete example (the shipped template - render-validated values):
 
 ```yaml
 label: vintage postcard style
@@ -253,15 +345,15 @@ description: Warm faded palette and a soft print finish, without copying the sou
 role: style
 treatment: palette wash
 color: 0.9
-detail: 0.05
-study: "384"
+detail: 0.0
+study: "256"
 framing: stack
 subject: avoid
 early: 0.85
 late: 0.9
 guard: false
 cap: 0.85
-shape: 0.3
+shape: 0.75
 global: 1.7
 layers: [0.25, 0.35, 0.45, 0.6, 0.8, 1.0, 1.0, 2.5, 5.0, 1.1, 4.0, 1.2]
 ```
@@ -276,26 +368,33 @@ positions are Krea 2's 12 text-encoder layer taps (position 0 shallowest,
 11 deepest). The built-in tables follow a *design intent* - shallow layers
 (`0`-`4`) carry structure and are turned down for look-borrowing; `5`-`6`
 transition; deep layers carry appearance, spiked at `8` (strongest), `10`,
-then `7`, with `9` and `11` mild. That pattern is a principled, borrowed
-design, not a per-tap measurement (see the determination link below).
+then `7`, with `9` and `11` mild. The card's manual
+`Structure layers pull` / `Finish layers pull` dials scale positions `0`-`5`
+and `6`-`11` of this same table - a custom array is those two dials with
+per-position control.
 
 Omit `layers` to use your role's tuned table - the right default. To derive
 your own: start from the closest family table, scale the front half (`0`-`5`)
 by how much structure should arrive, scale the back half (`6`-`11`) by how
 strongly the finish should arrive, and keep the spike ordering
 (`8` > `10` > `7`). Each entry lands as
-`clamp(effective strength x shape x gain, -6, +6)` on the token channel, so
-gains trade off against your `shape` value - and the `global` field carries
-the overall look independently of all twelve numbers.
+`clamp(effective strength x shape x gain, -6, +6)` per band - so the gains
+multiply against `shape`, and `shape` sets the floor: a `5.0` spike on a
+`shape 0.7` card at effective strength `0.5` lands at `1.75` on that band
+while the suppressed front bands stay near `0.1`; the same spike on a
+`shape 0.1` card lands at a whisper-quiet `0.25`. That is why layer tuning is
+the *polish* step - render sweeps on the real model showed outcome-level
+changes come from `treatment` and `shape`, while sensible layer-table edits
+read as flavor. (And remember: `global` does not participate at all on
+Krea 2.)
 
 The family tables, the full chunk map, the math, a copy-paste derivation
-snippet (the same scaling the card's manual Structure/Finish dials apply),
-and a worked example live in
-[custom_recipes/README.md](../custom_recipes/README.md#deriving-the-layers-array).
+snippet, a render-validated worked example, and a two-minute render-testing
+protocol live in
+[custom_recipes/README.md](../custom_recipes/README.md#the-layers-array-exactly).
 The full determination - what the 12 taps are (verified from the model), where
-the specific numbers came from (a borrowed template plus design reasoning, not
-a per-tap sweep), and the turnkey measurement kit - is documented in
-[docs/deepstack-layers/](deepstack-layers/README.md).
+the specific numbers came from, and how the retuned values were measured -
+is documented in [docs/deepstack-layers/](deepstack-layers/README.md).
 
 ### How validation behaves
 
@@ -324,8 +423,15 @@ clamped exactly like the built-in text/logo guard.
 - Keep `subject: avoid` on style-family recipes unless you specifically want
   the source subject to survive.
 - Give whisper-jobs a `cap` so a slider bump cannot blow past their intent.
+- Appearance recipes land best with a coarse study (`study: "256"`) - finer
+  studies raise the strength needed before anything shows.
 - Test with the prepared-references preview: if the treated frame still
   shows what you meant to strip, strengthen `treatment` or lower `detail`.
+- **Validate by rendering, always.** Fix a seed, render your recipe at
+  strengths `0.4` / `0.65` / `0.9`, and check three things: not silent at
+  `0.9`? (raise `shape`); source not leaking in? (harden `treatment`); the
+  three strengths read quiet / clear / strong? (set `cap` where "too much"
+  begins). Numbers that were never rendered are guesses.
 
 ### Sharing recipes and saved workflows
 
@@ -357,29 +463,28 @@ The job picks *what* to repel:
 
 ### The direction journey
 
-The pair below shows exactly what an away card negates. Same prompt, same
-seed (`972106`); the only change is connecting the style card pulled
-`toward this image` at `0.65`:
+The three steps below show exactly what an away card negates. Same prompt,
+same seed (`972106`); the only change is the style card and its direction:
 
-| Step 1: prompt only | Step 2: style pulled toward |
-| --- | --- |
-| <img src="assets/krea-v10/demos/counter-example-baseline.png" alt="Direction journey prompt-only baseline" width="300"> | <img src="assets/krea-v10/demos/counter-example-toward.png" alt="Direction journey with style pulled toward" width="300"> |
+| Step 1: prompt only | Step 2: style toward `0.65` | Step 3: style away `0.40` |
+| --- | --- | --- |
+| <img src="assets/krea-v10/demos/counter-example-baseline.png" alt="Direction journey prompt-only baseline" width="240"> | <img src="assets/krea-v10/demos/counter-example-toward.png" alt="Direction journey with style pulled toward" width="240"> | <img src="assets/krea-v10/demos/counter-example-away.png" alt="Direction journey with style pushed away" width="240"> |
 
 | Setting | Value |
 | --- | --- |
 | Style source | <img src="../example_assets/krea-reference-examples/slot2_style_reference.png" alt="Style source image" width="180"> |
-| Prompt (both steps) | `a sculptural table lamp in a clean studio product photo, no readable text` |
+| Prompt (all steps) | `a sculptural table lamp in a clean studio product photo, no readable text` |
 | Step 2 card | `suggest the visual style`, `toward this image`, strength `0.65` |
-| Demo files | [step 1 PNG](assets/krea-v10/demos/counter-example-baseline.png), [step 2 PNG](assets/krea-v10/demos/counter-example-toward.png) + `.workflow.json` beside each |
+| Step 3 card | `suggest the visual style`, `away from this image`, strength `0.40` |
+| Demo files | [step 1](assets/krea-v10/demos/counter-example-baseline.png), [step 2](assets/krea-v10/demos/counter-example-toward.png), [step 3](assets/krea-v10/demos/counter-example-away.png) + `.workflow.json` beside each |
 
-The style source's organic, abstract form language arrives in step 2 - and
-that contribution is precisely what the same card set to
-`away from this image` pushes out of the result. Away also pushes harder per
-slider unit than toward, because it extrapolates past removal - which is why
-the rules below say start low. Step 3 (the away render, same seed) requires
-the V10 nodes on the render machine and lands with it; run
-[krea-v10-counter-example-workflow.json](../example_workflows/krea-v10-counter-example-workflow.json)
-to produce it yourself today.
+Pulled toward, the source's pastel mosaic palette lands all over the lamp.
+Pushed away, the same card scrubs the result in the opposite direction - the
+lamp comes out plainer and warmer-neutral than even the prompt-only baseline,
+because the stack is actively steering out of the source's palette and
+manner. Away pushes harder per slider unit than toward (it extrapolates past
+removal), which is why step 3 runs at `0.40` and the rules below say start
+low.
 
 Rules of thumb:
 
@@ -423,11 +528,14 @@ Same style card, same seed (`972105`), same prompt - the only change is
 | Prompt (both) | `a modern table lamp in a clean studio product photo, no readable text` |
 | Demo files | [early-only PNG](assets/krea-v10/demos/timing-style-early-only.png), [final-only PNG](assets/krea-v10/demos/timing-style-final-only.png) + `.workflow.json` beside each |
 
-Early-only lets the style shape the composition - the graphite two-tone
-structure echoes the source - then hands the finish back to the prompt.
-Final-only is the mirror image: the prompt owns the layout and the style
-arrives only in the surface, bringing the source's coral into the frame and
-base. One widget, two very different pictures.
+Both timings deliver the borrowed palette - color commits in the first
+sampling steps, so even an early-only card leaves color behind. What the
+widget really moves is *how* the look lands: early-only lets the source
+guide the composition and broad color fields, then the prompt's own finish
+passes smooth the surfaces - the shade comes out a classic soft-graded cone.
+Final-only is the mirror image: the prompt owns the early composition and
+the source arrives in the detail passes, laying its crisp mosaic finish onto
+the prompt's lamp. One widget, two clearly different pictures.
 
 ## Manual Layer Dials
 
@@ -459,6 +567,18 @@ stack exceeds it:
 
 The written prompt is never balanced - only image cards are scaled - and the
 stack report states the applied scale whenever balancing intervenes.
+
+The six-card showcase, rendered both ways on the same seed:
+
+| Balance `off - use my values` | `gentle balance` |
+| --- | --- |
+| <img src="assets/krea-v10/demos/full-showcase.png" alt="Showcase with balance off" width="300"> | <img src="assets/krea-v10/demos/full-showcase-balanced.png" alt="Showcase with gentle balance" width="300"> |
+
+With six active cards the gentle budget trims the loudest pulls: the balanced
+render keeps the same mug-on-desk composition while the ensemble blends a
+touch more evenly (note the calmer lid and the desk items settling in). With
+stacks this size the difference is deliberately subtle - balance is a
+graceful-degradation guard, not a look control.
 
 ## Reuse Image Studies
 
@@ -539,10 +659,12 @@ Six cards, one job each - rendered as a single journey:
 
 <img src="assets/krea-v10/demos/full-showcase.png" alt="Full showcase result - six jobs" width="420">
 
-The mug is the prompt's, the desk and light read bright-studio, and the
-row-of-objects framing echoes the pose reference before handing off - notice
-even the second mug slipping in from the framing card's arrangement. This
-render used `off - use my values` balance; the shipped
+The mug is the prompt's, anchored by the content card; the desk, books, and
+window light read bright-studio; the style and palette cards keep the grade
+quiet and warm; and no readable markings survive the guard. This render used
+`off - use my values` balance (the
+[gentle-balance render](assets/krea-v10/demos/full-showcase-balanced.png) of
+the same seed sits in the Balance section); the shipped
 [showcase workflow](../example_workflows/krea-v10-full-showcase-workflow.json)
 turns `gentle balance` on as its starting point:
 
@@ -564,21 +686,26 @@ beside it. Full per-demo settings live in
 
 | Journey | PNG | JSON |
 | --- | --- | --- |
+| Balanced | [recipe-balanced.png](assets/krea-v10/demos/recipe-balanced.png) | [workflow](assets/krea-v10/demos/recipe-balanced.workflow.json) |
+| Keep the same subject | [recipe-keep-same-subject.png](assets/krea-v10/demos/recipe-keep-same-subject.png) | [workflow](assets/krea-v10/demos/recipe-keep-same-subject.workflow.json) |
+| Copy pose and layout | [recipe-copy-pose-layout.png](assets/krea-v10/demos/recipe-copy-pose-layout.png) | [workflow](assets/krea-v10/demos/recipe-copy-pose-layout.workflow.json) |
+| Copy big shapes only | [recipe-copy-big-shapes.png](assets/krea-v10/demos/recipe-copy-big-shapes.png) | [workflow](assets/krea-v10/demos/recipe-copy-big-shapes.workflow.json) |
+| Copy the camera framing | [copy-camera-framing.png](assets/krea-v10/demos/copy-camera-framing.png) | [workflow](assets/krea-v10/demos/copy-camera-framing.workflow.json) |
+| Avoid copying text/logos | [recipe-avoid-text-logos.png](assets/krea-v10/demos/recipe-avoid-text-logos.png) | [workflow](assets/krea-v10/demos/recipe-avoid-text-logos.workflow.json) |
 | Suggest the color palette | [suggest-color-palette.png](assets/krea-v10/demos/suggest-color-palette.png) | [workflow](assets/krea-v10/demos/suggest-color-palette.workflow.json) |
 | Palette journey, prompt only | [suggest-color-palette-off.png](assets/krea-v10/demos/suggest-color-palette-off.png) | [workflow](assets/krea-v10/demos/suggest-color-palette-off.workflow.json) |
+| Suggest the visual style | [recipe-suggest-visual-style.png](assets/krea-v10/demos/recipe-suggest-visual-style.png) | [workflow](assets/krea-v10/demos/recipe-suggest-visual-style.workflow.json) |
+| Copy lighting and mood | [recipe-copy-lighting-mood.png](assets/krea-v10/demos/recipe-copy-lighting-mood.png) | [workflow](assets/krea-v10/demos/recipe-copy-lighting-mood.workflow.json) |
+| Suggest material or texture | [recipe-suggest-material-texture.png](assets/krea-v10/demos/recipe-suggest-material-texture.png) | [workflow](assets/krea-v10/demos/recipe-suggest-material-texture.workflow.json) |
 | Use the background/setting | [use-background-setting.png](assets/krea-v10/demos/use-background-setting.png) | [workflow](assets/krea-v10/demos/use-background-setting.workflow.json) |
-| Copy the camera framing | [copy-camera-framing.png](assets/krea-v10/demos/copy-camera-framing.png) | [workflow](assets/krea-v10/demos/copy-camera-framing.workflow.json) |
 | Mood board only | [mood-board-only.png](assets/krea-v10/demos/mood-board-only.png) | [workflow](assets/krea-v10/demos/mood-board-only.workflow.json) |
 | Timing: early layout only | [timing-style-early-only.png](assets/krea-v10/demos/timing-style-early-only.png) | [workflow](assets/krea-v10/demos/timing-style-early-only.workflow.json) |
 | Timing: final details only | [timing-style-final-only.png](assets/krea-v10/demos/timing-style-final-only.png) | [workflow](assets/krea-v10/demos/timing-style-final-only.workflow.json) |
 | Direction journey: prompt only | [counter-example-baseline.png](assets/krea-v10/demos/counter-example-baseline.png) | [workflow](assets/krea-v10/demos/counter-example-baseline.workflow.json) |
 | Direction journey: style toward | [counter-example-toward.png](assets/krea-v10/demos/counter-example-toward.png) | [workflow](assets/krea-v10/demos/counter-example-toward.workflow.json) |
-| Full showcase | [full-showcase.png](assets/krea-v10/demos/full-showcase.png) | [workflow](assets/krea-v10/demos/full-showcase.workflow.json) |
-
-Two renders intentionally wait for the V10 nodes to reach the render
-machine: the away-direction result (step 3 of the direction journey) and a
-balance on/off comparison. Both workflows already ship, so you can produce
-them on your own V10 install today.
+| Direction journey: style away | [counter-example-away.png](assets/krea-v10/demos/counter-example-away.png) | [workflow](assets/krea-v10/demos/counter-example-away.workflow.json) |
+| Full showcase (balance off) | [full-showcase.png](assets/krea-v10/demos/full-showcase.png) | [workflow](assets/krea-v10/demos/full-showcase.workflow.json) |
+| Full showcase (gentle balance) | [full-showcase-balanced.png](assets/krea-v10/demos/full-showcase-balanced.png) | [workflow](assets/krea-v10/demos/full-showcase-balanced.workflow.json) |
 
 If a loaded demo reports missing images, copy
 `example_assets/krea-reference-examples/` into your ComfyUI `input/` folder.
@@ -587,7 +714,8 @@ If a loaded demo reports missing images, copy
 
 | Problem | What to try |
 | --- | --- |
-| A card seems to do nothing. | Read the stack report: the feel curve, a recipe cap, or the guard is usually named on that card's line. |
+| A card seems to do nothing. | Read the stack report: the feel curve, a recipe cap, or the guard is usually named on that card's line. Appearance recipes (palette/style/lighting/material/environment/mood) are tuned to land from about strength `0.6` - below that they whisper by design. |
+| A custom recipe seems to do nothing at any strength. | Its `shape` is too low (below ~`0.5` the card is effectively off on Krea 2) or its `study` too fine. Raise `shape` toward the built-ins' `0.7`-`1.0`; raising `global` will not help on this model. |
 | Away card makes the image muddy or empty. | Lower its strength below `0.30`, and make sure something positive (prompt or toward card) says what you *do* want. |
 | Many cards fight each other. | Turn on `gentle balance`, or lower the two strongest cards. The report shows the applied scale. |
 | Style card drags its subject in. | Check the prepared-references preview; if the subject is visible there, lower detail or strengthen the treatment. In manual mode, lower `Structure layers pull`. |

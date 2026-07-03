@@ -288,19 +288,32 @@ where $\sigma_i$ is the card's effective strength (§5.4) and $P^{\text{shape}},
 | Role | shape pull | global pull | Reading |
 | --- | --- | --- | --- |
 | balanced | 1.00 | 1.00 | everything, evenly |
-| style | 0.18 | 1.35 | look, not layout |
-| palette | 0.04 | 1.75 | color relationships only |
+| style | 0.80 | 1.35 | look, not layout |
+| palette | 0.70 | 1.75 | color relationships only |
 | composition | 1.25 | 0.35 | layout, not look |
 | framing | 0.90 | 0.25 | camera only |
 | identity | 1.00 | 1.00 | subject fidelity |
-| environment | 0.65 | 0.80 | background context |
-| lighting | 0.25 | 1.25 | light behavior |
-| material | 0.18 | 1.20 | surface feel |
-| loose | 0.12 | 0.65 | mood board |
+| environment | 0.70 | 0.80 | background context |
+| lighting | 0.80 | 1.25 | light behavior |
+| material | 1.00 | 1.20 | surface feel |
+| loose | 0.65 | 0.65 | mood board |
 | shape only | 1.20 | 0.05 | silhouette only |
 | text/logo safe | 0.08 | 0.00 | near-total suppression |
 
-The table is the quantitative heart of goal G2. A *style* card at any strength pushes the global vector 7.5× harder than the token stream (1.35 / 0.18), and a *composition* card inverts that ratio. These constants came out of my tuning sweeps, validated against the recipe demo gallery in [`docs/assets/krea-v9/demos/`](assets/krea-v9/demos/).
+The table is the quantitative heart of goal G2, with one hard empirical
+caveat (render-verified 2026-07-03): **on Krea 2 the pooled channel is
+inert** - the Qwen3-VL text encoder emits no `pooled_output`, so
+`conditioning_delta` carries no pooled delta and $P^{\text{global}}$
+multiplies nothing (§9.3 only adds the pooled delta when it is a tensor).
+Every appearance effect therefore rides the token channel:
+$\sigma \times P^{\text{shape}} \times \gamma_\ell$. That is why the
+appearance roles' shape pulls sit at 0.65-1.0 (the original near-zero values
+routed their whole effect through the dead pooled axis and transferred
+nothing), while what keeps them structure-safe is the *treatment* (§7)
+destroying the reference's structure before encoding, not a tiny shape pull.
+The global column stays for CLIP-style encoders that do emit a pooled
+vector. These constants were render-measured on the real model; the
+retune record lives with the layer determination docs.
 
 The **written prompt** uses a single scalar for both channels. Its delta enters the composition as a 2-tuple, and the compose algorithm (§9.3) applies the same weight $(s_p - 1)$ to token and pooled parts alike.
 
@@ -419,9 +432,9 @@ Each non-manual "Use image for" choice selects a full settings bundle from `QUIC
 | balanced | balanced | normal | 1.0 | 1.0 | stack | recipe | 1.0 | 1.0 | none | 1.0 | 1.0 | EVEN |
 | identity ("keep the same subject") | identity | normal | 1.0 | 1.0 | stack | preserve | 1.0 | 1.0 | none | 1.0 | 1.0 | EVEN |
 | composition ("copy pose and layout") | composition | grayscale blur | 0.0 | 0.25 | stack | avoid | 1.2 | 0.2 | 1.25 | 1.3 | 0.3 | EVEN |
-| lighting ("copy lighting and mood") | lighting | soft blur | 0.85 | 0.55 | stack | avoid | 1.0 | 0.55 | 1.25 | 0.25 | 1.3 | LIGHTING |
-| style gentle ("suggest the visual style") | style | palette wash | 0.85 | 0.05 | 384 | avoid | 0.85 | 0.85 | 0.90 | 0.35 | 1.85 | STYLE |
-| texture gentle ("suggest material or texture") | material | strong blur | 0.65 | 0.05 | stack | avoid | 0.5 | 0.75 | 0.95 | 0.35 | 1.55 | MATERIAL |
+| lighting ("copy lighting and mood") | lighting | palette wash | 0.85 | 0.15 | 256 | avoid | 1.0 | 0.55 | 1.25 | 0.8 | 1.3 | LIGHTING |
+| style gentle ("suggest the visual style") | style | palette wash | 0.85 | 0.0 | 256 | avoid | 0.85 | 0.85 | 0.90 | 0.8 | 1.85 | STYLE |
+| texture gentle ("suggest material or texture") | material | palette wash | 0.8 | 0.1 | 256 | avoid | 0.5 | 0.75 | 0.95 | 1.0 | 1.55 | MATERIAL |
 | shape only ("copy big shapes only") | shape only | shape wash | 0.0 | 0.0 | 256 | avoid | 1.1 | 0.0 | 1.00 | 1.2 | 0.05 | EVEN |
 | text/logo safe ("avoid copying text/logos") | text/logo safe | shape wash | 0.0 | 0.0 | 256 | avoid | 0.75 | 0.0 | **0.03** | 0.08 | 0.0 | 0.15×12 |
 
@@ -624,7 +637,7 @@ $$\text{needs}(i) \iff \exists\,\text{phase}:\; |t_i - 1| > \varepsilon \;\lor\;
 (Recall $w_{i,\ell}$ already has the $-1$ baked in, so its neutral value is 0.) Consequences worth spelling out:
 
 - A **balanced or identity card at strength exactly 1.0** is completely free: $t = g = 1$, and every layer target is $\min(1 \cdot 1, 6) - 1 = 0$. The image still participates natively via the base encode.
-- A **style card at strength 1.0 is *not* free**: its pulls (0.35 / 1.85) put both channel targets off-neutral, and its non-even gains leave most $w_\ell \ne 0$, so its delta is needed even at native strength. Neutrality is a property of the *targets*, not the slider.
+- A **style card at strength 1.0 is *not* free**: its pulls (0.8 / 1.85) put both channel targets off-neutral, and its non-even gains leave most $w_\ell \ne 0$, so its delta is needed even at native strength. Neutrality is a property of the *targets*, not the slider.
 - A zero-strength card (or slider inside the dead zone) never reaches the predicate. It was dropped at collection time.
 
 Deltas are computed once and stored in a dict keyed `"prompt"` or the image index, and both phases of two-phase scheduling reuse the same cache. Memory note: the cache holds one full conditioning-sized tensor set per active ingredient. Linear in active cards, same order as the encodes themselves.
@@ -766,25 +779,25 @@ The image hook has one extra affordance: an embed with no stamped index falls ba
 
 *One card, real numbers, every stage. Style transfer: a painting connected through "suggest the visual style," slider at 1.4, defaults elsewhere (artist feel, smart timing, split 0.40, written prompt "a portrait of a fox" at strength 1.0).*
 
-**Card resolution** (§6). "suggest the visual style" selects the style-gentle recipe: role `style`, treatment `palette wash`, color 0.85, detail 0.05, study 384, subject `avoid`, early/late 0.85/0.85, cap **0.9**, pulls 0.35/1.85, STYLE gains. The slider 1.4 caps to 0.9, so the packet carries `strength = 0.9`.
+**Card resolution** (§6). "suggest the visual style" selects the style-gentle recipe: role `style`, treatment `palette wash`, color 0.85, detail 0.0, study 256, subject `avoid`, early/late 0.85/0.85, cap **0.9**, pulls 0.8/1.85, STYLE gains. The slider 1.4 caps to 0.9, so the packet carries `strength = 0.9`.
 
 **Effective strength** (§5.4): $\sigma = f_{\text{artist}}(0.9) = 0.9^{1.6} = 0.8449$.
 
-**Image preparation** (§7): resize to about $384^2$ px preserving aspect, mix to 85% color, palette-wash to a color grid of at most 10×10 cells, detail keep 0.05 (near-total low-pass). The encoder will see a soft blocky color map: no fox, no brushstrokes, no subject from the style image.
+**Image preparation** (§7): resize to about $256^2$ px preserving aspect, mix to 85% color, palette-wash to a color grid of at most 10×10 cells, detail keep 0.0 (full low-pass). The encoder will see a soft blocky color map: no fox, no brushstrokes, no subject from the style image. This preparation - not a small shape pull - is what guarantees the style image's structure cannot arrive.
 
 **Prompt assembly** (§8): the system prompt gains `Input 1 role: borrow palette, tonal feel, ... without copying the style reference subject.` and `Input 1 subject rule: Do not copy this reference image's subject identity ...`. The user turn is one image-pad line plus "a portrait of a fox."
 
 **Targets** (§5), per phase with $m^{\text{early}} = m^{\text{late}} = 0.85$, so base $= 0.8449 \times 0.85 = 0.7181$:
 
-- token target $t = 0.7181 \times 0.35 = 0.2513$ (scalar weight −0.749, superseded by layers)
-- pooled target $g = 0.7181 \times 1.85 = 1.3286$, so **pooled weight +0.329**
-- per-chunk weights $w_\ell = \min(0.2513\,\gamma_\ell, 6) - 1$:
+- token target $t = 0.7181 \times 0.8 = 0.5745$ (scalar weight −0.426, superseded by layers)
+- pooled target $g = 0.7181 \times 1.85 = 1.3286$, so pooled weight +0.329 - **which lands on nothing on Krea 2** (no pooled_output; §5.1). It would apply on a pooled-emitting encoder.
+- per-chunk weights $w_\ell = \min(0.5745\,\gamma_\ell, 6) - 1$:
 
-| ℓ | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | **8** | 9 | **10** | 11 |
+| ℓ | 0 | 1 | 2 | 3 | 4 | 5 | 6 | **7** | **8** | 9 | **10** | 11 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| w | −0.937 | −0.912 | −0.887 | −0.849 | −0.799 | −0.749 | −0.749 | −0.372 | **+0.257** | −0.724 | **+0.005** | −0.698 |
+| w | −0.856 | −0.799 | −0.741 | −0.655 | −0.540 | −0.426 | −0.426 | **+0.436** | **+1.873** | −0.368 | **+1.298** | −0.311 |
 
-Read the row: structural chunks are *suppressed* to 6 to 25% of native, while the two finish-carrying chunks are held at or slightly above native. The card imports look while actively *removing* the style image's structure. The numbers are the mechanism behind the recipe's name.
+Read the row: structural chunks are *suppressed* to 14 to 57% of native, while the three finish-carrying chunks are amplified to 1.4-2.9× native. The card imports look by making the finish bands speak while actively *removing* the style image's structure - and because the reference was palette-washed first, the amplified bands can only carry color and finish. The numbers are the mechanism behind the recipe's name.
 
 **Pass plan** (§9): prompt strength is 1.0, so no prompt delta. The card is non-neutral, so one image delta. **Total: 2 encoder passes.** Both phases have identical targets here (0.85 = 0.85), so early and late compositions are numerically equal, and with split 0.40 the sampler receives two range-tagged copies covering 0 to 40% and 40 to 100%.
 
