@@ -76,6 +76,9 @@ cross-connect, and saved V9 workflows keep working unchanged.
 
 Per-node details: [V10 guide card](docs/nodes/kg-krea-2-image-guide-card-v10.md)
 and [V10 stack encoder](docs/nodes/kg-krea-2-reference-stack-encoder-v10.md).
+Full walkthrough: [V10 user guide](docs/krea-v10-user-guide.md). Try
+[krea-v10-full-showcase-workflow.json](example_workflows/krea-v10-full-showcase-workflow.json)
+for all of it in one graph.
 
 ## Install
 
@@ -125,7 +128,10 @@ or drag it into ComfyUI to load the embedded workflow.
 
 | Workflow | Best for |
 | --- | --- |
-| [krea-v9-full-showcase-workflow.json](example_workflows/krea-v9-full-showcase-workflow.json) | First run. Shows content, style, material, lighting, and text/logo guard cards together. |
+| [krea-v10-full-showcase-workflow.json](example_workflows/krea-v10-full-showcase-workflow.json) | First V10 run. Six cards including the new palette, environment, and framing recipes, per-card timing, gentle balance, and both feedback outputs. |
+| [krea-v10-counter-example-workflow.json](example_workflows/krea-v10-counter-example-workflow.json) | The V10 `away from this image` direction: keep the subject, push a style out. |
+| [krea-v10-reference-stack-workflow.json](example_workflows/krea-v10-reference-stack-workflow.json) | Compact V10 starter graph with the report and prepared-references previews wired. |
+| [krea-v9-full-showcase-workflow.json](example_workflows/krea-v9-full-showcase-workflow.json) | First V9 run. Shows content, style, material, lighting, and text/logo guard cards together. |
 | [krea-v9-no-prompt-style-transfer-workflow.json](example_workflows/krea-v9-no-prompt-style-transfer-workflow.json) | Applying image 2's style to image 1 with no written prompt. |
 | [krea-v9-reference-stack-workflow.json](example_workflows/krea-v9-reference-stack-workflow.json) | Compact starter graph for building your own multi-reference workflow. |
 
@@ -154,11 +160,14 @@ Tips:
 
 | Start here | What it contains |
 | --- | --- |
-| [V9 visual HTML guide](docs/krea-v9-user-guide.html) | Full visual walkthrough with all recipes and embedded-workflow demo PNGs. |
+| [V10 visual HTML guide](docs/krea-v10-user-guide.html) | Visual walkthrough of everything V10 adds: new recipes, direction, timing, balance, reuse, and the feedback outputs. |
+| [V10 Markdown user guide](docs/krea-v10-user-guide.md) | Same V10 guide in Markdown form for GitHub reading. |
+| [V9 visual HTML guide](docs/krea-v9-user-guide.html) | Full visual walkthrough of the core recipes with embedded-workflow demo PNGs. |
 | [V9 Markdown user guide](docs/krea-v9-user-guide.md) | Same guide in Markdown form for GitHub reading. |
 | [Documentation landing page](docs/README.md) | Short navigation by task. |
 | [Node documentation index](docs/nodes/README.md) | Per-node input and output details. |
-| [Technical paper](docs/krea-v9-technical-paper.md) | How and why the nodes work: architecture, math, verification, extension and porting guides. |
+| [V9 technical paper](docs/krea-v9-technical-paper.md) | How and why the nodes work: architecture, math, verification, extension and porting guides. |
+| [V10 technical companion](docs/krea-v10-technical-paper.md) | The V10 mechanics on top of that architecture: direction math, balance, the study cache, verification, limitations. |
 | [Example workflows](example_workflows/README.md) | What each bundled workflow is for. |
 | [Testing guide](docs/testing.md) | Maintainer checks for contract tests and workflow validation. |
 

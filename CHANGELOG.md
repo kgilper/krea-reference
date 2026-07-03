@@ -13,6 +13,8 @@
 - Text/logo guard: the full guard's prompt rewriter now also understands common marking words in Spanish, French, German, Portuguese, and Italian.
 - Web extension: the compact card sockets and manual-row greying now cover the V10 nodes (the V10 layer dials grey out outside manual tuning).
 - Contract tests: `tests/test_krea_v10.py` pins the V10 label surface, packet compatibility, direction/timing/balance math, cache behavior, and the multilingual guard vocabulary.
+- Example workflows: `krea-v10-full-showcase-workflow.json` (six cards, new recipes, per-card timing, gentle balance, both feedback outputs wired), `krea-v10-counter-example-workflow.json` (the away direction), and `krea-v10-reference-stack-workflow.json` (compact starter), all using the bundled example assets.
+- Documentation: V10 user guides (`docs/krea-v10-user-guide.md` / `.html`), a V10 technical companion paper (`docs/krea-v10-technical-paper.md`), a V10 documentation index, per-node V10 pages, and updated landing pages, workflow README, and testing guide (including the V10 smoke checklist and demo-render release step).
 
 ## 0.1.6 - Runnable Example Workflows
 

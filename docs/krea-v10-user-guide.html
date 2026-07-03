@@ -1,0 +1,587 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Krea Reference V10 Visual Guide</title>
+  <style>
+    :root {
+      --bg: #f7f4ed;
+      --paper: #fffdf7;
+      --ink: #232323;
+      --muted: #62605b;
+      --line: #d8d0c0;
+      --accent: #0f766e;
+      --accent-2: #bf5b30;
+      --dark: #171717;
+      --code: #eee6d8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.55;
+    }
+    a { color: var(--accent); }
+    img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+    code {
+      background: var(--code);
+      border-radius: 4px;
+      padding: 0.12rem 0.28rem;
+      font-size: 0.92em;
+    }
+    pre {
+      background: #1f1f1f;
+      color: #f5f0e7;
+      padding: 1rem;
+      border-radius: 8px;
+      overflow: auto;
+    }
+    main { max-width: 1180px; margin: 0 auto; padding: 32px 20px 64px; }
+    header {
+      padding: 56px 20px 36px;
+      background: var(--dark);
+      color: #fff8ec;
+    }
+    header .inner { max-width: 1180px; margin: 0 auto; }
+    header p { color: #d9d0c3; max-width: 760px; font-size: 1.15rem; }
+    h1 {
+      font-size: clamp(2.4rem, 5vw, 4.8rem);
+      line-height: 0.95;
+      margin: 0 0 18px;
+      letter-spacing: 0;
+    }
+    h2 {
+      font-size: clamp(1.65rem, 3vw, 2.5rem);
+      line-height: 1.08;
+      margin: 0 0 16px;
+      letter-spacing: 0;
+    }
+    h3 {
+      font-size: 1.35rem;
+      margin: 0 0 10px;
+      letter-spacing: 0;
+    }
+    h4 { margin: 0 0 8px; font-size: 1rem; }
+    section {
+      margin-top: 34px;
+      padding: 28px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+    .lede { font-size: 1.1rem; color: var(--muted); max-width: 880px; }
+    .quick-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .quick-links a,
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 36px;
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fffaf0;
+      color: var(--ink);
+      text-decoration: none;
+      font-weight: 650;
+    }
+    .button.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 18px;
+    }
+    .two {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 22px;
+      align-items: start;
+    }
+    .three {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+    .callout {
+      border-left: 4px solid var(--accent);
+      background: #edf8f4;
+      padding: 14px 16px;
+      border-radius: 6px;
+      color: #173b36;
+    }
+    .warning {
+      border-left-color: var(--accent-2);
+      background: #fff0e8;
+      color: #50301f;
+    }
+    .route {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 18px 0;
+    }
+    .route div {
+      position: relative;
+      min-height: 74px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      font-weight: 750;
+    }
+    .route span {
+      display: block;
+      margin-top: 6px;
+      font-size: 0.9rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 12px 0;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 4px 8px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      font-size: 0.88rem;
+      color: #3a3834;
+    }
+    .recipe {
+      margin-top: 24px;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fffaf2;
+    }
+    .recipe .media {
+      display: grid;
+      grid-template-columns: 190px minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+    .recipe .source img { aspect-ratio: 1 / 1; object-fit: cover; }
+    .caption {
+      color: var(--muted);
+      font-size: 0.92rem;
+      margin-top: 7px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: #eee5d4; }
+    tr:last-child td { border-bottom: 0; }
+    .small { font-size: 0.92rem; color: var(--muted); }
+    .toc {
+      columns: 2;
+      column-gap: 28px;
+      margin: 0;
+      padding-left: 20px;
+    }
+    .toc li { break-inside: avoid; margin: 0 0 6px; }
+    footer { color: var(--muted); margin-top: 30px; }
+    @media (max-width: 820px) {
+      main { padding: 20px 12px 48px; }
+      header { padding: 42px 16px 28px; }
+      section { padding: 18px; }
+      .two, .three, .route, .recipe .media { grid-template-columns: 1fr; }
+      .toc { columns: 1; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="inner">
+      <h1>Krea Reference V10 Visual Guide</h1>
+      <p>
+        Every source image gets a job. V10 keeps everything from V9 and adds
+        four more jobs, counter-example direction, per-card timing, balance
+        for hot stacks, a study cache for fast tuning, and two outputs that
+        show you exactly what the stack did.
+      </p>
+      <div class="quick-links">
+        <a href="#quick-start">Quick Start</a>
+        <a href="#new">What V10 Adds</a>
+        <a href="#recipes">New Recipes</a>
+        <a href="#direction">Direction</a>
+        <a href="#feedback">Report &amp; Preview</a>
+        <a href="#troubleshooting">Troubleshooting</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="quick-start">
+      <h2>Quick Start</h2>
+      <p class="lede">
+        Same route as V9, two extra wires. Choose <code>Use image for</code> on
+        each card, connect every card to the V10 stack, and wire the two new
+        outputs so the stack can talk back.
+      </p>
+      <div class="route" aria-label="Workflow route">
+        <div>Load Image<span>Your source or reference image</span></div>
+        <div>Guide Card V10<span>Pick the image's job and direction</span></div>
+        <div>Reference Stack V10<span>Combine prompt and cards</span></div>
+        <div>KSampler Positive<span>Generate with Krea</span></div>
+      </div>
+      <div class="route" aria-label="Feedback route" style="grid-template-columns: repeat(2, minmax(0, 1fr));">
+        <div>stack_report &rarr; Preview Any<span>What every card requested, got, and why</span></div>
+        <div>prepared_references &rarr; Preview Image<span>What the vision encoder actually studied</span></div>
+      </div>
+      <div class="callout">
+        <strong>Start with the bundled workflows:</strong>
+        <code>krea-v10-full-showcase-workflow.json</code> shows six jobs plus
+        balance and both feedback outputs;
+        <code>krea-v10-counter-example-workflow.json</code> shows the new
+        <code>away from this image</code> direction. V9 workflows keep working
+        unchanged, and V9 and V10 cards cross-connect.
+      </div>
+      <figure style="margin-top: 20px;">
+        <img src="../example_assets/krea-reference-examples/contact_sheet.png" alt="Synthetic reference images included with Krea Reference">
+        <figcaption class="caption">Synthetic reference images included with this repo. V10 demo renders matching the V9 gallery land with the V10 release.</figcaption>
+      </figure>
+    </section>
+
+    <section id="new">
+      <h2>What V10 Adds</h2>
+      <div class="grid">
+        <div>
+          <h3>Four more jobs</h3>
+          <p>Palette, background/setting, camera framing, and mood board are now one-click recipes instead of manual-tuning projects.</p>
+        </div>
+        <div>
+          <h3>Direction</h3>
+          <p>A card can guide <em>toward</em> its image (V9 behavior) or <em>away</em> from it - a counter-example for a style, palette, layout, or subject you do not want.</p>
+        </div>
+        <div>
+          <h3>Per-card timing</h3>
+          <p>Whole image, early layout only, or final details only - without touching the stack's handoff or the other cards.</p>
+        </div>
+        <div>
+          <h3>Balance</h3>
+          <p>An optional budget keeps several hot cards from fighting; the stack scales them down together and tells you it did.</p>
+        </div>
+        <div>
+          <h3>Study reuse</h3>
+          <p>Image studies are cached by content. Strength and timing tweaks re-run with zero encoder passes.</p>
+        </div>
+        <div>
+          <h3>Feedback outputs</h3>
+          <p>A plain-language stack report and a contact sheet of the prepared references. No more guessing why a card is silent.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="recipes">
+      <h2>The Four New Recipes</h2>
+      <p class="lede">
+        Each was possible in V9 through <code>manual tuning</code>; V10 ships
+        them as tested one-click bundles.
+      </p>
+
+      <div class="recipe">
+        <h3>Suggest The Color Palette</h3>
+        <div class="media">
+          <figure class="source">
+            <img src="../example_assets/krea-reference-examples/slot4_lighting_mood.png" alt="Palette source example">
+            <figcaption class="caption">Palette source example</figcaption>
+          </figure>
+          <div>
+            <div class="meta">
+              <span class="pill">Start near 0.30&ndash;0.45</span>
+              <span class="pill">Cap 0.9</span>
+              <span class="pill">Palette wash, zero detail</span>
+            </div>
+            <p>
+              Borrow broad color palette, contrast, and tonal relationships -
+              nothing else. The image is reduced to soft color blocks before the
+              encoder ever sees it; check the prepared-references preview and
+              you will see how little survives. That is the point.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="recipe">
+        <h3>Use The Background/Setting</h3>
+        <div class="media">
+          <figure class="source">
+            <img src="../example_assets/krea-reference-examples/slot8_background_environment.png" alt="Environment source example">
+            <figcaption class="caption">Environment source example</figcaption>
+          </figure>
+          <div>
+            <div class="meta">
+              <span class="pill">Start near 0.25&ndash;0.40</span>
+              <span class="pill">Subject stays yours</span>
+            </div>
+            <p>
+              Borrow location type, scene context, and spatial atmosphere
+              without replacing the main subject. Pair it with
+              <code>keep the same subject</code> on the content card for
+              product-in-a-place shots.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="recipe">
+        <h3>Copy The Camera Framing</h3>
+        <div class="media">
+          <figure class="source">
+            <img src="../example_assets/krea-reference-examples/slot6_pose_layout.png" alt="Framing source example">
+            <figcaption class="caption">Framing source example</figcaption>
+          </figure>
+          <div>
+            <div class="meta">
+              <span class="pill">Start near 0.20&ndash;0.35</span>
+              <span class="pill">Grayscale, aspect preserved</span>
+              <span class="pill">Pairs with early layout only</span>
+            </div>
+            <p>
+              Camera distance, crop, lens feel, and viewpoint only. The
+              reference keeps its aspect ratio during study because the frame
+              <em>is</em> the information. Set
+              <code>When this card guides</code> to
+              <code>early layout only</code> so it composes the shot and then
+              gets out of the way.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="recipe">
+        <h3>Mood Board Only</h3>
+        <div class="media">
+          <figure class="source">
+            <img src="../example_assets/krea-reference-examples/slot2_style_reference.png" alt="Mood board source example">
+            <figcaption class="caption">Mood board source example</figcaption>
+          </figure>
+          <div>
+            <div class="meta">
+              <span class="pill">Start near 0.15&ndash;0.30</span>
+              <span class="pill">Hard cap 0.6</span>
+            </div>
+            <p>
+              Loose inspiration that whispers and never dictates. The recipe is
+              capped so a mood board can never take over the image, no matter
+              where the slider goes - the stack report will show the cap if you
+              push past it.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="direction">
+      <h2>Guide Direction: Counter-Examples</h2>
+      <p class="lede">
+        Every card gets a job; in V10 it also gets a direction. Away cards
+        steer the result out of a look instead of into one.
+      </p>
+      <table>
+        <tr><th>Combination</th><th>Meaning</th></tr>
+        <tr><td><code>away</code> + <code>suggest the visual style</code></td><td>Not this style.</td></tr>
+        <tr><td><code>away</code> + <code>suggest the color palette</code></td><td>Not this palette.</td></tr>
+        <tr><td><code>away</code> + <code>copy pose and layout</code></td><td>Not this composition.</td></tr>
+        <tr><td><code>away</code> + <code>keep the same subject</code></td><td>Keep this subject out entirely.</td></tr>
+      </table>
+      <div class="callout warning" style="margin-top: 16px;">
+        <strong>Keep repulsion quiet.</strong> Start away cards at
+        0.10&ndash;0.30 and always give the stack something positive - a
+        written prompt or a toward card - that says what you <em>do</em> want.
+        Pure repulsion with no positive signal wanders. A counter-example card
+        always avoids subject copying, whatever <code>Subject copying</code>
+        says.
+      </div>
+      <p class="small" style="margin-top: 12px;">
+        Working example: <code>example_workflows/krea-v10-counter-example-workflow.json</code>
+        keeps a product with a toward card at 0.80 and pushes a style out with
+        an away card at 0.25.
+      </p>
+    </section>
+
+    <section id="timing">
+      <h2>Per-Card Timing</h2>
+      <div class="grid">
+        <div>
+          <h4>recipe decides</h4>
+          <p class="small">Keep the recipe or manual early/late behavior. The V9 default.</p>
+        </div>
+        <div>
+          <h4>whole image</h4>
+          <p class="small">Guide both phases at full card strength.</p>
+        </div>
+        <div>
+          <h4>early layout only</h4>
+          <p class="small">Compose early, then remove this card's influence for the finish.</p>
+        </div>
+        <div>
+          <h4>final details only</h4>
+          <p class="small">Stay out of composition; touch only the finish.</p>
+        </div>
+      </div>
+      <p class="small">
+        The text/logo guard clamps last: a guarded card never regains
+        late-phase influence, whatever the timing choice says.
+      </p>
+    </section>
+
+    <section id="stack">
+      <h2>Stack Controls: Balance And Reuse</h2>
+      <div class="two">
+        <div>
+          <h3>Balance strong cards</h3>
+          <p>
+            Several simultaneously strong cards blend less faithfully than the
+            same cards used separately. Balance budgets the stack's total pull
+            per timing phase and scales hot stacks down together, keeping your
+            relative ratios.
+          </p>
+          <table>
+            <tr><th>Choice</th><th>Use when</th></tr>
+            <tr><td><code>off - use my values</code></td><td>Exact V9 behavior. The default.</td></tr>
+            <tr><td><code>gentle balance</code></td><td>Four or more active cards, or two or three aggressive ones.</td></tr>
+            <tr><td><code>strict balance</code></td><td>Conservative blends where fidelity beats punch.</td></tr>
+          </table>
+        </div>
+        <div>
+          <h3>Reuse image studies</h3>
+          <p>
+            Image studies depend only on the prompt and the prepared images -
+            never on strengths, direction, timing, or balance. With reuse on,
+            tuning re-runs skip every encoder pass; the report's
+            <code>Studies:</code> line shows what was saved.
+          </p>
+          <table>
+            <tr><th>Choice</th><th>Behavior</th></tr>
+            <tr><td><code>reuse between runs - faster tuning</code></td><td>Content-keyed cache; edits to images or prompt re-study automatically.</td></tr>
+            <tr><td><code>always re-study</code></td><td>Exact V9 behavior. Use while hot-swapping CLIP patches or LoRA hooks.</td></tr>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="feedback">
+      <h2>The Report And The Prepared-References Preview</h2>
+      <div class="two">
+        <div>
+          <h3>stack_report &rarr; Preview Any</h3>
+          <p>
+            A plain-language account of the run: what each card requested,
+            what it actually got, and why - feel curve, recipe cap, guard
+            clamp, balance scale, encoder pass counts, and skipped cards.
+          </p>
+<pre>Card 1 (keep the same subject):
+  requested 0.80 -&gt; guiding at 0.70
+  after the slider feel curve.
+Card 6 (avoid copying text/logos):
+  requested 0.50 -&gt; capped at 0.03
+  by the text/logo guard.
+Studies: 7 encoder passes this run;
+  studies cached for faster tuning.</pre>
+          <p class="small">If a card seems dead, its report line names the reason.</p>
+        </div>
+        <div>
+          <h3>prepared_references &rarr; Preview Image</h3>
+          <p>
+            One frame per active card: exactly what the vision encoder studied
+            after framing, washes, color reduction, and detail reduction. The
+            treatments are the node's guaranteed information filter - now you
+            can see them.
+          </p>
+          <div class="callout">
+            <strong>Use it to debug leaks:</strong> if a style card's frame
+            still shows a recognizable subject, the subject can leak into the
+            result. Lower <code>Small details kept</code>, pick a stronger
+            <code>Prepare image by</code> treatment, or reduce the study
+            resolution until the frame shows only what the card should carry.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="workflows">
+      <h2>Bundled V10 Workflows</h2>
+      <table>
+        <tr><th>Workflow</th><th>Best for</th></tr>
+        <tr>
+          <td><code>krea-v10-full-showcase-workflow.json</code></td>
+          <td>First run. Six cards including the new palette, environment, and framing recipes, per-card timing, gentle balance, and both feedback outputs.</td>
+        </tr>
+        <tr>
+          <td><code>krea-v10-counter-example-workflow.json</code></td>
+          <td>The away direction: keep the subject, push a style out.</td>
+        </tr>
+        <tr>
+          <td><code>krea-v10-reference-stack-workflow.json</code></td>
+          <td>Compact starter graph for building your own V10 stack.</td>
+        </tr>
+      </table>
+      <p class="small">
+        Copy <code>example_assets/krea-reference-examples/</code> into your
+        ComfyUI <code>input/</code> folder first so the Load Image nodes find
+        the bundled example images.
+      </p>
+    </section>
+
+    <section id="troubleshooting">
+      <h2>Troubleshooting</h2>
+      <table>
+        <tr><th>Problem</th><th>What to try</th></tr>
+        <tr><td>A card seems to do nothing.</td><td>Read its stack report line: the feel curve, a recipe cap, or the guard is usually named there.</td></tr>
+        <tr><td>Away card makes the image muddy or empty.</td><td>Lower it below 0.30 and make sure something positive says what you do want.</td></tr>
+        <tr><td>Many cards fight each other.</td><td>Turn on gentle balance, or lower the two strongest cards. The report shows the applied scale.</td></tr>
+        <tr><td>Style card drags its subject in.</td><td>Check the prepared-references preview; if the subject is visible there, lower detail or strengthen the treatment. In manual mode, lower Structure layers pull.</td></tr>
+        <tr><td>Re-runs are slow while tuning.</td><td>Set Reuse image studies to reuse between runs and keep the prompt fixed while tuning strengths.</td></tr>
+        <tr><td>Odd behavior after swapping CLIP patches.</td><td>Use always re-study while experimenting with CLIP-side changes.</td></tr>
+      </table>
+    </section>
+
+    <footer>
+      <p>
+        Companion files:
+        <a href="krea-v10-documentation-index.md">V10 documentation index</a> &middot;
+        <a href="krea-v10-user-guide.md">V10 Markdown guide</a> &middot;
+        <a href="krea-v10-technical-paper.md">V10 technical companion</a> &middot;
+        <a href="krea-v9-user-guide.html">V9 visual guide</a>
+      </p>
+    </footer>
+  </main>
+</body>
+</html>

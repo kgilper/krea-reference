@@ -1,0 +1,1738 @@
+{
+  "id": "kg-krea-v10-reference-stack-workflow",
+  "revision": 0,
+  "last_node_id": 21,
+  "last_link_id": 20,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "PrimitiveStringMultiline",
+      "pos": [
+        80,
+        420
+      ],
+      "size": [
+        400,
+        200
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            1
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.26.2",
+        "Node name for S&R": "PrimitiveStringMultiline"
+      },
+      "widgets_values": [
+        "two people standing in a field"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "KGTextEncodeKreaImageReferencesV10",
+      "pos": [
+        1040,
+        650
+      ],
+      "size": [
+        640,
+        520
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "Krea CLIP",
+          "type": "CLIP",
+          "link": 10
+        },
+        {
+          "name": "Final image prompt",
+          "type": "STRING",
+          "link": 1,
+          "widget": {
+            "name": "Final image prompt"
+          }
+        },
+        {
+          "name": "Written prompt strength",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "Written prompt strength"
+          }
+        },
+        {
+          "name": "Image slider feel",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Image slider feel"
+          }
+        },
+        {
+          "name": "Image detail level",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Image detail level"
+          }
+        },
+        {
+          "name": "Image framing",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Image framing"
+          }
+        },
+        {
+          "name": "When images guide",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "When images guide"
+          }
+        },
+        {
+          "name": "Early-to-final handoff",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "Early-to-final handoff"
+          }
+        },
+        {
+          "name": "Text/logo guard prompt handling",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Text/logo guard prompt handling"
+          }
+        },
+        {
+          "name": "Balance strong cards",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Balance strong cards"
+          }
+        },
+        {
+          "name": "Reuse image studies",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Reuse image studies"
+          }
+        },
+        {
+          "name": "Reference 1 guide card",
+          "type": "KG_KREA_REFERENCE",
+          "link": 3
+        },
+        {
+          "name": "Reference 2 guide card",
+          "type": "KG_KREA_REFERENCE",
+          "link": 5
+        },
+        {
+          "name": "Reference 3 guide card",
+          "type": "KG_KREA_REFERENCE",
+          "link": 7
+        },
+        {
+          "name": "Reference 4 guide card",
+          "type": "KG_KREA_REFERENCE",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "links": [
+            13
+          ]
+        },
+        {
+          "name": "stack_report",
+          "type": "STRING",
+          "links": [
+            19
+          ]
+        },
+        {
+          "name": "prepared_references",
+          "type": "IMAGE",
+          "links": [
+            20
+          ]
+        }
+      ],
+      "properties": {
+        "aux_id": "kgilper/krea-reference",
+        "Node name for S&R": "KGTextEncodeKreaImageReferencesV10"
+      },
+      "widgets_values": [
+        "",
+        1.15,
+        "artist friendly - soft at low values",
+        "medium - balanced default (384)",
+        "keep full image shape",
+        "smart per-card timing",
+        0.4,
+        "full guard - rewrite my prompt",
+        "off - use my values",
+        "reuse between runs - faster tuning"
+      ],
+      "title": "Krea V10 reference stack encoder"
+    },
+    {
+      "id": 3,
+      "type": "LoadImage",
+      "pos": [
+        80,
+        670
+      ],
+      "size": [
+        283,
+        314
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            2
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.26.2",
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "krea-reference-examples/slot6_pose_layout.png",
+        "image"
+      ],
+      "title": "Reference image 1 source"
+    },
+    {
+      "id": 4,
+      "type": "KGKrea2ImageGuideCardV10",
+      "pos": [
+        395,
+        670
+      ],
+      "size": [
+        530,
+        480
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "Reference image",
+          "type": "IMAGE",
+          "link": 2
+        },
+        {
+          "name": "How strongly this image guides",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "How strongly this image guides"
+          }
+        },
+        {
+          "name": "Use image for",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Use image for"
+          }
+        },
+        {
+          "name": "Manual mode borrows",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Manual mode borrows"
+          }
+        },
+        {
+          "name": "Prepare image by",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Prepare image by"
+          }
+        },
+        {
+          "name": "Color kept",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "Color kept"
+          }
+        },
+        {
+          "name": "Small details kept",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "Small details kept"
+          }
+        },
+        {
+          "name": "Study this image at",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Study this image at"
+          }
+        },
+        {
+          "name": "Frame this reference by",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Frame this reference by"
+          }
+        },
+        {
+          "name": "Subject copying",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Subject copying"
+          }
+        },
+        {
+          "name": "Early layout guidance",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "Early layout guidance"
+          }
+        },
+        {
+          "name": "Final detail copying",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "Final detail copying"
+          }
+        },
+        {
+          "name": "Maximum image pull",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "Maximum image pull"
+          }
+        },
+        {
+          "name": "Shape copied",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "Shape copied"
+          }
+        },
+        {
+          "name": "Overall style reach",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "Overall style reach"
+          }
+        },
+        {
+          "name": "Guide direction",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Guide direction"
+          }
+        },
+        {
+          "name": "When this card guides",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "When this card guides"
+          }
+        },
+        {
+          "name": "Structure layers pull",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "Structure layers pull"
+          }
+        },
+        {
+          "name": "Finish layers pull",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "Finish layers pull"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "guide_card",
+          "type": "KG_KREA_REFERENCE",
+          "links": [
+            3
+          ]
+        }
+      ],
+      "properties": {
+        "aux_id": "kgilper/krea-reference",
+        "Node name for S&R": "KGKrea2ImageGuideCardV10"
+      },
+      "widgets_values": [
+        0.14,
+        "copy pose and layout",
+        "overall image",
+        "use image as-is",
+        1.0,
+        1.0,
+        "use stack setting",
+        "use stack setting",
+        "recipe decides",
+        1.0,
+        1.0,
+        3.0,
+        1.0,
+        1.0,
+        "toward this image",
+        "recipe decides",
+        1.0,
+        1.0
+      ],
+      "title": "Guide Card V10 1 - pose and layout"
+    },
+    {
+      "id": 5,
+      "type": "LoadImage",
+      "pos": [
+        80,
+        1170
+      ],
+      "size": [
+        283,
+        314
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            4
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.26.2",
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "krea-reference-examples/slot2_style_reference.png",
+        "image"
+      ],
+      "title": "Reference image 2 source"
+    },
+    {
+      "id": 6,
+      "type": "KGKrea2ImageGuideCardV10",
+      "pos": [
+        395,
+        1170
+      ],
+      "size": [
+        530,
+        480
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "Reference image",
+          "type": "IMAGE",
+          "link": 4
+        },
+        {
+          "name": "How strongly this image guides",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "How strongly this image guides"
+          }
+        },
+        {
+          "name": "Use image for",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Use image for"
+          }
+        },
+        {
+          "name": "Manual mode borrows",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Manual mode borrows"
+          }
+        },
+        {
+          "name": "Prepare image by",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Prepare image by"
+          }
+        },
+        {
+          "name": "Color kept",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "Color kept"
+          }
+        },
+        {
+          "name": "Small details kept",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "Small details kept"
+          }
+        },
+        {
+          "name": "Study this image at",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Study this image at"
+          }
+        },
+        {
+          "name": "Frame this reference by",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Frame this reference by"
+          }
+        },
+        {
+          "name": "Subject copying",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Subject copying"
+          }
+        },
+        {
+          "name": "Early layout guidance",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "Early layout guidance"
+          }
+        },
+        {
+          "name": "Final detail copying",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "Final detail copying"
+          }
+        },
+        {
+          "name": "Maximum image pull",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "Maximum image pull"
+          }
+        },
+        {
+          "name": "Shape copied",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "Shape copied"
+          }
+        },
+        {
+          "name": "Overall style reach",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "Overall style reach"
+          }
+        },
+        {
+          "name": "Guide direction",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Guide direction"
+          }
+        },
+        {
+          "name": "When this card guides",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "When this card guides"
+          }
+        },
+        {
+          "name": "Structure layers pull",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "Structure layers pull"
+          }
+        },
+        {
+          "name": "Finish layers pull",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "Finish layers pull"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "guide_card",
+          "type": "KG_KREA_REFERENCE",
+          "links": [
+            5
+          ]
+        }
+      ],
+      "properties": {
+        "aux_id": "kgilper/krea-reference",
+        "Node name for S&R": "KGKrea2ImageGuideCardV10"
+      },
+      "widgets_values": [
+        0.28,
+        "suggest the visual style",
+        "overall image",
+        "use image as-is",
+        1.0,
+        1.0,
+        "use stack setting",
+        "use stack setting",
+        "recipe decides",
+        1.0,
+        1.0,
+        3.0,
+        1.0,
+        1.0,
+        "toward this image",
+        "recipe decides",
+        1.0,
+        1.0
+      ],
+      "title": "Guide Card V10 2 - style without subject"
+    },
+    {
+      "id": 7,
+      "type": "LoadImage",
+      "pos": [
+        80,
+        1670
+      ],
+      "size": [
+        283,
+        314
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            6
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.26.2",
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "krea-reference-examples/slot5_text_logo_guard.png",
+        "image"
+      ],
+      "title": "Reference image 3 source"
+    },
+    {
+      "id": 8,
+      "type": "KGKrea2ImageGuideCardV10",
+      "pos": [
+        395,
+        1670
+      ],
+      "size": [
+        530,
+        480
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "Reference image",
+          "type": "IMAGE",
+          "link": 6
+        },
+        {
+          "name": "How strongly this image guides",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "How strongly this image guides"
+          }
+        },
+        {
+          "name": "Use image for",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Use image for"
+          }
+        },
+        {
+          "name": "Manual mode borrows",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Manual mode borrows"
+          }
+        },
+        {
+          "name": "Prepare image by",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Prepare image by"
+          }
+        },
+        {
+          "name": "Color kept",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "Color kept"
+          }
+        },
+        {
+          "name": "Small details kept",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "Small details kept"
+          }
+        },
+        {
+          "name": "Study this image at",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Study this image at"
+          }
+        },
+        {
+          "name": "Frame this reference by",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Frame this reference by"
+          }
+        },
+        {
+          "name": "Subject copying",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Subject copying"
+          }
+        },
+        {
+          "name": "Early layout guidance",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "Early layout guidance"
+          }
+        },
+        {
+          "name": "Final detail copying",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "Final detail copying"
+          }
+        },
+        {
+          "name": "Maximum image pull",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "Maximum image pull"
+          }
+        },
+        {
+          "name": "Shape copied",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "Shape copied"
+          }
+        },
+        {
+          "name": "Overall style reach",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "Overall style reach"
+          }
+        },
+        {
+          "name": "Guide direction",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Guide direction"
+          }
+        },
+        {
+          "name": "When this card guides",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "When this card guides"
+          }
+        },
+        {
+          "name": "Structure layers pull",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "Structure layers pull"
+          }
+        },
+        {
+          "name": "Finish layers pull",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "Finish layers pull"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "guide_card",
+          "type": "KG_KREA_REFERENCE",
+          "links": [
+            7
+          ]
+        }
+      ],
+      "properties": {
+        "aux_id": "kgilper/krea-reference",
+        "Node name for S&R": "KGKrea2ImageGuideCardV10"
+      },
+      "widgets_values": [
+        0.0,
+        "avoid copying text/logos",
+        "overall image",
+        "use image as-is",
+        1.0,
+        1.0,
+        "use stack setting",
+        "use stack setting",
+        "recipe decides",
+        1.0,
+        1.0,
+        3.0,
+        1.0,
+        1.0,
+        "toward this image",
+        "recipe decides",
+        1.0,
+        1.0
+      ],
+      "title": "Guide Card V10 3 - text/logo safe"
+    },
+    {
+      "id": 9,
+      "type": "UNETLoader",
+      "pos": [
+        80,
+        80
+      ],
+      "size": [
+        270,
+        82
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            8
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.26.2",
+        "Node name for S&R": "UNETLoader"
+      },
+      "widgets_values": [
+        "krea2\\krea2_turbo_nvfp4.safetensors",
+        "default"
+      ]
+    },
+    {
+      "id": 10,
+      "type": "CLIPLoader",
+      "pos": [
+        80,
+        260
+      ],
+      "size": [
+        270,
+        106
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            10,
+            11
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.26.2",
+        "Node name for S&R": "CLIPLoader"
+      },
+      "widgets_values": [
+        "krea2\\qwen3vl_4b_fp8_scaled.safetensors",
+        "krea2",
+        "default"
+      ]
+    },
+    {
+      "id": 11,
+      "type": "VAELoader",
+      "pos": [
+        2140,
+        760
+      ],
+      "size": [
+        270,
+        58
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            17
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.26.2",
+        "Node name for S&R": "VAELoader"
+      },
+      "widgets_values": [
+        "krea2\\qwen_image_vae.safetensors"
+      ]
+    },
+    {
+      "id": 12,
+      "type": "ModelSamplingAuraFlow",
+      "pos": [
+        1500,
+        130
+      ],
+      "size": [
+        270,
+        58
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 8
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            9
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.26.2",
+        "Node name for S&R": "ModelSamplingAuraFlow"
+      },
+      "widgets_values": [
+        3.14
+      ]
+    },
+    {
+      "id": 13,
+      "type": "PrimitiveStringMultiline",
+      "pos": [
+        80,
+        2200
+      ],
+      "size": [
+        400,
+        200
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            12
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.26.2",
+        "Node name for S&R": "PrimitiveStringMultiline"
+      },
+      "widgets_values": [
+        "boring, dull, bad, awful, blurry, low-quality, oversaturated colours."
+      ]
+    },
+    {
+      "id": 14,
+      "type": "KGTextEncodeKreaImageReferencesV10",
+      "pos": [
+        520,
+        2200
+      ],
+      "size": [
+        640,
+        520
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "Krea CLIP",
+          "type": "CLIP",
+          "link": 11
+        },
+        {
+          "name": "Final image prompt",
+          "type": "STRING",
+          "link": 12,
+          "widget": {
+            "name": "Final image prompt"
+          }
+        },
+        {
+          "name": "Written prompt strength",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "Written prompt strength"
+          }
+        },
+        {
+          "name": "Image slider feel",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Image slider feel"
+          }
+        },
+        {
+          "name": "Image detail level",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Image detail level"
+          }
+        },
+        {
+          "name": "Image framing",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Image framing"
+          }
+        },
+        {
+          "name": "When images guide",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "When images guide"
+          }
+        },
+        {
+          "name": "Early-to-final handoff",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "Early-to-final handoff"
+          }
+        },
+        {
+          "name": "Text/logo guard prompt handling",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Text/logo guard prompt handling"
+          }
+        },
+        {
+          "name": "Balance strong cards",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Balance strong cards"
+          }
+        },
+        {
+          "name": "Reuse image studies",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "Reuse image studies"
+          }
+        },
+        {
+          "name": "Reference 1 guide card",
+          "type": "KG_KREA_REFERENCE",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "links": [
+            14
+          ]
+        },
+        {
+          "name": "stack_report",
+          "type": "STRING",
+          "links": null
+        },
+        {
+          "name": "prepared_references",
+          "type": "IMAGE",
+          "links": null
+        }
+      ],
+      "properties": {
+        "aux_id": "kgilper/krea-reference",
+        "Node name for S&R": "KGTextEncodeKreaImageReferencesV10"
+      },
+      "widgets_values": [
+        "",
+        1.0,
+        "literal slider values",
+        "low - loose idea (256)",
+        "keep full image shape",
+        "guide the whole image",
+        0.4,
+        "gentle guard - keep my prompt words",
+        "off - use my values",
+        "always re-study"
+      ],
+      "title": "Krea V10 negative prompt encoder - no references"
+    },
+    {
+      "id": 15,
+      "type": "EmptyLatentImage",
+      "pos": [
+        80,
+        2450
+      ],
+      "size": [
+        270,
+        106
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            15
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.26.2",
+        "Node name for S&R": "EmptyLatentImage"
+      },
+      "widgets_values": [
+        1024,
+        1536,
+        1
+      ]
+    },
+    {
+      "id": 16,
+      "type": "KSampler",
+      "pos": [
+        1800,
+        600
+      ],
+      "size": [
+        270,
+        262
+      ],
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 9
+        },
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 13
+        },
+        {
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 14
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 15
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            16
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.26.2",
+        "Node name for S&R": "KSampler"
+      },
+      "widgets_values": [
+        532551821599174,
+        "fixed",
+        8,
+        1,
+        "euler",
+        "simple",
+        1
+      ]
+    },
+    {
+      "id": 17,
+      "type": "VAEDecode",
+      "pos": [
+        2140,
+        620
+      ],
+      "size": [
+        140,
+        46
+      ],
+      "flags": {},
+      "order": 16,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 16
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 17
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            18
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.26.2",
+        "Node name for S&R": "VAEDecode"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 18,
+      "type": "SaveImage",
+      "pos": [
+        2360,
+        560
+      ],
+      "size": [
+        270,
+        270
+      ],
+      "flags": {},
+      "order": 17,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 18
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.26.2",
+        "Node name for S&R": "SaveImage"
+      },
+      "widgets_values": [
+        "krea-v10"
+      ]
+    },
+    {
+      "id": 19,
+      "type": "PreviewAny",
+      "pos": [
+        1800,
+        980
+      ],
+      "size": [
+        420,
+        300
+      ],
+      "flags": {},
+      "order": 18,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "source",
+          "type": "*",
+          "link": 19
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.26.2",
+        "Node name for S&R": "PreviewAny"
+      },
+      "widgets_values": [],
+      "title": "V10 stack report"
+    },
+    {
+      "id": 20,
+      "type": "PreviewImage",
+      "pos": [
+        2260,
+        980
+      ],
+      "size": [
+        340,
+        360
+      ],
+      "flags": {},
+      "order": 19,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 20
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.26.2",
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [],
+      "title": "What the encoder studied"
+    },
+    {
+      "id": 21,
+      "type": "Note",
+      "pos": [
+        1040,
+        1300
+      ],
+      "size": [
+        720,
+        860
+      ],
+      "flags": {},
+      "order": 20,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.26.2",
+        "Node name for S&R": "Note"
+      },
+      "widgets_values": [
+        "Krea 2 V10 reference workflow\n\nThis workflow shows the Krea reference route:\nLoad Image -> KG Krea 2 Image Guide Card V10 -> KG Krea 2 Reference Stack Encoder V10 -> sampler positive input.\n\nEverything from the V9 starter workflow still applies; V10 adds:\n- Four more quick recipes: suggest the color palette, use the background/setting, copy the camera framing, and mood board only.\n- Guide direction: away from this image turns a card into a counter-example (see krea-v10-counter-example-workflow.json).\n- When this card guides: per-card timing (whole image, early layout only, final details only).\n- Balance strong cards: keeps several hot cards from fighting. off - use my values is exact V9 behavior.\n- Reuse image studies: re-runs that change only strengths/timing/balance skip every encoder pass. Watch the Studies line in the stack report.\n- stack_report output: wired to the Preview Any node on the right. It explains what every card requested, what it actually got, and why (feel curve, recipe cap, text/logo guard).\n- prepared_references output: wired to the Preview Image node on the right. It shows exactly what the vision encoder studied after treatments.\n\nWhat to edit first:\n1. Write the desired final image in the V10 stack prompt, or leave it blank when the cards fully describe the job.\n2. Put your reference images into the Load Image nodes.\n3. On each Guide Card V10, choose Use image for.\n4. Start with low image strengths and raise slowly - then read the stack report to see the effective values.\n5. Leave the model, sampler, negative prompt, and Save Image wiring alone unless you intentionally want to change the demo graph.\n\nStarting strength values:\n- 0.00 means off.\n- 0.03 to 0.08 is a tiny nudge.\n- 0.10 to 0.25 is gentle guidance.\n- 0.25 to 0.45 is strong guidance.\n- Above 0.50 can overpower weak prompts unless the card is a content anchor.\n\nText/logo safety:\nUse avoid copying text/logos when the reference contains words, labels, logos, UI, screenshots, symbols, or brand marks. Keep its strength around 0.03 to 0.05.\n\nLearn more:\n- docs/krea-v10-documentation-index.md\n- docs/nodes/kg-krea-2-image-guide-card-v10.md\n- docs/nodes/kg-krea-2-reference-stack-encoder-v10.md\n- example_workflows/krea-v10-full-showcase-workflow.json\n- example_workflows/krea-v10-counter-example-workflow.json\n"
+      ],
+      "title": "How to use this Krea V10 reference stack workflow",
+      "color": "#432",
+      "bgcolor": "#653"
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      0,
+      2,
+      1,
+      "STRING"
+    ],
+    [
+      2,
+      3,
+      0,
+      4,
+      0,
+      "IMAGE"
+    ],
+    [
+      3,
+      4,
+      0,
+      2,
+      11,
+      "KG_KREA_REFERENCE"
+    ],
+    [
+      4,
+      5,
+      0,
+      6,
+      0,
+      "IMAGE"
+    ],
+    [
+      5,
+      6,
+      0,
+      2,
+      12,
+      "KG_KREA_REFERENCE"
+    ],
+    [
+      6,
+      7,
+      0,
+      8,
+      0,
+      "IMAGE"
+    ],
+    [
+      7,
+      8,
+      0,
+      2,
+      13,
+      "KG_KREA_REFERENCE"
+    ],
+    [
+      8,
+      9,
+      0,
+      12,
+      0,
+      "MODEL"
+    ],
+    [
+      9,
+      12,
+      0,
+      16,
+      0,
+      "MODEL"
+    ],
+    [
+      10,
+      10,
+      0,
+      2,
+      0,
+      "CLIP"
+    ],
+    [
+      11,
+      10,
+      0,
+      14,
+      0,
+      "CLIP"
+    ],
+    [
+      12,
+      13,
+      0,
+      14,
+      1,
+      "STRING"
+    ],
+    [
+      13,
+      2,
+      0,
+      16,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      14,
+      14,
+      0,
+      16,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      15,
+      15,
+      0,
+      16,
+      3,
+      "LATENT"
+    ],
+    [
+      16,
+      16,
+      0,
+      17,
+      0,
+      "LATENT"
+    ],
+    [
+      17,
+      11,
+      0,
+      17,
+      1,
+      "VAE"
+    ],
+    [
+      18,
+      17,
+      0,
+      18,
+      0,
+      "IMAGE"
+    ],
+    [
+      19,
+      2,
+      1,
+      19,
+      0,
+      "STRING"
+    ],
+    [
+      20,
+      2,
+      2,
+      20,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "groups": [
+    {
+      "id": 1,
+      "title": "Model Path",
+      "bounding": [
+        40,
+        20,
+        1770,
+        370
+      ],
+      "color": "#334",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "id": 2,
+      "title": "Prompts and Krea V10 Reference Stack",
+      "bounding": [
+        40,
+        390,
+        1700,
+        1780
+      ],
+      "color": "#353",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "id": 3,
+      "title": "Latent Source",
+      "bounding": [
+        40,
+        2410,
+        680,
+        180
+      ],
+      "color": "#323",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "id": 4,
+      "title": "Sampling and Output",
+      "bounding": [
+        1760,
+        520,
+        960,
+        390
+      ],
+      "color": "#443",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "id": 5,
+      "title": "V10 Feedback - report and prepared references",
+      "bounding": [
+        1760,
+        940,
+        1060,
+        440
+      ],
+      "color": "#335",
+      "font_size": 24,
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "frontendVersion": "1.45.19",
+    "workflow_name": "Krea V10 Reference Stack Workflow"
+  },
+  "version": 0.4
+}
