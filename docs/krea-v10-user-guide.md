@@ -537,7 +537,8 @@ same seed (`972106`); the only change is the style card and its direction:
 | Step 3 card | `suggest the visual style`, `away from this image`, strength `0.40` |
 | Demo files | [step 1](assets/krea-v10/demos/counter-example-baseline.png), [step 2](assets/krea-v10/demos/counter-example-toward.png), [step 3](assets/krea-v10/demos/counter-example-away.png) + `.workflow.json` beside each |
 
-Pulled toward, the source's pastel mosaic palette lands all over the lamp.
+Pulled toward, the source's pastel palette takes over the lamp - a rose
+shade, a sage base, a rounder and softer art direction.
 Pushed away, the same card scrubs the result in the opposite direction - the
 lamp comes out plainer and warmer-neutral than even the prompt-only baseline,
 because the stack is actively steering out of the source's palette and
@@ -593,8 +594,9 @@ widget really moves is *how* the look lands: early-only lets the source
 guide the composition and broad color fields, then the prompt's own finish
 passes smooth the surfaces - the shade comes out a classic soft-graded cone.
 Final-only is the mirror image: the prompt owns the early composition and
-the source arrives in the detail passes, laying its crisp mosaic finish onto
-the prompt's lamp. One widget, two clearly different pictures.
+the source arrives in the detail passes, landing its rose-and-sage palette
+as a crisp two-tone finish on the prompt's lamp. One widget, two clearly
+different pictures.
 
 ## Manual Layer Dials
 
@@ -635,7 +637,8 @@ The six-card showcase, rendered both ways on the same seed:
 
 With six active cards the gentle budget trims the loudest pulls: the balanced
 render keeps the same mug-on-desk composition while the ensemble blends a
-touch more evenly (note the calmer lid and the desk items settling in). With
+touch more evenly (the balanced mug comes out slightly lighter, with a
+simpler lid and softer shadows). With
 stacks this size the difference is deliberately subtle - balance is a
 graceful-degradation guard, not a look control.
 

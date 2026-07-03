@@ -539,12 +539,12 @@ The most surgical filter (`palette_wash_samples`): keep palette and coarse color
 ```text
 1. grid_h = clamp(height // 48, 2, 10);  grid_w = clamp(width // 48, 2, 10)
 2. palette = adaptive_avg_pool2d(image, (grid_h, grid_w))     # per-cell mean color
-3. palette = nearest-upsample back to full size               # blocky color map
+3. palette = bilinear-upsample back to full size              # smooth color gradient
 4. palette = 0.85 * palette + 0.15 * mean_color(image)        # pull toward global average
-5. return box_blur(palette, k=9)                              # soften cell edges
+5. return box_blur(palette, k=9)                              # soften remaining structure
 ```
 
-At the style recipe's default study side (384) the grid is 8×8 to 10×10 cells, so at most about 100 color samples survive from the entire image. No subject, no texture, no glyphs, and the style-gentle recipe pairs this with detail 0.05. Step 4's pull toward the global mean (15%) tames outlier cells. Step 5 removes the hard cell borders that would otherwise read as a checkerboard *composition* cue.
+At the style recipe's default study side (384) the grid is 8×8 to 10×10 cells, so at most about 100 color samples survive from the entire image. No subject, no texture, no glyphs, and the style-gentle recipe pairs this with detail 0.05. Step 4's pull toward the global mean (15%) tames outlier cells. Step 3's bilinear upsample matters: an earlier nearest-neighbor version left hard cell borders that the encoder read as a literal *composition* cue - subjects came back as pixel-art mosaics. Smooth gradients plus the step 5 blur carry the same palette with no geometry to imitate.
 
 ---
 

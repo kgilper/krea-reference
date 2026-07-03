@@ -110,7 +110,7 @@ DEMOS = [
          refs=["krea-reference-examples/slot2_style_reference.png"],
          prompt="a modern table lamp in a clean studio product photo, no readable text",
          seed=972105, strengths=[0.75], timing="final details only",
-         lesson="Same seed, same card, opposite timing: the prompt owns the early composition and the source arrives in the detail passes - its mosaic finish lands crisply on the prompt's lamp."),
+         lesson="Same seed, same card, opposite timing: the prompt owns the early composition and the source arrives in the detail passes - its rose-and-sage palette lands as a crisp two-tone finish on the prompt's lamp."),
     dict(slug="counter-example-baseline", title="Counter-example journey: prompt only", recipe="(no cards)",
          refs=[], prompt="a sculptural table lamp in a clean studio product photo, no readable text",
          seed=972106, strengths=[],

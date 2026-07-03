@@ -143,7 +143,7 @@ studies — this is the pack's hard guarantee layer. Pipeline order:
    | `grayscale` | color drop | palette |
    | `soft blur` | box blur k=5 | micro-texture |
    | `strong blur` | box blur k=13 | words, texture patterns |
-   | `palette wash` | adaptive color grid (2–10 cells/side, `side//48`), blended 85/15 with the mean color, then blur k=9 | **everything except color relationships** |
+   | `palette wash` | adaptive coarse color field: pooled to 2–10 cells/side (`side//48`), bilinearly upscaled into smooth gradients, blended 85/15 with the mean color, then blur k=9 | **everything except color relationships** |
    | `color wash` | box blur k=31 | structure, keeps soft color fields |
    | `grayscale blur` | gray + blur k=13 | palette + detail (keeps shapes) |
    | `shape wash` | gray + blur k=25 | everything except broad silhouette |
