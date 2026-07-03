@@ -1,13 +1,16 @@
-"""Convergent-evidence analysis of the deepstack layer-gain tables.
+"""Show the designed shape of the layer-gain tables (no rendering).
 
-Reproduces the qualitative chunk->function determination from the repo's own
-tuned tables, with no rendering required. The argument: the five built-in
-layer tables were tuned independently for five different jobs (style,
-palette, material, lighting, and the even baseline). Where the four
-appearance-borrowing tables AGREE about a chunk - all suppress it, or all
-spike it - that agreement is convergent evidence about what the chunk
-carries, because four independent tuning targets converged on the same
-treatment of that chunk.
+Prints the five built-in tables from the live code so their structure is
+visible: appearance roles suppress the shallow taps (0-4) and spike the deep
+ones (7/8/10, strongest at 8).
+
+IMPORTANT - what this does and does NOT show. The four appearance tables are
+per-role scalings of ONE borrowed spike template (adopted from the
+ComfyUI-ConditioningKrea2Rebalance node; see README section 2). So their
+agreement is *design self-consistency*, NOT four independent measurements
+converging - do not read it as empirical confirmation of each tap's function.
+The honest per-tap measurement is the single-chunk sweep (generate_sweep.py),
+which has not been run. This script just makes the designed pattern legible.
 
 Run: python docs/deepstack-layers/analyze_tables.py
 Reads the live tables from kg_krea_v9/recipes.py via the test stubs, so the
@@ -96,10 +99,10 @@ def main():
         mono = all(front[j] <= front[j + 1] for j in range(5))
         print(f"    {n:>8}: {front}  monotonic-rising={mono}")
 
-    print("\n  Interpretation: four tables tuned for FOUR DIFFERENT jobs agree that")
-    print("  chunks 0-4 carry structure (all suppress, smooth depth ramp), chunks 5-6")
-    print("  are transitional, and chunks 7/8/10 carry appearance (all spike, chunk 8")
-    print("  strongest). That agreement is the measurement encoded as data.")
+    print("\n  Interpretation: the tables encode a DESIGN - shallow taps (0-4) turned")
+    print("  down, deep taps (7/8/10) spiked, strongest at 8 - shared across roles")
+    print("  because they scale one borrowed template. This is a self-consistent,")
+    print("  principled design, NOT a per-tap measurement. Measure with generate_sweep.py.")
 
 
 if __name__ == "__main__":

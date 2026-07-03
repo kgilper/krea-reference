@@ -135,7 +135,7 @@ Each `<|image_pad|>` is replaced at tokenization time by an *image embed*: a dic
 
 The V9 role tables (§5.1) exploit exactly this split. The node treats the split as an empirical, testable property of the model family, not as a claim about any specific layer's semantics.
 
-One more structural fact matters. In this model family the token-level width `D` is a concatenation of **12 equal chunks**: vision-language "deepstack" features injected from successive encoder layers.
+One more structural fact matters. In this model family the token-level width `D` is a concatenation of **12 equal chunks**: the hidden states Krea 2 taps from 12 text-encoder layers (`hidden_states[2,5,8,...,35]`, each 2560 wide; `comfy/text_encoders/krea2.py`). This paper calls them "deepstack" throughout, which is an imprecise inherited name — Qwen3-VL's actual *deepstack* is 3 separate *vision* taps for image embeds, not these text-layer taps. The accurate mechanism and the provenance of the gain numbers are in [`docs/deepstack-layers/`](deepstack-layers/README.md).
 
 ```text
 cond[b, t, :]  =  [ chunk 0 | chunk 1 | chunk 2 | ... | chunk 10 | chunk 11 ]
@@ -325,7 +325,26 @@ The gain tables ([`kg_krea_v9/recipes.py`](../kg_krea_v9/recipes.py)):
 
 **Where these numbers come from, stated plainly:** my tuning sweeps, documented in the source comments. Chunks 8 and 10 carried the strongest palette/finish response, and early chunks carry subject structure. The style-family tables therefore *suppress* early chunks (0.15 to 0.25) and *spike* late ones (up to 5.5), which is how a style card imports rendering finish without dragging the style image's subject along. Nothing in this table is derived from first principles. It is measured behavior, encoded as data, and you can re-derive it with the sweep methodology in §16.4.
 
-**A full determination of what each chunk carries** - verified from code, then established by a convergent-evidence analysis of the tables above (the four appearance tables were tuned independently for four different jobs yet agree chunk-for-chunk: 0-4 structure, monotonic ramp; 5-6 transition; 7/8/10 appearance, chunk 8 strongest), plus a turnkey single-chunk sweep kit for the fresh measurement - lives in [`docs/deepstack-layers/`](deepstack-layers/README.md). Run `python docs/deepstack-layers/analyze_tables.py` to reproduce the convergent-evidence table from the live code.
+**Provenance correction and full determination.** A later investigation
+(2026-07-03, from the node's development history and the Krea 2 model itself)
+established the accurate picture, which refines this section's account:
+
+- These "12 deepstack chunks" are the **12 text-encoder layer taps** Krea 2's
+  own text encoder emits (`hidden_states[2,5,8,...,35]`, flattened to width
+  `12 x 2560 = 30720`; ComfyUI `comfy/text_encoders/krea2.py`) - *not* the
+  3 vision deepstack taps the name suggests. The node's split divides 30720
+  by 12 exactly, so the per-tap gains do apply on Krea 2 (no fallback).
+- The specific 12 values were **not** produced by the single-chunk sweep
+  below. They were adopted from a third-party node's defaults
+  (`ComfyUI-ConditioningKrea2Rebalance`, spikes at taps 8 > 10 > 7) plus the
+  general shallow=structure / deep=appearance principle; only the scalar
+  `shape` and `cap` knobs were empirically tuned. The four role tables are
+  scalings of one template, so their agreement is design self-consistency,
+  not independent measurement.
+
+The honest per-tap measurement (this section's §16.4 sweep) remains unrun.
+Full write-up, reproducible table analysis, and the turnkey sweep kit:
+[`docs/deepstack-layers/`](deepstack-layers/README.md).
 
 ### 5.3 The soft cap: bounding worst-case extrapolation
 
@@ -930,7 +949,7 @@ If per-card encoder passes are too costly in your setting, the two known escape 
 | --- | --- |
 | **Conditioning** | The encoder output steering the sampler: list of schedule entries, each `[token tensor, extras dict]`. |
 | **Pooled output** | Single per-prompt vector in extras; the global-look channel. |
-| **Deepstack chunk** | One of 12 equal slices of the token-tensor width, carrying features from successive encoder layers. |
+| **Deepstack chunk** (imprecise inherited name) | One of 12 equal slices of the conditioning width = one of the 12 text-encoder layer taps Krea 2 conditions on (`hidden_states[2,5,8,...,35]`). Not the 3 vision deepstack taps; see [`docs/deepstack-layers/`](deepstack-layers/README.md). |
 | **Ingredient** | Anything mutable independently in the prompt: one reference image, or the written text. |
 | **Delta (Δ)** | `C_full − C_muted(ingredient)`: the ingredient's in-context contribution. |
 | **Target (t)** | Desired multiple of native influence; weight applied is `t − 1`. |

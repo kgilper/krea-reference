@@ -272,10 +272,12 @@ are equivalent.
 ### Deriving the `layers` array
 
 `layers` is the only field without an obvious hand-set value. The 12
-positions are Krea 2's deepstack conditioning bands, mapped by the V9
-empirical sweeps: positions `0`-`4` carry layout and subject structure,
-`5`-`6` are a neutral transition, and the finish/palette response
-concentrates at `8` (strongest), `10`, then `7`, with `9` and `11` mild.
+positions are Krea 2's 12 text-encoder layer taps (position 0 shallowest,
+11 deepest). The built-in tables follow a *design intent* - shallow layers
+(`0`-`4`) carry structure and are turned down for look-borrowing; `5`-`6`
+transition; deep layers carry appearance, spiked at `8` (strongest), `10`,
+then `7`, with `9` and `11` mild. That pattern is a principled, borrowed
+design, not a per-tap measurement (see the determination link below).
 
 Omit `layers` to use your role's tuned table - the right default. To derive
 your own: start from the closest family table, scale the front half (`0`-`5`)
@@ -290,9 +292,10 @@ The family tables, the full chunk map, the math, a copy-paste derivation
 snippet (the same scaling the card's manual Structure/Finish dials apply),
 and a worked example live in
 [custom_recipes/README.md](../custom_recipes/README.md#deriving-the-layers-array).
-The full determination of what each of the 12 bands carries - verified from
-code, established by convergent evidence, and with a turnkey measurement kit -
-is documented in [docs/deepstack-layers/](deepstack-layers/README.md).
+The full determination - what the 12 taps are (verified from the model), where
+the specific numbers came from (a borrowed template plus design reasoning, not
+a per-tap sweep), and the turnkey measurement kit - is documented in
+[docs/deepstack-layers/](deepstack-layers/README.md).
 
 ### How validation behaves
 

@@ -183,9 +183,11 @@ influence through timing. This is pinned by
 V9 §5.1 flagged per-layer editing as a deliberate simplification and an
 extension point. V10 exposes it without exposing twelve raw numbers: two
 manual-mode dials scale halves of the role's gain table —
-`Structure layers pull` over chunks 0–5, `Finish layers pull` over chunks
-6–11. The split follows the V9 empirical sweeps: the spiked
-palette/finish-responsive chunks (7, 8, 10) all sit in the back half.
+`Structure layers pull` over taps 0–5, `Finish layers pull` over taps
+6–11. The split follows the tables' design: the spiked deep taps (7, 8, 10),
+intended as the appearance-carrying bands, all sit in the back half (see
+[`docs/deepstack-layers/`](deepstack-layers/README.md) for what the taps are
+and where the numbers came from).
 
 The dials multiply the role table rather than replacing it, compose with the
 existing soft cap, and are ignored in recipe mode (recipes ship tuned

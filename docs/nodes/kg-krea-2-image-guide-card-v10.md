@@ -64,7 +64,7 @@ The text/logo guard still clamps last: a guarded card never regains late-phase i
 
 ### `Structure layers pull` and `Finish layers pull`
 
-Manual-mode-only dials over the per-layer gain table (the technical paper's per-layer editing extension point, kept in plain language). `Structure layers pull` scales the first six deepstack chunks (layout and subject structure); `Finish layers pull` scales the last six (palette, texture, and rendering finish). Quick recipes ignore both dials; the bundled web extension greys them out outside manual tuning.
+Manual-mode-only dials over the per-layer gain table (the technical paper's per-layer editing extension point, kept in plain language). `Structure layers pull` scales the first six layer taps (the shallow layers, which carry layout and subject structure); `Finish layers pull` scales the last six (the deep layers, which carry palette, texture, and rendering finish). Quick recipes ignore both dials; the bundled web extension greys them out outside manual tuning. What the taps are and where the gains came from: [docs/deepstack-layers/](../deepstack-layers/README.md).
 
 ## Output
 

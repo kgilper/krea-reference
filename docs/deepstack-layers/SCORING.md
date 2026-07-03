@@ -34,9 +34,10 @@ verdict from each reference and a consensus column. A determination is
 
 - both references agree on each chunk's dominant aspect, and
 - the measured structure->transition->appearance ordering matches the
-  convergent-table prediction (chunks 0-4 structure, 5-6 transition, 7/8/10
+  tables' design prediction (taps 0-4 structure, 5-6 transition, 7/8/10
   appearance with 8 strongest), OR any disagreement is documented with its
-  consequence for the tables.
+  consequence for the tables (a mismatch means the borrowed template does not
+  match Krea 2's actual per-tap response).
 
 If a scoring pass is done by an agent, have a second independent agent score
 the same grid blind and reconcile; note both in the record.

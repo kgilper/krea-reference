@@ -1,164 +1,137 @@
-# Deepstack Layers: How The `layers` Values Are Determined
+# The `layers` Values: What They Scale, and Where They Came From
 
-This folder is the authoritative, reproducible account of **what the 12
-`layers` values are, where they come from, and how they were determined** for
-the Krea reference nodes. It exists because the `layers` array is the one
-recipe field with no obvious hand-set value, and "trust me, I swept it" is not
-good enough for a public repo.
+This folder is the authoritative, reproducible account of the 12 `layers`
+values in the Krea reference recipes - **what they physically scale (verified
+from the model), where the specific numbers came from (traced through the
+development history), and what is still unmeasured.** It is deliberately
+honest about the difference between those three things, because "trust me, I
+swept it" would be wrong: the numbers were *not* swept.
 
-The determination has three levels of confidence, kept deliberately separate:
+## 1. What the 12 values scale (verified from ComfyUI source + the model weights)
 
-1. **Structure - verified from code** (certain).
-2. **Semantics - determined by convergent evidence** (strong; reproducible now).
-3. **Precise response curve - fresh measurement** (the §16.4 sweep; turnkey
-   kit here, awaiting a render box with the V10 nodes).
+Krea 2 is unusual in how it conditions on text. Its ComfyUI text encoder
+(`comfy/text_encoders/krea2.py`) states it directly:
 
----
+> Krea 2 (K2) text encoder: Qwen3-VL-4B, 12-layer tap. K2 conditions on a
+> stack of hidden states from **12 layers** of Qwen3-VL-4B (reference taps
+> `hidden_states[2,5,8,...,35]`), kept as a `(B, 12, seq, 2560)` tensor ...
+> flattened to `(B, seq, 12*2560)`.
 
-## 1. What the 12 values physically are (verified from code)
+So the conditioning Krea 2 consumes is **12 text-encoder layer taps** (layers
+2, 5, 8, ... 35 - every third layer), each 2560 wide, flattened to width
+**12 x 2560 = 30720**. The Krea 2 diffusion model then fuses them with a
+*learned* weighting - its weights include `txtfusion.projector [1, 12]` and
+per-tap `layerwise_blocks` at width 2560 (visible in the checkpoint header).
 
-Krea 2's text encoder is a Qwen3-VL-family multimodal model. Its token-level
-conditioning width is **not flat**: it is a concatenation of **12 equal
-"deepstack" chunks**, each carrying vision-language features injected from a
-different (successively deeper) encoder layer.
+The node ([`kg_krea_v9/conditioning.py`](../../kg_krea_v9/conditioning.py))
+splits the conditioning-delta's width into `layer_count` (= table length =
+12) equal chunks. On Krea 2: `flat = 30720`, `30720 % 12 == 0`,
+`layer_dim = 2560` - **the split lands exactly on the 12 layer taps, the
+divisibility check passes, and the per-layer gains genuinely apply (no
+flat-average fallback).** `layers[i]` scales tap `i` (`hidden_states[2+3i]`),
+on top of the model's own learned fusion. Position is depth: `layers[0]` is
+the shallowest tap (layer 2), `layers[11]` the deepest (layer 35).
 
-This is not a metaphor - it is visible in the code:
+**Terminology warning - "deepstack" is a misnomer here.** The node and the
+V9 paper call these "deepstack chunks." That name is inherited but wrong:
+Qwen3-VL's actual *deepstack* is **3 vision taps** (`qwen3vl.py`:
+`deepstack_visual_indexes=[5, 11, 17]`) used to inject *image*-embed features,
+not text. The node's 12 chunks are the 12 K2 *text*-layer taps above. Read
+"deepstack chunk N" as "text-layer tap N" throughout.
 
-- The model exposes the per-layer features as a **list** named `deepstack` in
-  the embedding extras. During a muted encode, each is scaled in lockstep:
-  [`kg_krea_v9/clip_hooks.py`](../../kg_krea_v9/clip_hooks.py) - `extra["deepstack"] = [d * strength for d in extra["deepstack"]]`.
-- The reweighting splits the conditioning-delta's feature width into
-  `layer_count` (= table length = 12) equal chunks and scales chunk `i` by
-  `layers[i]`:
-  [`kg_krea_v9/conditioning.py`](../../kg_krea_v9/conditioning.py) -
-  `shaped_delta = delta.view(..., layer_count, layer_dim); shaped_delta *= gains`.
-  The split is guarded by `flat % layer_count == 0`; on a model whose width
-  does not divide by 12 it falls back to a flat average and warns once.
-
-So `layers[i]` is the gain on the delta contributed by the **i-th deepstack
-encoder-depth band**. Position is depth: `layers[0]` is the shallowest band,
-`layers[11]` the deepest.
-
-The landing math (per band): effective scale =
+The landing math per tap: effective scale =
 `clamp(strength x phase x shape x layers[i], -6, +6)`, compose weight =
-`scale - 1`. Gains act on the **token channel only**; the pooled/global channel
-(the `global` field) is independent. Full derivation:
+`scale - 1`. Gains act on the **token channel only**; the pooled/global
+channel (`global`) is independent. Derivation for authoring:
 [`custom_recipes/README.md`](../../custom_recipes/README.md#deriving-the-layers-array).
 
-## 2. What each band carries (determined by convergent evidence)
+## 2. Where the specific numbers came from (traced, not guessed)
 
-We do not have to take the tuned tables on faith - we can interrogate them.
-The repo ships **five** layer tables. Four of them (`style`, `palette`,
-`material`, `lighting`) were tuned independently, for four **different** jobs,
-by a human running renders. If those four agree about how to treat a given
-chunk, that agreement is evidence about what the chunk carries - four
-independent tuning targets converging on the same answer.
+The provenance was reconstructed from the node's development history (Kevin's
+OpenAI Codex sessions, 2026-06-30 to 07-01; internal record in
+`local_records/2026-07-03-deepstack-layer-determination/`). The honest story:
 
-Run it yourself (reads the live tables from the code, no rendering):
+1. **Early versions (v1-v5)** applied a single uniform scalar across the whole
+   tap stack - no per-tap tables. "Roles" were prose appended to the prompt.
+2. **The per-tap tables were adopted, not swept.** The 12-value shape came
+   from a third-party node,
+   `ComfyUI-ConditioningKrea2Rebalance` (GitHub `nova452`), whose
+   `DEFAULT_WEIGHTS = "1,1,1,1,1,1,1,2.5,5.0,1.1,4.0,1.0"` spike the deep taps
+   (strongest at tap 8, then 10, then 7). The shipped `STYLE_LAYER_PULL` tail
+   is that template almost verbatim (`... 2.5, 5.0, 1.1, 4.0, 1.2`); PALETTE,
+   MATERIAL, and LIGHTING are per-role scalings of the same template; the
+   suppressed early ramp (taps 0-4) was added on the principle that shallow
+   layers carry structure a look-borrowing card should drop.
+3. **What *was* tuned empirically** were the scalar knobs, not the vector: the
+   `shape` pull (0.45 -> 0.35) and the strength `cap` (-> 0.9), judged against
+   seeded before/after renders. The 12-value arrays themselves were held fixed
+   and never validated tap-by-tap.
 
-```bash
-python docs/deepstack-layers/analyze_tables.py
-```
+So the numbers rest on: a correct structural premise (12 real taps), a
+borrowed spike template, and a sound general principle (shallow = structure,
+deep = appearance) - but **not** a per-tap measurement on Krea 2.
 
-The four appearance tables agree, chunk for chunk:
+## 3. What the tables' shape looks like (a designed pattern, not independent evidence)
 
-| Chunk | Consensus across style/palette/material/lighting | Carries |
+`python docs/deepstack-layers/analyze_tables.py` prints the five tables from
+the live code. Their shape is coherent and worth seeing:
+
+| Taps | All appearance tables | Reading |
 | --- | --- | --- |
-| 0 | all suppress (0.15-0.25) | **structure** |
-| 1 | all suppress (0.20-0.35) | **structure** |
-| 2 | all suppress (0.30-0.45) | **structure** |
-| 3 | all suppress (0.45-0.65) | **structure** |
-| 4 | all suppress (0.70-0.85) | **structure** (fading) |
-| 5 | all neutral (1.00) | transition |
-| 6 | all neutral (1.00) | transition |
-| 7 | all spike (mean 2.38x) | **appearance / finish** |
-| 8 | all spike (mean 4.75x) | **appearance / finish - strongest** |
-| 9 | all mild (1.10-1.40) | appearance (gentle) |
-| 10 | all spike (mean 3.88x) | **appearance / finish - second** |
-| 11 | all mild (1.10-1.20) | appearance (gentle) |
+| 0-4 | suppress, smooth ramp `0.15 -> 0.85` | shallow layers (structure) turned down |
+| 5-6 | neutral `1.0` | transition |
+| 7 / 8 / 10 | spike (mean 2.4x / 4.8x / 3.9x) | deep layers (appearance) turned up |
+| 9, 11 | mild `1.1-1.4` | gentle |
 
-Two facts make this more than a coincidence:
+Note: the four appearance tables agreeing does **not** independently confirm
+the per-tap semantics - they agree because they are scalings of one borrowed
+template (section 2), so their consensus reflects a single design, not four
+independent measurements. It is a self-consistent, principled *design*; treat
+it as such.
 
-- **The front ramp is monotonic in all four tables.** Chunks 0->5 rise
-  smoothly (e.g. style `0.25, 0.35, 0.45, 0.6, 0.8, 1.0`). Structure influence
-  fades out smoothly with encoder depth - exactly the gradient you would
-  predict, not an arbitrary set of knobs.
-- **The spike ranking is identical in all four:** chunk 8 > chunk 10 > chunk 7,
-  every time. Four independent tunings do not agree on a three-way ranking by
-  chance.
+## 4. What is still unmeasured, and how to measure it (turnkey)
 
-This is consistent with the well-established behavior of vision transformers:
-shallow layers encode local geometry and structure; deep layers encode
-semantic appearance (palette, material, finish). The deepstack bands inherit
-that gradient, and the tables measured it.
-
-**Determination (level 2):** chunks **0-4 carry subject/layout structure**
-(monotonically fading with depth), **5-6 are a neutral transition**, and
-**7, 8, 10 carry appearance/finish** (palette, material, rendering look), with
-**chunk 8 the dominant appearance band**, 10 second, 7 third; 9 and 11 add a
-gentle appearance lift. This is why every look-borrowing recipe suppresses the
-front and spikes 7/8/10: it imports finish while leaving the reference's
-subject structure behind.
-
-## 3. The precise response curve (fresh measurement - turnkey, pending a render box)
-
-Level 2 determines the qualitative map with confidence. To pin the **exact**
-per-chunk response (which chunk moves palette vs. texture vs. lighting
-specifically, and how much per unit of gain), the direct experiment is the
-§16.4 single-chunk sweep, and it is built and ready here:
+Nobody has yet measured, on Krea 2, what each individual tap actually does to
+the image. The direct experiment is the single-chunk sweep, built and ready
+here:
 
 ```bash
-# build + validate the experiment against the real node code (no server):
-python docs/deepstack-layers/generate_sweep.py --dry-run
-
-# render it (requires kg_krea_v10 installed on the target ComfyUI):
-python docs/deepstack-layers/generate_sweep.py --server http://HOST:8188
+python docs/deepstack-layers/generate_sweep.py --dry-run                 # build + validate (no server)
+python docs/deepstack-layers/generate_sweep.py --server http://HOST:8188 # render (needs the V10 nodes)
 ```
 
-Method: hold one reference at fixed strength; for each chunk `L`, render a
-gain table that is 1.0 everywhere except a spike at `L`; compare each render to
-the all-ones control. Everything except chunk `L` is held identical (prompt,
-seed, reference, strength, pooled channel, all other chunks), so any visible
-difference isolates chunk `L`. Two references (clear-subject and
-palette-abstract) let every aspect respond. Scoring rubric: [SCORING.md](SCORING.md).
-
-**Why this is not yet run:** single-chunk spike tables cannot be expressed
-through the V9 widgets - only the V10 custom-recipe mechanism can carry an
-arbitrary `layers` array - and the available LAN render box currently has only
-the V9 nodes installed. The generator therefore emits each spike as a V10
-custom recipe and validates them against the real node code today; rendering
-needs the V10 pack on a reachable ComfyUI. Once that exists, the command above
-produces the grid, and the verdicts get recorded in the table below.
+Method: hold one reference at fixed strength; for each tap `L`, render a gain
+table that is 1.0 everywhere except a spike at `L`; compare to the all-ones
+control. Everything else is held identical, so any visible difference isolates
+tap `L`. Scoring: [SCORING.md](SCORING.md). It emits each spike as a V10
+custom recipe (validated against the real node code) and writes renders to the
+dedicated `output/claude-generations/` folder. Single-chunk tables are not
+expressible through the V9 widgets, so rendering needs the V10 nodes on the
+target ComfyUI.
 
 ### Measured verdicts (to be filled by the sweep)
 
-| Chunk | subject ref | palette ref | consensus | matches level-2 prediction? |
+| Tap | subject ref | palette ref | consensus | note |
 | --- | --- | --- | --- | --- |
-| 0 | _pending_ | _pending_ | | structure |
-| 1 | _pending_ | _pending_ | | structure |
-| 2 | _pending_ | _pending_ | | structure |
-| 3 | _pending_ | _pending_ | | structure |
-| 4 | _pending_ | _pending_ | | structure (fading) |
-| 5 | _pending_ | _pending_ | | transition |
-| 6 | _pending_ | _pending_ | | transition |
-| 7 | _pending_ | _pending_ | | appearance |
-| 8 | _pending_ | _pending_ | | appearance (strongest) |
-| 9 | _pending_ | _pending_ | | appearance (gentle) |
-| 10 | _pending_ | _pending_ | | appearance (second) |
-| 11 | _pending_ | _pending_ | | appearance (gentle) |
+| 0-4 | _pending_ | _pending_ | | design predicts structure (shallow) |
+| 5-6 | _pending_ | _pending_ | | design predicts transition |
+| 7 / 8 / 10 | _pending_ | _pending_ | | design predicts appearance (deep); 8 strongest |
+| 9, 11 | _pending_ | _pending_ | | design predicts gentle |
 
----
+If the sweep contradicts the design prediction, that is a real finding - the
+borrowed template may not match Krea 2's actual per-tap response, and the
+tables would be worth re-deriving from the measurement.
 
 ## Files
 
 | File | What |
 | --- | --- |
-| [analyze_tables.py](analyze_tables.py) | Reproducible convergent-evidence analysis (level 2). No rendering. |
-| [generate_sweep.py](generate_sweep.py) | The §16.4 single-chunk sweep generator (level 3). Dry-run anywhere; render on a V10 box. |
-| [SCORING.md](SCORING.md) | How to score the rendered grid into per-chunk verdicts. |
+| [analyze_tables.py](analyze_tables.py) | Prints the five tables and their designed shape from the live code. No rendering. |
+| [generate_sweep.py](generate_sweep.py) | The single-tap sweep generator - the honest per-tap measurement, still to be run. |
+| [SCORING.md](SCORING.md) | How to score the rendered grid into per-tap verdicts. |
 
 ## Cross-references
 
-- [V9 technical paper §5.2](../krea-v9-technical-paper.md#52-per-layer-gains-steering-inside-the-token-channel) - the channel math and the original statement of provenance.
-- [V9 technical paper §16.4](../krea-v9-technical-paper.md#164-re-tune-layer-gains-for-a-new-checkpoint) - the sweep methodology this kit implements, reusable for re-tuning on a new checkpoint.
-- [custom_recipes/README.md](../../custom_recipes/README.md#deriving-the-layers-array) - how to derive a `layers` array for a new recipe from these findings.
+- [V9 technical paper 5.2](../krea-v9-technical-paper.md#52-per-layer-gains-steering-inside-the-token-channel) - the channel math (note: it inherits the "deepstack" naming corrected here).
+- [V9 technical paper 16.4](../krea-v9-technical-paper.md#164-re-tune-layer-gains-for-a-new-checkpoint) - the sweep methodology this kit implements.
+- [custom_recipes/README.md](../../custom_recipes/README.md#deriving-the-layers-array) - authoring a `layers` array from this structure.

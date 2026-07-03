@@ -55,21 +55,23 @@ how the numbers work and how to derive your own.
 
 ### What the 12 positions mean
 
-Krea 2's conditioning splits into 12 equal "deepstack" chunks, one per list
-position. The V9 empirical sweeps mapped what each band carries; the full
-determination (verified structure, a convergent-evidence analysis you can
-reproduce with `python docs/deepstack-layers/analyze_tables.py`, and a
-turnkey fresh-measurement kit) lives in
-[docs/deepstack-layers/](../docs/deepstack-layers/README.md):
+Each position scales one of the **12 text-encoder layer taps** Krea 2
+conditions on (`hidden_states[2,5,8,...,35]`, flattened to a 30720-wide
+conditioning that the node splits into 12 x 2560). Position is depth: `0` is
+the shallowest tap, `11` the deepest. The table below is the *design intent*
+behind the built-in tables (shallow layers carry structure, deep layers carry
+appearance) - a principled, borrowed pattern, **not** a per-tap measurement on
+Krea 2. Full provenance and the (still-unrun) measurement sweep:
+[docs/deepstack-layers/](../docs/deepstack-layers/README.md).
 
-| Positions | Carry | Family tables put here |
+| Positions | Design intent | Family tables put here |
 | --- | --- | --- |
-| `0`-`4` | Layout, subject structure, spatial composition | Ramp `0.15` to `0.85` (suppressed) for look-borrowing; `1.0` for structure jobs |
+| `0`-`4` | Layout, subject structure (shallow layers) | Ramp `0.15` to `0.85` (suppressed) for look-borrowing; `1.0` for structure jobs |
 | `5`-`6` | Transition | `1.0` |
-| `7` | First finish band (palette/surface response) | `2.0`-`2.8` |
-| `8` | **Strongest** palette/finish band | `4.0`-`5.5` |
+| `7` | First appearance band | `2.0`-`2.8` |
+| `8` | **Strongest** appearance band (deep) | `4.0`-`5.5` |
 | `9` | Mild | `1.1`-`1.4` |
-| `10` | Second-strongest finish band | `3.0`-`4.5` |
+| `10` | Second appearance band | `3.0`-`4.5` |
 | `11` | Mild | `1.1`-`1.2` |
 
 ### The built-in family tables (your starting points)
