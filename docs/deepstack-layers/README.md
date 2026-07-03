@@ -89,49 +89,97 @@ template (section 2), so their consensus reflects a single design, not four
 independent measurements. It is a self-consistent, principled *design*; treat
 it as such.
 
-## 4. What is still unmeasured, and how to measure it (turnkey)
+## 4. How to derive the values reliably (the methodology + harness)
 
-Nobody has yet measured, on Krea 2, what each individual tap actually does to
-the image. The direct experiment is the single-chunk sweep, built and ready
-here:
+Nobody has yet *measured*, on Krea 2, what each tap does. The reliable way to
+do it - and to re-derive the tables for any future checkpoint - is a four-stage
+pipeline, from cheapest/most-targeted to definitive. Stages 0-1 are built and
+run/validated here today; Stages 2-3 need renders on a V10 box.
+
+### Stage 0 - the model's own prior (free, no rendering) - DONE
+
+Krea 2's diffusion model already learned a per-tap weighting
+(`txtfusion.projector [1,12]`). Extract it and compare the shipped tables to
+it:
 
 ```bash
-python docs/deepstack-layers/generate_sweep.py --dry-run                 # build + validate (no server)
-python docs/deepstack-layers/generate_sweep.py --server http://HOST:8188 # render (needs the V10 nodes)
+python docs/deepstack-layers/extract_model_prior.py --model <krea2-*.safetensors>  # re-extract
+python docs/deepstack-layers/compare_to_model_prior.py                             # tables vs. prior
 ```
 
-Method: hold one reference at fixed strength; for each tap `L`, render a gain
-table that is 1.0 everywhere except a spike at `L`; compare to the all-ones
-control. Everything else is held identical, so any visible difference isolates
-tap `L`. Scoring: [SCORING.md](SCORING.md). It emits each spike as a V10
-custom recipe (validated against the real node code) and writes renders to the
-dedicated `output/claude-generations/` folder. Single-chunk tables are not
-expressible through the V9 widgets, so rendering needs the V10 nodes on the
-target ComfyUI.
+**Result (2026-07-03):** the model leans hardest on taps **7 > 9 > 4 > 10 > 8**;
+the shipped tables spike **8 > 10 > 7**. Rank-correlation of each table with the
+model's emphasis is only +0.58 to +0.64, with consistent gaps at taps 4 (model
+#3, tables suppress it), 8 (tables' #1 spike, model #5), and 11. So the
+borrowed template does not track how Krea 2 actually uses the taps - concrete
+motivation to re-derive. (Caveat: the projector weights *processed* taps while
+the node's gains hit the *raw* delta, so this is a prior/smell-test, not ground
+truth.) Prior values: [model_prior.json](model_prior.json).
 
-### Measured verdicts (to be filled by the sweep)
+### Stage 1 - representational selectivity (cheap, no rendering) - HARNESS READY
 
-| Tap | subject ref | palette ref | consensus | note |
-| --- | --- | --- | --- | --- |
-| 0-4 | _pending_ | _pending_ | | design predicts structure (shallow) |
-| 5-6 | _pending_ | _pending_ | | design predicts transition |
-| 7 / 8 / 10 | _pending_ | _pending_ | | design predicts appearance (deep); 8 strongest |
-| 9, 11 | _pending_ | _pending_ | | design predicts gentle |
+Measure, at the conditioning level, what each tap encodes. Build a *controlled*
+reference set (vary one attribute at a time - a palette series with fixed
+subject, a structure series with fixed palette, etc.), encode each through a
+neutral V10 card, capture the per-tap signature with the probe node, and
+decompose variance: `eta2(tap, attribute)` = how much of a tap's contribution
+is explained by each attribute. High palette-eta2 + low structure-eta2 = a
+palette tap.
 
-If the sweep contradicts the design prediction, that is a real finding - the
-borrowed template may not match Krea 2's actual per-tap response, and the
-tables would be worth re-deriving from the measurement.
+```bash
+python docs/deepstack-layers/probe_selectivity.py --selftest              # validate the math (passes)
+python docs/deepstack-layers/generate_probe_graphs.py --dry-run           # build encode graphs
+# then on a V10+probe box: --server URL, copy signatures back, then:
+python docs/deepstack-layers/probe_selectivity.py --probes <dir> --manifest probe_out/probe-manifest.json
+```
+
+The selectivity math is validated (the self-test recovers an injected
+tap->attribute map exactly). Running it for real needs: the V10 nodes + the
+[probe node](probe_node/) installed on a ComfyUI box, and a controlled
+reference set (see below). It renders **nothing** - text-encoder passes only.
+
+### Stage 2 - metric-scored render validation (moderate) - needs a V10 box
+
+Confirm the Stage 1 map translates to pixels: render single-tap and
+small-combination spikes on a fixed seed/prompt grid
+([generate_sweep.py](generate_sweep.py)) but score with objective,
+attribute-specific metrics (color-distribution distance for palette, LPIPS/SSIM
+for structure, high-frequency energy for texture, style/identity distances),
+not by eye. [SCORING.md](SCORING.md) is the interim manual rubric.
+
+### Stage 3 - optimize the table for a stated objective (definitive) - needs a V10 box
+
+Turn each role's intent into a measurable objective (e.g. style: maximize
+style-similarity to the reference minus content/identity leakage) and optimize
+the 12-gain vector with a black-box optimizer (CMA-ES / Bayesian optimization,
+~100-300 evals for 12 dims), initialized from the Stage 0 prior + Stage 1 map,
+trained and reported on held-out references. This *derives* the table from data
+for the exact effect wanted.
+
+### Building the controlled reference sets
+
+Stage 1's reliability depends on the sets being controlled. Make them by
+generating variants that hold everything fixed but one attribute (e.g. the same
+scene re-rendered in N palettes; the same palette over N subjects). These can be
+produced with Krea/Ideogram to a dedicated folder. The
+[probe manifest](generate_probe_graphs.py) records each reference's attribute
+levels for the variance decomposition.
 
 ## Files
 
-| File | What |
-| --- | --- |
-| [analyze_tables.py](analyze_tables.py) | Prints the five tables and their designed shape from the live code. No rendering. |
-| [generate_sweep.py](generate_sweep.py) | The single-tap sweep generator - the honest per-tap measurement, still to be run. |
-| [SCORING.md](SCORING.md) | How to score the rendered grid into per-tap verdicts. |
+| File | What | Runs |
+| --- | --- | --- |
+| [analyze_tables.py](analyze_tables.py) | Prints the five tables' designed shape from live code. | now, local |
+| [extract_model_prior.py](extract_model_prior.py) | Extracts the model's learned per-tap weighting from a checkpoint. | now (reads model file) |
+| [compare_to_model_prior.py](compare_to_model_prior.py) | Stage 0: tables vs. the model prior. | now, local |
+| [probe_node/](probe_node/) | ComfyUI node that saves per-tap conditioning signatures. | install on box |
+| [probe_selectivity.py](probe_selectivity.py) | Stage 1: tap x attribute selectivity + self-test. | now (selftest), needs data (real) |
+| [generate_probe_graphs.py](generate_probe_graphs.py) | Builds the encode-only probe graphs. | now (dry-run), needs box (encode) |
+| [generate_sweep.py](generate_sweep.py) | Stage 2: single-tap render sweep. | needs V10 box |
+| [SCORING.md](SCORING.md) | Manual scoring rubric for the render sweep. | reference |
 
 ## Cross-references
 
-- [V9 technical paper 5.2](../krea-v9-technical-paper.md#52-per-layer-gains-steering-inside-the-token-channel) - the channel math (note: it inherits the "deepstack" naming corrected here).
-- [V9 technical paper 16.4](../krea-v9-technical-paper.md#164-re-tune-layer-gains-for-a-new-checkpoint) - the sweep methodology this kit implements.
+- [V9 technical paper 5.2](../krea-v9-technical-paper.md#52-per-layer-gains-steering-inside-the-token-channel) - the channel math (inherits the "deepstack" naming corrected here).
+- [V9 technical paper 16.4](../krea-v9-technical-paper.md#164-re-tune-layer-gains-for-a-new-checkpoint) - the render-sweep methodology.
 - [custom_recipes/README.md](../../custom_recipes/README.md#deriving-the-layers-array) - authoring a `layers` array from this structure.

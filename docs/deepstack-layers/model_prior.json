@@ -1,0 +1,11 @@
+{
+  "description": "Krea 2's own learned per-tap weighting over the 12 text-layer taps, extracted from the diffusion model. A model-intrinsic prior for the layers gain tables (Stage 0 of the derivation methodology in README section 4).",
+  "source_tensor": "txtfusion.projector.weight",
+  "source_file": "models/diffusion_models/krea2/krea2_turbo_bf16.safetensors (on the render box \\\\olga\\d\\ComfyUI)",
+  "shape": [1, 12],
+  "dtype": "F32",
+  "extracted": "2026-07-03",
+  "reextract": "python docs/deepstack-layers/extract_model_prior.py --model <path-to-krea2-*.safetensors>",
+  "caveat": "The projector combines taps AFTER per-tap layerwise/refiner blocks; the node's gains act on the raw tap delta BEFORE that processing. So this is a prior and sanity check on relative tap importance, not a literal gain table. The node->pixel path is nonlinear.",
+  "weights": [-0.0544, -0.1611, 0.3711, 0.5039, 0.707, 0.3945, 0.3984, -1.4375, -0.5117, -0.8906, -0.6094, 0.1128]
+}
