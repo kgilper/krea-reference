@@ -132,39 +132,44 @@ python docs/deepstack-layers/generate_probe_graphs.py --dry-run           # buil
 python docs/deepstack-layers/probe_selectivity.py --probes <dir> --manifest probe_out/probe-manifest.json
 ```
 
-**First measurement (2026-07-03, on the Krea 2 turbo model).** A 9-image
-controlled set (structure/texture varied by generation, palette/lighting by PIL
-transform) was encoded and the per-tap contribution deltas measured.
+**Measured (2026-07-03, on the Krea 2 turbo model), in three passes:**
 
-- **Mechanism confirmed live:** the probe reported feature width **30720**,
-  divisible by 12, `tap_dim` 2560 - exactly the 12-tap stack; the split engages.
-  Tap magnitude rises with depth (tap 0 ~29 -> tap 11 ~293).
-- **No strong per-tap specialization.** After removing the depth-magnitude
-  confound, every tap carries essentially the *same* attribute mix (proportion
-  palette 0.20 / structure 0.33 / texture 0.35 / lighting 0.12) - cross-tap
-  std-dev only ~0.01. The taps differ by overall magnitude (depth), not by
-  which attribute they carry. There is a *faint* gradient in the design
-  direction (deepest tap marginally more palette/appearance, shallowest more
-  structure), but ~10x too weak to justify the tables' 5x per-tap spikes.
-- **Takeaway:** the per-tap tables act more like a depth-weighting than an
-  attribute router - consistent with the projector-misalignment (Stage 0) and
-  the borrowed-heuristic provenance (section 2). The "tap 8 = palette,
-  0-4 = structure" premise is not supported by this measurement.
+1. **Mechanism confirmed live.** The probe reported feature width **30720**,
+   divisible by 12, `tap_dim` 2560 - exactly the 12-tap stack; the split
+   engages. Tap magnitude rises steeply with depth (tap 0 ~29 -> tap 11 ~293).
+2. **Conditioning-level selectivity does exist** (once the stimuli are clean:
+   one colorful base, each attribute changed by a single pure transform). In
+   *proportion*, shallow taps 0-4 lean palette and middle taps 5-10 lean
+   texture (cross-tap std-dev ~0.10-0.12, well above the flat first attempt).
+3. **But render validation flipped the practical conclusion** - and this is the
+   important part. Isolating taps in an actual render (`shape=1, global=0`,
+   spike the taps, render, measure) showed the **deep taps do essentially all
+   the visible work**: spiking taps 7/8/10 turned a plain bowl into the colorful
+   reference vase entirely, while spiking the shallow taps 0-4 did *nothing*.
+   The deep taps' huge magnitude dominates the pixel effect regardless of their
+   proportional attribute mix, so the shallow "palette" taps are practically
+   irrelevant, and the effective (deep) taps move palette + texture + subject
+   *together* - they do not cleanly separate.
 
-**Caveats (this is a first pass, not the last word):** the probe signature is
-the *sequence mean*, which can wash out spatially-expressed specialization; the
-near-neutral base weakened the palette axis specifically; one scene/seed. A
-per-token signature, a high-chroma base, magnitude-balanced stimuli, and more
-scenes would make it definitive. Full result + raw data:
+**Net:** the shipped tables spiking taps 7/8/10 is directionally reasonable
+(those are the high-leverage taps, which the model's own projector also
+emphasizes). What is *not* supported is the idea that the per-tap values cleanly
+route distinct attributes - and whether the specific per-role numbers are
+optimal cannot be answered at the conditioning level at all.
+
+**The load-bearing lesson:** conditioning-level selectivity misleads on its own,
+because tap magnitude and the nonlinear diffusion path dominate the actual
+effect. **The layers can only be derived reliably from renders.** Full arc, raw
+signatures, and the validation images:
 `local_records/2026-07-03-deepstack-layer-determination/stage1-measurement/`.
 
-### Stage 2 - metric-scored render validation (moderate) - needs a V10 box
+### Stage 2 - metric-scored render validation (moderate) - PROVEN OUT, formalize next
 
-Confirm the Stage 1 map translates to pixels: render single-tap and
-small-combination spikes on a fixed seed/prompt grid
-([generate_sweep.py](generate_sweep.py)) but score with objective,
-attribute-specific metrics (color-distribution distance for palette, LPIPS/SSIM
-for structure, high-frequency energy for texture, style/identity distances),
+The decisive test above (isolate taps -> render -> measure palette/texture) is
+Stage 2 in miniature and is why the conclusion is trustworthy. Formalizing it
+means a fixed seed/prompt grid scored with objective, attribute-specific metrics
+(color-distribution distance for palette, LPIPS/SSIM for structure, high-frequency
+energy for texture, style/identity distances),
 not by eye. [SCORING.md](SCORING.md) is the interim manual rubric.
 
 ### Stage 3 - optimize the table for a stated objective (definitive) - needs a V10 box
