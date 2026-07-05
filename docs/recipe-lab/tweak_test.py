@@ -19,7 +19,7 @@ from pathlib import Path
 from PIL import Image, ImageFilter
 
 DEFAULT_SERVER = "http://10.0.0.35:8188"
-OLGA_RECIPES = Path("//Olga/d/ComfyUI/custom_nodes/krea-reference/custom_recipes")
+OLGA_RECIPES = Path("//Olga/d/ComfyUI/custom_nodes/comfyui-krea-reference/custom_recipes")
 OUTDIR = Path(__file__).resolve().parent / "runs"
 MODEL = "krea2\\krea2_turbo_nvfp4.safetensors"
 CLIP = "krea2\\qwen3vl_4b_fp8_scaled.safetensors"
@@ -86,6 +86,12 @@ def fetch(server, info):
         return Image.open(io.BytesIO(r.read())).convert("RGB")
 
 
+def refresh_card_info(server):
+    """Force ComfyUI to rescan V10 card inputs after dropping a lab recipe."""
+    with urllib.request.urlopen(server + "/object_info/KGKrea2ImageGuideCardV10", timeout=30) as r:
+        r.read()
+
+
 def hist(img, bins=8):
     img = img.resize((128, 128))
     h = [0.0] * (bins * 3)
@@ -142,6 +148,8 @@ def main():
         return 2
 
     server = args.server.rstrip("/")
+    if args.recipe_json:
+        refresh_card_info(server)
     info = submit(server, build_graph(label, args.ref, args.prompt, args.strength, args.seed, args.name))
     out = fetch(server, info)
     local = OUTDIR / (args.name + ".png")

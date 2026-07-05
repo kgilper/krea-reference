@@ -1,9 +1,10 @@
-"""V10 tuning tables: the V9 tables plus the V10 additions.
+"""V10 tuning tables: the V9 tables plus the V10 additions/overrides.
 
 V10 adds quick recipes for the four roles that V9 left manual-only
-(palette, environment, framing, loose), the per-card timing table, the
-stack's balance budgets, and the manual structure/finish layer-dial split.
-Everything else re-exports V9 so the two versions cannot drift apart.
+(palette, environment, framing, loose), overrides the visual-style recipe,
+the per-card timing table, the stack's balance budgets, and the manual
+structure/finish layer-dial split. Shared tables still re-export V9; V10-only
+behavior lives in this module so V9 remains frozen.
 """
 
 from ._v9 import v9
@@ -18,6 +19,7 @@ STYLE_LAYER_PULL = _v9_recipes.STYLE_LAYER_PULL
 PALETTE_LAYER_PULL = _v9_recipes.PALETTE_LAYER_PULL
 MATERIAL_LAYER_PULL = _v9_recipes.MATERIAL_LAYER_PULL
 LIGHTING_LAYER_PULL = _v9_recipes.LIGHTING_LAYER_PULL
+STYLE_TRANSFER_LAYER_PULL = [0.062, 0.087, 0.113, 0.15, 0.2, 0.25, 1.25, 3.438, 6.875, 1.375, 5.5, 1.5]
 
 role_pull_defaults = _v9_recipes.role_pull_defaults
 role_layer_pull_defaults = _v9_recipes.role_layer_pull_defaults
@@ -28,6 +30,28 @@ effective_image_strength = _v9_recipes.effective_image_strength
 # whisper-defaults philosophy (soft caps, avoid-subject policies).
 QUICK_RECIPES = dict(_v9_recipes.QUICK_RECIPES)
 QUICK_RECIPES.update({
+    "style gentle": {
+        "role": "style",
+        "treatment": "strong blur",
+        "color": 1.0,
+        # Render-tuned 2026-07-05 for V10 only: the inherited palette-wash
+        # style recipe had collapsed into a color-grade twin of "suggest the
+        # color palette". Strong blur keeps broad medium/finish cues alive
+        # while muting small details, and the finish-heavy table suppresses the
+        # source's structure layers. Palette-only safety stays with the
+        # separate palette recipe.
+        "detail": 0.3,
+        "study": "384",
+        "framing": "stack",
+        "subject": "avoid",
+        "early": 0.85,
+        "late": 0.85,
+        "guard": False,
+        "cap": 0.65,
+        "shape": 0.85,
+        "global": 1.85,
+        "layers": STYLE_TRANSFER_LAYER_PULL,
+    },
     "palette only": {
         "role": "palette",
         "treatment": "palette wash",

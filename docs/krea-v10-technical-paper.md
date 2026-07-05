@@ -374,7 +374,7 @@ Values are the 2026-07 render-retuned set.
 | `keep the same subject` | identity | normal | 1.0 | 1.0 | stack | stack | preserve | 1.0 | 1.0 | — | 1.0 | 1.0 | even |
 | `copy pose and layout` | composition | grayscale blur | 0.0 | 0.25 | stack | stack | avoid | 1.2 | 0.2 | 1.25 | 1.3 | 0.3 | even |
 | `copy lighting and mood` | lighting | palette wash | 0.85 | 0.15 | 256 | stack | avoid | 1.0 | 0.55 | 1.25 | 0.8 | 1.3 | lighting |
-| `suggest the visual style` | style | palette wash | 0.85 | 0.0 | 256 | stack | avoid | 0.85 | 0.85 | 0.9 | 0.8 | 1.85 | style |
+| `suggest the visual style` | style | strong blur | 1.0 | 0.3 | 384 | stack | avoid | 0.85 | 0.85 | 0.65 | 0.85 | 1.85 | style-transfer |
 | `suggest material or texture` | material | palette wash | 0.8 | 0.1 | 256 | stack | avoid | 0.5 | 0.75 | 0.95 | 1.0 | 1.55 | material |
 | `copy big shapes only` | shape only | shape wash | 0.0 | 0.0 | 256 | stack | avoid | 1.1 | 0.0 | 1.0 | 1.2 | 0.05 | even |
 | `avoid copying text/logos` | text/logo safe | shape wash | 0.0 | 0.0 | 256 | stack | avoid | 0.75 | 0.0 | **0.03** | 0.08 | 0.0 | flat 0.15 |
@@ -396,7 +396,9 @@ text/logo safe 0.08/0.0.
 
 ```
 even:     [1.0] × 12                                    # balanced, identity, composition, framing, shape only
-style:    [0.25, 0.35, 0.45, 0.6,  0.8,  1.0, 1.0, 2.5, 5.0, 1.1, 4.0, 1.2]   # style, environment, loose
+style:    [0.25, 0.35, 0.45, 0.6,  0.8,  1.0, 1.0, 2.5,   5.0,   1.1,   4.0, 1.2] # environment, loose
+style-transfer:
+          [0.062,0.087,0.113,0.15, 0.2,  0.25,1.25,3.438, 6.875, 1.375, 5.5, 1.5] # visual style
 palette:  [0.15, 0.2,  0.3,  0.45, 0.7,  1.0, 1.0, 2.8, 5.5, 1.3, 4.5, 1.2]
 material: [0.2,  0.3,  0.45, 0.65, 0.85, 1.0, 1.0, 2.0, 4.0, 1.2, 3.0, 1.1]
 lighting: [0.2,  0.25, 0.35, 0.5,  0.8,  1.0, 1.0, 2.2, 4.5, 1.4, 4.0, 1.2]

@@ -277,6 +277,58 @@ class KreaV10CardBehaviorTests(unittest.TestCase):
         self.assertEqual(card["v9_strength_cap"], 0.9)
         self.assertEqual(card["resolved_subject_policy"], "avoid")
 
+    def test_visual_style_recipe_uses_v10_style_transfer_override(self):
+        card = self._build(**{
+            "Use image for": "suggest the visual style",
+            "How strongly this image guides": 1.6,
+        })
+
+        self.assertEqual(card["source_version"], "v10")
+        self.assertEqual(card["quick_recipe"], "style gentle")
+        self.assertFalse(card["manual_controls_active"])
+        self.assertFalse(card["custom_recipe"])
+        self.assertEqual(card["resolved_role"], "style")
+        self.assertEqual(card["resolved_treatment"], "strong blur")
+        self.assertAlmostEqual(card["resolved_color_keep"], 1.0)
+        self.assertAlmostEqual(card["resolved_detail"], 0.3)
+        self.assertEqual(card["resolved_reference_resolution"], "384")
+        self.assertEqual(card["resolved_reference_fit"], "stack")
+        self.assertEqual(card["resolved_subject_policy"], "avoid")
+        self.assertAlmostEqual(card["resolved_early_multiplier"], 0.85)
+        self.assertAlmostEqual(card["resolved_late_multiplier"], 0.85)
+        self.assertEqual(card["v9_strength_cap"], 0.65)
+        self.assertAlmostEqual(card["requested_strength"], 1.6)
+        self.assertAlmostEqual(card["strength"], 0.65)
+        self.assertAlmostEqual(card["resolved_shape_pull"], 0.85)
+        self.assertGreater(card["resolved_shape_pull"], 0.4)
+        self.assertAlmostEqual(card["resolved_global_pull"], 1.85)
+        self.assertEqual(card["resolved_layer_pull"], self.nodes.recipes.STYLE_TRANSFER_LAYER_PULL)
+        self.assertEqual(card["resolved_focus"], "")
+        self.assertEqual(card["resolved_direction"], "toward")
+        self.assertEqual(card["resolved_timing"], "recipe")
+
+    def test_visual_style_recipe_keeps_contract_under_v10_direction_and_timing(self):
+        card = self._build(**{
+            "Use image for": "suggest the visual style",
+            "Guide direction": "away from this image",
+            "When this card guides": "final details only",
+            "Structure layers pull": 0.25,
+            "Finish layers pull": 2.0,
+        })
+
+        self.assertEqual(card["resolved_direction"], "away")
+        self.assertEqual(card["direction"], "away")
+        self.assertEqual(card["resolved_timing"], "late")
+        self.assertEqual(card["resolved_subject_policy"], "avoid")
+        self.assertEqual(card["resolved_role"], "style")
+        self.assertEqual(card["resolved_treatment"], "strong blur")
+        self.assertAlmostEqual(card["resolved_early_multiplier"], 0.0)
+        self.assertAlmostEqual(card["resolved_late_multiplier"], 0.85)
+        # V10 layer dials are manual-mode only; built-in recipe layers stay stable.
+        self.assertEqual(card["resolved_layer_pull"], self.nodes.recipes.STYLE_TRANSFER_LAYER_PULL)
+        self.assertAlmostEqual(card["resolved_shape_pull"], 0.85)
+        self.assertAlmostEqual(card["resolved_global_pull"], 1.85)
+
     def test_away_direction_forces_subject_avoid(self):
         card = self._build(**{
             "Use image for": "keep the same subject",
@@ -491,6 +543,66 @@ class KreaV10EncoderBehaviorTests(unittest.TestCase):
             _, token_weight, pooled_weight, _layers = image_entries[0]
             self.assertAlmostEqual(token_weight, -0.5)  # target 0.5 -> weight -0.5
             self.assertAlmostEqual(pooled_weight, -0.5)
+        finally:
+            restore_encoder_machinery(cls, original)
+
+    def test_visual_style_recipe_targets_finish_layers_and_balances_predictably(self):
+        cls = self.nodes.KGTextEncodeKreaImageReferencesV10
+        captured = {}
+        original = patch_encoder_machinery(cls, captured)
+        try:
+            style_card = self.nodes.KGKrea2ImageGuideCardV10().build(**{
+                "Reference image": "style-ref",
+                "How strongly this image guides": 0.9,
+                "Use image for": "suggest the visual style",
+            })[0]
+            self._run(
+                captured,
+                **{
+                    "Image slider feel": "artist friendly - soft at low values",
+                    "When images guide": "guide the whole image",
+                    "Balance strong cards": "off - use my values",
+                    "Reference 1 guide card": style_card,
+                },
+            )
+            image_entries = [e for e in captured["compose_calls"][0] if e[0] == "image-delta"]
+            self.assertEqual(len(image_entries), 1)
+            _, token_weight, pooled_weight, token_layers = image_entries[0]
+            effective = 0.65 ** 1.6
+            token_target = effective * 0.85
+
+            self.assertAlmostEqual(token_weight, token_target - 1.0)
+            self.assertAlmostEqual(pooled_weight, effective * 1.85 - 1.0)
+            self.assertLess(token_layers[0], 0.0)
+            self.assertLess(token_layers[3], 0.0)
+            self.assertGreater(token_layers[8], 1.5)
+            self.assertGreater(token_layers[10], 1.0)
+
+            captured["compose_calls"] = []
+            self._run(
+                captured,
+                **{
+                    "Image slider feel": "literal slider values",
+                    "When images guide": "guide the whole image",
+                    "Balance strong cards": "strict balance",
+                    "Reference 1 guide card": style_card,
+                    "Reference 2 guide card": style_card,
+                },
+            )
+            balanced_entries = [
+                e for e in captured["compose_calls"][0] if e[0] == "image-delta"
+            ]
+            self.assertEqual(len(balanced_entries), 2)
+            # The recipe caps the literal 0.9 slider to 0.65. Target departures:
+            # token: 0.65 * 0.85 - 1 = -0.4475,
+            # pooled: 0.65 * 1.85 - 1 = 0.2025.
+            # The balancer budgets by the larger axis per card, so this stack
+            # stays below the strict 1.5 budget and should be unchanged.
+            scale = 1.0
+            for _, token_weight, pooled_weight, token_layers in balanced_entries:
+                self.assertAlmostEqual(token_weight, (0.65 * 0.85 - 1.0) * scale)
+                self.assertAlmostEqual(pooled_weight, (0.65 * 1.85 - 1.0) * scale)
+                self.assertGreater(token_layers[8], token_layers[3])
         finally:
             restore_encoder_machinery(cls, original)
 
