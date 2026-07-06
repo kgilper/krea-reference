@@ -61,10 +61,11 @@ nothing:
    | You want to borrow | Use treatment | Why it is safe |
    | --- | --- | --- |
    | colors / palette / mood | `palette wash` | the source's shapes are destroyed first, so its subject **cannot** leak into your image |
+   | style / medium / light mood | `strong blur` + a de-selecting `focus` + a cap | how the shipped style and lighting recipes work: the blur mutes detail, the focus skips the source's subject, layout, and the blur itself - copy their pattern |
    | layout / arrangement | `grayscale blur` | color is stripped, so placement arrives without recoloring |
-   | silhouette only | `shape wash` | everything but the big masses is removed |
+   | silhouette only | `shape wash` | everything but the big masses is removed (pair with a structure-heavy `layers` like the shipped shape recipe, or the gray study can mute your colors) |
    | the actual subject | `normal` | nothing is removed - the subject can and will copy in |
-   | subject + softness | `soft blur` / `strong blur` | **caution:** these keep the source's forms; at working strengths the source object itself tends to appear or reshape your subject |
+   | subject + softness | `soft blur` / `strong blur` alone | **caution:** without a focus and cap these keep the source's forms; at working strengths the source object itself tends to appear or reshape your subject |
 
 2. **`shape` is the volume knob.** It scales the one conditioning channel
    that actually moves pixels on Krea 2. Render-calibrated anchors:

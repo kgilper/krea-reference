@@ -230,13 +230,16 @@
 
 <script>
 /*LOGIC-START*/
-// ---- Data: render-validated base bundles (mirrors kg_krea_v9/kg_krea_v10 recipes.py, 2026-07 retune) ----
+// ---- Data: render-validated base bundles (mirrors kg_krea_v10 recipes.py + starter pack, 2026-07-05/06 retunes) ----
 var LAYER_TABLES = {
   even:     [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
   style:    [0.25, 0.35, 0.45, 0.6, 0.8, 1.0, 1.0, 2.5, 5.0, 1.1, 4.0, 1.2],
+  styleTransfer: [0.062, 0.087, 0.113, 0.15, 0.2, 0.25, 1.25, 3.438, 6.875, 1.375, 5.5, 1.5],
   palette:  [0.15, 0.2, 0.3, 0.45, 0.7, 1.0, 1.0, 2.8, 5.5, 1.3, 4.5, 1.2],
   material: [0.2, 0.3, 0.45, 0.65, 0.85, 1.0, 1.0, 2.0, 4.0, 1.2, 3.0, 1.1],
+  materialFinish: [0.05, 0.075, 0.113, 0.163, 0.213, 0.25, 1.25, 2.75, 5.5, 1.5, 4.125, 1.375],
   lighting: [0.2, 0.25, 0.35, 0.5, 0.8, 1.0, 1.0, 2.2, 4.5, 1.4, 4.0, 1.2],
+  structureOnly: [1.3, 1.3, 1.3, 1.3, 1.3, 1.3, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25],
   flat:     [0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15]
 };
 
@@ -247,18 +250,23 @@ var INTENTS = [
     family: "appearance", cant: "Its shapes and subject cannot arrive - the image is reduced to color blocks before the AI ever sees it.",
     base: { role: "palette", treatment: "palette wash", color: 1.0, detail: 0.0, study: "256", framing: "stack",
             subject: "avoid", early: 0.9, late: 0.9, guard: false, cap: 0.9, shape: 0.7, global: 1.8, table: "palette" } },
-  { id: "style", title: "Borrow its overall look", blurb: "Palette plus finish energy - the broader art direction.",
-    family: "appearance", cant: "Its subject cannot arrive; the look lands as color and finish, not as its brushwork repainted onto your object.",
-    base: { role: "style", treatment: "palette wash", color: 0.85, detail: 0.0, study: "256", framing: "stack",
-            subject: "avoid", early: 0.85, late: 0.85, guard: false, cap: 0.9, shape: 0.8, global: 1.85, table: "style" } },
+  { id: "style", title: "Borrow its overall look", blurb: "The medium, palette, and finish energy - real art direction.",
+    family: "appearance", cant: "Its subject and scene layout cannot arrive, and its deliberate pre-blur is de-selected so results stay crisp; brushwork lands as finish character, not a literal repaint.",
+    base: { role: "style", treatment: "strong blur", color: 1.0, detail: 0.3, study: "384", framing: "stack",
+            subject: "avoid", early: 0.85, late: 0.85, guard: false, cap: 0.65, shape: 0.85, global: 1.85,
+            table: "styleTransfer", forceLayers: true,
+            focus: "the artistic style: palette, medium, brushwork, art direction, and rendering finish - not the image's blurriness or soft focus, and not its subject or scene layout" } },
   { id: "lighting", title: "Borrow its lighting & mood", blurb: "Light color, contrast, and atmosphere as a scene-wide cast.",
-    family: "appearance", cant: "Its shapes and subject cannot arrive.",
-    base: { role: "lighting", treatment: "palette wash", color: 0.85, detail: 0.15, study: "256", framing: "stack",
-            subject: "avoid", early: 1.0, late: 0.55, guard: false, cap: 1.25, shape: 0.8, global: 1.3, table: "lighting" } },
-  { id: "material", title: "Borrow its surface feel", blurb: "The material's palette and finish - a recolor, not a texture decal.",
-    family: "appearance", cant: "Exact grain, marks, or the subject cannot arrive.",
-    base: { role: "material", treatment: "palette wash", color: 0.8, detail: 0.1, study: "256", framing: "stack",
-            subject: "avoid", early: 0.5, late: 0.75, guard: false, cap: 0.95, shape: 1.0, global: 1.55, table: "material" } },
+    family: "appearance", cant: "Its place and objects stay out - broad light and sky masses arrive as mood, so dramatic skies actually land.",
+    base: { role: "lighting", treatment: "strong blur", color: 1.0, detail: 0.15, study: "256", framing: "stack",
+            subject: "avoid", early: 1.0, late: 0.55, guard: false, cap: 1.25, shape: 0.8, global: 1.3,
+            table: "lighting",
+            focus: "the lighting: light direction, contrast, mood, color cast, glow, and shadow behavior - not the place, objects, or scene layout" } },
+  { id: "material", title: "Borrow its surface feel", blurb: "Surface character - weave, glaze, relief energy - not just a recolor.",
+    family: "appearance", cant: "Exact grain or printed marks cannot arrive; near the top of the range a strong source can nudge your object's form - stay around 0.55 when the form must not move.",
+    base: { role: "material", treatment: "strong blur", color: 1.0, detail: 0.35, study: "384", framing: "stack",
+            subject: "avoid", early: 0.35, late: 0.9, guard: false, cap: 0.65, shape: 0.8, global: 1.55,
+            table: "materialFinish", forceLayers: true } },
   { id: "environment", title: "Borrow its setting's vibe", blurb: "The place's palette and room mood around your subject.",
     family: "appearance", cant: "It sets the atmosphere; it does not paste the literal room behind your subject, and it cannot reshape your subject.",
     base: { role: "environment", treatment: "palette wash", color: 1.0, detail: 0.3, study: "256", framing: "stack",
@@ -276,9 +284,10 @@ var INTENTS = [
     base: { role: "framing", treatment: "grayscale blur", color: 0.0, detail: 0.15, study: "256", framing: "preserve aspect",
             subject: "avoid", early: 1.2, late: 0.15, guard: false, cap: 1.2, shape: 0.95, global: 0.25, table: "even" } },
   { id: "shapes", title: "Copy its big shapes", blurb: "Silhouette and massing steer the composition.",
-    family: "structure", cant: "Color, texture, and small details cannot arrive.",
+    family: "structure", cant: "Color, texture, and small details cannot arrive - the structure-only tuning also keeps the recipe's gray study from draining your colors.",
     base: { role: "shape only", treatment: "shape wash", color: 0.0, detail: 0.0, study: "256", framing: "stack",
-            subject: "avoid", early: 1.1, late: 0.0, guard: false, cap: 1.0, shape: 1.2, global: 0.05, table: "even" } },
+            subject: "avoid", early: 1.1, late: 0.0, guard: false, cap: 1.0, shape: 1.2, global: 0.05,
+            table: "structureOnly", forceLayers: true } },
   { id: "identity", title: "Keep its subject", blurb: "The person, product, or object travels into your new scene.",
     family: "anchor", cant: "Note: it copies faithfully - printed markings too. Add an 'avoid copying text/logos' card if you don't want them.",
     base: { role: "identity", treatment: "normal", color: 1.0, detail: 1.0, study: "stack", framing: "stack",
@@ -295,7 +304,7 @@ var INTENTS = [
 
 var LOUDNESS = [
   { id: "whisper", title: "Whisper", blurb: "A hint, even with the card turned up." },
-  { id: "gentle", title: "Clear", blurb: "The tested default: lands clearly from card strength ≈0.65." },
+  { id: "gentle", title: "Clear", blurb: "The tested default: lands clearly from card strength ≈0.55-0.65." },
   { id: "bold", title: "Bold", blurb: "Unmistakable, still subject-safe." }
 ];
 
@@ -310,7 +319,8 @@ var RESERVED = [
   "use the background/setting", "copy the camera framing", "mood board only",
   "identity", "composition", "lighting", "style gentle", "texture gentle",
   "shape only", "text/logo safe", "palette only", "environment", "framing", "mood board",
-  "borrow the weather", "borrow the clothing style", "cinematic color grade"
+  "borrow the weather", "borrow the clothing style", "cinematic color grade",
+  "borrow drawing medium", "borrow photo finish"
 ];
 
 function round2(x) { return Math.round(x * 100) / 100; }
@@ -359,12 +369,17 @@ function buildRecipe(opts) {
   };
   // Optional semantic focus: what the encoder should study from the image
   // ("the clothing and garment style, not the person"). Whitespace-normalized
-  // and length-capped to match the node's schema.
-  var focus = (opts.focus || "").split(/\s+/).join(" ").trim();
+  // and length-capped to match the node's schema. Intents whose shipped
+  // recipe carries a focus (style, lighting) supply it as the default; the
+  // artist's own text replaces it.
+  var focus = (opts.focus || b.focus || "").split(/\s+/).join(" ").trim();
   if (focus) r.focus = focus.slice(0, 300);
   var sm = opts.emphStruct === undefined ? 1.0 : opts.emphStruct;
   var fm = opts.emphFinish === undefined ? 1.0 : opts.emphFinish;
-  if (sm !== 1.0 || fm !== 1.0) r.layers = applyEmphasis(b.table, sm, fm);
+  // Intents whose shipped recipe uses a table that differs from the role's
+  // default (style-transfer, material-finish, structure-only) always write
+  // `layers`, or the node would fall back to the role table.
+  if (sm !== 1.0 || fm !== 1.0 || b.forceLayers) r.layers = applyEmphasis(b.table, sm, fm);
   return r;
 }
 

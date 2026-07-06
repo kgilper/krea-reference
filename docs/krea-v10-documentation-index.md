@@ -1,11 +1,13 @@
 # Krea 2 V10 Documentation Index
 
 This is the map for the V10 reference-stack nodes and workflows. V10 keeps
-everything from V9 and adds four more quick recipes, user-defined recipes
-(with an aspect `focus` field and three shipped starter recipes), the Recipe
-Builder, guide direction (counter-examples), per-card timing, manual layer
-dials, balance for hot stacks, a study cache, and two feedback outputs. The
-[V9 index](krea-v9-documentation-index.md) remains the map for the V9 nodes.
+everything from V9 and adds four more quick recipes, render-retuned V10-only
+versions of the style, material, lighting, and big-shapes recipes,
+user-defined recipes (with an aspect `focus` field and five shipped starter
+recipes), the Recipe Builder, guide direction (counter-examples), per-card
+timing, manual layer dials, balance for hot stacks, a study cache, and two
+feedback outputs. The [V9 index](krea-v9-documentation-index.md) remains the
+map for the V9 nodes.
 
 ![Synthetic reference images included with Krea Reference](../example_assets/krea-reference-examples/contact_sheet.png)
 
@@ -34,7 +36,7 @@ dials, balance for hot stacks, a study cache, and two feedback outputs. The
 
 | Node | Details |
 | --- | --- |
-| [KG Krea 2 Image Guide Card V10](nodes/kg-krea-2-image-guide-card-v10.md) | The four new recipes, custom recipes and `focus`, guide direction, per-card timing, and the manual layer dials. |
+| [KG Krea 2 Image Guide Card V10](nodes/kg-krea-2-image-guide-card-v10.md) | The four new recipes, the V10 recipe overrides (style, material, lighting, big shapes), custom recipes and `focus`, guide direction, per-card timing, and the manual layer dials. |
 | [KG Krea 2 Reference Stack Encoder V10](nodes/kg-krea-2-reference-stack-encoder-v10.md) | Balance, study reuse, the stack report, and the prepared-references output. |
 | [Node documentation index](nodes/README.md) | Short index of all included node pages. |
 
@@ -68,8 +70,9 @@ The V9 gallery lives at [assets/krea-v9/demos](assets/krea-v9/demos/).
 - A recipe's `focus` field targets **one named aspect** of its reference
   ("the clothing and garment style, not the person") - naming what to skip
   is render-verified to keep the rest behind.
-- Three starter recipes ship enabled: `borrow the weather`,
-  `borrow the clothing style`, and `cinematic color grade`.
+- Five starter recipes ship enabled: `borrow the weather`,
+  `borrow the clothing style`, `borrow drawing medium`,
+  `borrow photo finish`, and `cinematic color grade`.
 - `Guide direction` turns any card into a counter-example: not this style,
   not this palette, not this subject.
 - `When this card guides` gives every card its own timing without touching

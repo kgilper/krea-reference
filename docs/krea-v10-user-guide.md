@@ -81,7 +81,7 @@ V10 controls). Saved V9 workflows keep working unchanged.
 | `copy the camera framing` | card | Framing-only quick recipe (was manual-only in V9). |
 | `mood board only` | card | Loose-inspiration quick recipe (was manual-only in V9). |
 | Custom recipes | card | Your own YAML/JSON recipe files appear in `Use image for` as first-class choices. |
-| `focus` recipe field | recipe file | A recipe can study **one named aspect** of its image - clothing, props, a setting - and skip the rest. |
+| `focus` recipe field | recipe file | A recipe can study **one named aspect** of its image - clothing, props, a setting - and skip the rest. The built-in style and lighting recipes ship focuses of their own. |
 | Starter recipes | shipped | `borrow the weather`, `borrow the clothing style`, and `cinematic color grade` load out of the box from [starter-pack.yaml](../custom_recipes/starter-pack.yaml). |
 | Recipe Builder | `web/` | A single HTML page that turns three plain-language questions into a validated recipe file. |
 | `Guide direction` | card | `toward this image` (V9 behavior) or `away from this image` (counter-example). |
@@ -129,7 +129,7 @@ and seed are directly comparable - the only change between them is the card.
 | `copy the camera framing` | slot6 pose/layout | `0.30` | `972103` | [PNG](assets/krea-v10/demos/copy-camera-framing.png) | Camera distance, crop, and viewpoint - subject and palette stay the prompt's. |
 | `avoid copying text/logos` | slot5 text/logo guard | `0.50` (clamps to `0.03`) | `972116` | [PNG](assets/krea-v10/demos/recipe-avoid-text-logos.png) | Nothing readable: the guard clamps the card and rewrites the prompt toward blank surfaces. |
 | `suggest the color palette` | slot2 style reference | `0.65` | `972101` | [PNG](assets/krea-v10/demos/suggest-color-palette.png) | The reference's color relationships, as soft color fields - composition identical to the no-card baseline. |
-| `suggest the visual style` | slot2 style reference | `0.65` | `972101` | [PNG](assets/krea-v10/demos/recipe-suggest-visual-style.png) | Same inputs and seed as the palette row: a broader, softer overall grade - the look, not the source's shapes. |
+| `suggest the visual style` | slot2 style reference | `0.65` | `972101` | [PNG](assets/krea-v10/demos/recipe-suggest-visual-style.png) | Same inputs and seed as the palette row: true style transfer - the medium, palette, and finish energy arrive with the subject kept crisp (an anti-blur focus keeps the recipe's own softening out of the result). |
 | `copy lighting and mood` | slot4 lighting/mood | `0.65` | `972113` | [PNG](assets/krea-v10/demos/recipe-copy-lighting-mood.png) | The reference's light color and tonal mood as a scene-wide cast. |
 | `suggest material or texture` | slot3 material/texture | `0.55` | `972114` | [PNG](assets/krea-v10/demos/recipe-suggest-material-texture.png) | The material's surface finish and pattern energy, with source structure kept quiet. |
 | `use the background/setting` | slot8 background/environment | `0.65` | `972102` | [PNG](assets/krea-v10/demos/use-background-setting.png) | The setting's palette and room mood; the model builds a coherent place around the prompt's subject. |
@@ -396,13 +396,18 @@ guarantees - keep `subject: avoid` and a job-appropriate treatment, and
 render-check like everything else. The stack report prints each card's
 focus so you can confirm it reached the encoder.
 
-One built-in uses it too: `suggest the visual style` ships an anti-blur
-focus ("...not the image's blurriness or soft focus, and not its subject or
-scene layout"). The recipe softens the reference before study on purpose -
-that is its safety guarantee - and the focus keeps that deliberate blur from
-being read back as the style, so subjects stay crisp while the palette,
-medium, and brushwork arrive. You will see it on the card's stack-report
-line; that is expected.
+Two built-ins use it too, and their focus lines appear on the stack report -
+that is expected:
+
+- `suggest the visual style` ships an anti-blur focus ("...not the image's
+  blurriness or soft focus, and not its subject or scene layout"). The
+  recipe softens the reference before study on purpose - that is its safety
+  guarantee - and the focus keeps that deliberate blur from being read back
+  as the style, so subjects stay crisp while the palette, medium, and
+  brushwork arrive.
+- `copy lighting and mood` ships a de-place focus ("...not the place,
+  objects, or scene layout"), so a dramatic sky's mood arrives without the
+  reference's location taking over.
 
 A complete example (the shipped template - render-validated values):
 

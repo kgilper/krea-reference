@@ -19,11 +19,11 @@ inspect the exact setup.
 
 | Goal | How to set it up |
 | --- | --- |
-| Put image 2's style onto image 1 | Image 1: `keep the same subject` at `0.80`. Image 2: `suggest the visual style` at `0.45` to `0.65`. |
+| Put image 2's style onto image 1 | Image 1: `keep the same subject` at `0.80` to `0.90`. Image 2: `suggest the visual style` at `0.55` (its cap is `0.65`). |
 | Keep a product or character recognizable | Use `keep the same subject` for the identity image, then add lower-strength style, lighting, or material cards. |
-| Borrow lighting without copying the subject | Use `copy lighting and mood` around `0.30` to `0.45`. |
-| Borrow a surface or finish | Use `suggest material or texture` around `0.45` to `0.65`. |
-| Follow a pose, crop, or composition | Use `copy pose and layout` or `copy big shapes only` at gentle to medium strength. |
+| Borrow lighting without copying the subject | Use `copy lighting and mood` around `0.65`; push toward `0.90` for full drama. |
+| Borrow a surface or finish | Use `suggest material or texture` at `0.55` (raise toward its `0.65` cap only when the object's exact form matters less). |
+| Follow a pose, crop, or composition | Use `copy pose and layout` around `0.90`, or `copy big shapes only` around `0.90` for silhouette-only steering. |
 | Use a reference that contains text or logos | Add `avoid copying text/logos` at very low strength, usually around `0.03`. |
 
 ## How The Workflow Thinks
@@ -155,14 +155,16 @@ so the Krea reference nodes are easy to inspect.
 | --- | --- | --- |
 | `0.00` | Off | Keep a card connected but inactive. |
 | `0.03` to `0.08` | Tiny nudge | Text/logo guard, shape hints, stubborn prompts. |
-| `0.10` to `0.25` | Gentle guidance | Layout, material, mood-board influence. |
-| `0.25` to `0.45` | Strong guidance | Lighting, texture, pose, broad style. |
-| `0.50` to `0.90` | Very strong | Content anchor or deliberate style transfer. Watch for over-copying. |
+| `0.20` to `0.50` | Gentle whisper | A hint of palette, mood, or material - deliberately subtle. |
+| `0.55` to `0.90` | The working band | Style, palette, lighting, material, and mood land clearly here (many cap themselves at `0.65`-`0.9`). |
+| `0.90` to `1.20` | Structure and identity | Content anchors, pose/layout, and big shapes. Watch for over-copying. |
 
 Tips:
 
-- Start strengths low and raise slowly.
-- Use `0.80` only when the main subject must stay stable.
+- Start strengths low and raise slowly; appearance recipes whisper by design
+  below about `0.5`.
+- Use `0.80`-`0.90` on `keep the same subject` when the main subject must
+  stay stable.
 - Lower `Image detail level` if a style image starts copying the wrong subject.
 - Raise `Written prompt strength` when the text prompt should win over references.
 - Use text/logo guard whenever a reference includes readable marks.

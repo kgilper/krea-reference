@@ -46,8 +46,9 @@ Then load the example workflows and replace placeholder Load Image filenames wit
 - The prepared-references contact sheet (Preview Image) shows one treated frame per active card.
 - A second queue with only a strength change reports zero new encoder passes when `Reuse image studies` is on.
 - The counter-example workflow's away card is marked in the report with negative targets.
-- The three starter recipes (`borrow the weather`, `borrow the clothing style`, `cinematic color grade`) appear in `Use image for` out of the box, and the starter-recipe workflow queues cleanly.
-- A recipe with a `focus` prints `Focus: ...` on its report card line.
+- The five starter recipes (`borrow the weather`, `borrow the clothing style`, `borrow drawing medium`, `borrow photo finish`, `cinematic color grade`) appear in `Use image for` out of the box, and the starter-recipe workflow queues cleanly.
+- A recipe with a `focus` prints `Focus: ...` on its report card line - including the built-in `suggest the visual style` and `copy lighting and mood` cards, which ship focuses of their own.
+- The V10 recipe overrides resolve on the V10 card: `copy lighting and mood` resolves to `strong blur` (not the V9 palette wash) and `copy big shapes only` resolves the structure-only layer table.
 - The Recipe Builder is served at `/extensions/<pack folder>/recipe-builder.html` and its downloaded files validate (drop one in `custom_recipes/`, refresh node definitions, confirm it appears).
 
 ## V10 Demo Renders (release checklist)

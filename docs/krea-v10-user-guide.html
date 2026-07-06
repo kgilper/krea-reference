@@ -319,7 +319,7 @@
         </div>
         <div>
           <h3>Aspect focus</h3>
-          <p>A recipe's <code>focus</code> field studies <em>one named aspect</em> of its image - "the clothing and garment style, not the person" - and demonstrably leaves the rest behind.</p>
+          <p>A recipe's <code>focus</code> field studies <em>one named aspect</em> of its image - "the clothing and garment style, not the person" - and demonstrably leaves the rest behind. The built-in style and lighting recipes ship focuses of their own (visible on the stack report).</p>
         </div>
         <div>
           <h3>Starter recipes + Builder</h3>
@@ -602,9 +602,10 @@ layers: [0.25, 0.35, 0.45, 0.6, 0.8,
       </table>
       <div class="callout" style="margin-top: 14px;">
         <strong>Starter recipes included:</strong> <code>custom_recipes/starter-pack.yaml</code>
-        ships enabled with three render-validated examples - <em>borrow the
+        ships enabled with five render-validated examples - <em>borrow the
         weather</em>, <em>borrow the clothing style</em> (a <code>focus</code>
-        recipe), and <em>cinematic color grade</em>. Copy from them, or delete
+        recipe), <em>borrow drawing medium</em>, <em>borrow photo finish</em>,
+        and <em>cinematic color grade</em>. Copy from them, or delete
         the file to remove them from your dropdown.
       </div>
       <h3 style="margin-top: 18px;">What each control really does (render-verified)</h3>
@@ -614,8 +615,10 @@ layers: [0.25, 0.35, 0.45, 0.6, 0.8,
         <code>palette wash</code> (structure-safe: the source's shapes are
         destroyed, so its subject cannot leak in). Layout: <code>grayscale
         blur</code>. Silhouette: <code>shape wash</code>. The actual subject:
-        <code>normal</code>. Careful with <code>soft/strong blur</code> - the
-        source's forms survive and tend to appear at working strengths.
+        <code>normal</code>. Careful with <code>soft/strong blur</code> alone -
+        the source's forms survive and tend to appear at working strengths;
+        the shipped style and lighting recipes tame strong blur with a cap
+        plus a de-selecting focus - copy their pattern.
         <strong>2. <code>shape</code> is the volume knob</strong> - the one
         channel that moves pixels on Krea 2 (anchors in the table above).
         <strong>3. <code>layers</code> fine-tunes WHICH bands are
@@ -925,6 +928,7 @@ Studies: 7 encoder passes this run;
         <tr><td>A card seems to do nothing.</td><td>Read its stack report line: the feel curve, a recipe cap, or the guard is usually named there. Appearance recipes are tuned to land from about strength 0.6 - below that they whisper by design.</td></tr>
         <tr><td>A custom recipe does nothing at any strength.</td><td>Its <code>shape</code> is too low (below ~0.5 the card is effectively off on Krea 2) or its <code>study</code> too fine. Raise <code>shape</code> toward 0.7-1.0; raising <code>global</code> will not help on this model.</td></tr>
         <tr><td>A <code>focus</code> seems ignored.</td><td>The stack report prints each card's focus - confirm it arrived. Focus is strongest on object-bound aspects (clothing, props); broad moods ride the image itself. Rephrase to name what to <em>skip</em> - de-selection is the reliable move.</td></tr>
+        <tr><td>Style results look soft or out of focus.</td><td>Make sure you are on the current tuning: <code>suggest the visual style</code> ships an anti-blur focus (printed on its stack-report line) that stops the recipe's deliberate reference-softening from being copied as the style. If soft-medium references (watercolor, hazy photos) still read soft, that is the medium arriving - lower the card below <code>0.6</code> or add crispness words to the prompt.</td></tr>
         <tr><td>Away card makes the image muddy or empty.</td><td>Lower it below 0.30 and make sure something positive says what you do want.</td></tr>
         <tr><td>Many cards fight each other.</td><td>Turn on gentle balance, or lower the two strongest cards. The report shows the applied scale.</td></tr>
         <tr><td>Style card drags its subject in.</td><td>Check the prepared-references preview; if the subject is visible there, lower detail or strengthen the treatment. In manual mode, lower Structure layers pull.</td></tr>

@@ -14,7 +14,12 @@ Guide packets stay V9-compatible: a V10 card plugs into a V9 stack (which ignore
 
 ## Everything The V9 Card Has
 
-The first fifteen rows repeat the [V9 card](kg-krea-2-image-guide-card-v9.md) exactly: strength, `Use image for`, and the manual tuning levers behave identically.
+The first fifteen rows repeat the [V9 card](kg-krea-2-image-guide-card-v9.md) exactly: strength, `Use image for`, and the manual tuning levers work the same way. Four of the shared recipe labels, however, resolve to **V10-only retuned bundles** on this card (the V9 card keeps its own tuning):
+
+- `suggest the visual style`: true style transfer - strong-blur prep with a finish-heavy layer table and an anti-blur `focus` so the medium, palette, and brushwork character arrive while subjects stay crisp and the source's scene stays out. Capped at `0.65`; lands clearly from about `0.55`.
+- `suggest material or texture`: surface character (weave, glaze, relief energy) rather than a recolor; capped at `0.65`, and `0.55` is the safe point when the object's form must not move.
+- `copy lighting and mood`: strong-blur prep with a de-place `focus`, so dramatic light and sky moods actually land (a storm reference delivers the storm, not a flat sunny field) without the reference's location taking over.
+- `copy big shapes only`: a structure-only layer table, so the silhouette guides the composition without the recipe's gray study muting your colors.
 
 ## New Quick Recipes
 
