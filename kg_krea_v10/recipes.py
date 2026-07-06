@@ -38,6 +38,25 @@ STYLE_TRANSFER_FOCUS = (
     "its subject or scene layout"
 )
 
+# Render-tuned 2026-07-06: the inherited palette-wash lighting recipe
+# flattened dramatic skies into flat location tones (a brewing-storm
+# reference delivered a dry sunny field at every strength). Palette wash
+# destroys the very sky structure the mood lives in; strong blur keeps the
+# broad light/cloud masses alive and the focus line keeps the place and its
+# objects out. A/B render-verified: storm mood arrives at 0.65, full drama
+# by 0.9, subject and prompt scene kept.
+LIGHTING_MOOD_FOCUS = (
+    "the lighting: light direction, contrast, mood, color cast, glow, and "
+    "shadow behavior - not the place, objects, or scene layout"
+)
+
+# Render-tuned 2026-07-06: the even table at shape 1.2 drove the deep
+# appearance taps too, so the shape-wash study's flat gray tone arrived as
+# a monochrome result (prep-artifact leak; a focus de-selection could NOT
+# override it). Shape lives in the shallow taps: structure x1.3, appearance
+# x0.25 delivers silhouette influence with prompt-natural color.
+STRUCTURE_ONLY_LAYER_PULL = [1.3, 1.3, 1.3, 1.3, 1.3, 1.3, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25]
+
 role_pull_defaults = _v9_recipes.role_pull_defaults
 role_layer_pull_defaults = _v9_recipes.role_layer_pull_defaults
 effective_image_strength = _v9_recipes.effective_image_strength
@@ -47,6 +66,43 @@ effective_image_strength = _v9_recipes.effective_image_strength
 # whisper-defaults philosophy (soft caps, avoid-subject policies).
 QUICK_RECIPES = dict(_v9_recipes.QUICK_RECIPES)
 QUICK_RECIPES.update({
+    "lighting": {
+        "role": "lighting",
+        # V10 override (2026-07-06): strong blur + de-place focus so dramatic
+        # light/sky moods actually arrive; see LIGHTING_MOOD_FOCUS above.
+        "treatment": "strong blur",
+        "color": 1.0,
+        "detail": 0.15,
+        "study": "256",
+        "framing": "stack",
+        "subject": "avoid",
+        "early": 1.0,
+        "late": 0.55,
+        "guard": False,
+        "cap": 1.25,
+        "shape": 0.8,
+        "global": 1.3,
+        "layers": LIGHTING_LAYER_PULL,
+        "focus": LIGHTING_MOOD_FOCUS,
+    },
+    "shape only": {
+        "role": "shape only",
+        # V10 override (2026-07-06): structure-heavy layer table so the gray
+        # study cannot drain the result's color; see STRUCTURE_ONLY_LAYER_PULL.
+        "treatment": "shape wash",
+        "color": 0.0,
+        "detail": 0.0,
+        "study": "256",
+        "framing": "stack",
+        "subject": "avoid",
+        "early": 1.1,
+        "late": 0.0,
+        "guard": False,
+        "cap": 1.0,
+        "shape": 1.2,
+        "global": 0.05,
+        "layers": STRUCTURE_ONLY_LAYER_PULL,
+    },
     "style gentle": {
         "role": "style",
         "treatment": "strong blur",

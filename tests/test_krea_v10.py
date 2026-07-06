@@ -357,6 +357,48 @@ class KreaV10CardBehaviorTests(unittest.TestCase):
         self.assertAlmostEqual(card["resolved_global_pull"], 1.55)
         self.assertEqual(card["resolved_layer_pull"], self.nodes.recipes.MATERIAL_FINISH_LAYER_PULL)
 
+    def test_lighting_recipe_uses_v10_mood_override(self):
+        card = self._build(**{
+            "Use image for": "copy lighting and mood",
+            "How strongly this image guides": 0.9,
+        })
+
+        self.assertEqual(card["quick_recipe"], "lighting")
+        self.assertEqual(card["resolved_role"], "lighting")
+        # 2026-07-06 override: palette wash flattened dramatic skies; strong
+        # blur + the de-place focus carry the light/mood instead.
+        self.assertEqual(card["resolved_treatment"], "strong blur")
+        self.assertAlmostEqual(card["resolved_color_keep"], 1.0)
+        self.assertAlmostEqual(card["resolved_detail"], 0.15)
+        self.assertEqual(card["resolved_reference_resolution"], "256")
+        self.assertAlmostEqual(card["resolved_early_multiplier"], 1.0)
+        self.assertAlmostEqual(card["resolved_late_multiplier"], 0.55)
+        self.assertEqual(card["v9_strength_cap"], 1.25)
+        self.assertAlmostEqual(card["resolved_shape_pull"], 0.8)
+        self.assertEqual(card["resolved_layer_pull"], self.nodes.recipes.LIGHTING_LAYER_PULL)
+        self.assertEqual(card["resolved_focus"], self.nodes.recipes.LIGHTING_MOOD_FOCUS)
+        self.assertIn("not the place", card["resolved_focus"])
+
+    def test_shape_only_recipe_uses_v10_structure_table(self):
+        card = self._build(**{
+            "Use image for": "copy big shapes only",
+            "How strongly this image guides": 0.9,
+        })
+
+        self.assertEqual(card["quick_recipe"], "shape only")
+        self.assertEqual(card["resolved_role"], "shape only")
+        self.assertEqual(card["resolved_treatment"], "shape wash")
+        # 2026-07-06 override: the even table let the gray study drain the
+        # result's color; structure taps x1.3, appearance taps x0.25.
+        self.assertEqual(card["resolved_layer_pull"], self.nodes.recipes.STRUCTURE_ONLY_LAYER_PULL)
+        self.assertEqual(self.nodes.recipes.STRUCTURE_ONLY_LAYER_PULL[:6], [1.3] * 6)
+        self.assertEqual(self.nodes.recipes.STRUCTURE_ONLY_LAYER_PULL[6:], [0.25] * 6)
+        self.assertAlmostEqual(card["resolved_shape_pull"], 1.2)
+        self.assertAlmostEqual(card["resolved_global_pull"], 0.05)
+        self.assertEqual(card["v9_strength_cap"], 1.0)
+        self.assertAlmostEqual(card["resolved_late_multiplier"], 0.0)
+        self.assertEqual(card["resolved_focus"], "")
+
     def test_away_direction_forces_subject_avoid(self):
         card = self._build(**{
             "Use image for": "keep the same subject",

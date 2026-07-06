@@ -373,10 +373,10 @@ All fourteen core keys per bundle; `layers` refers to the family tables in
 | `balanced` | balanced | normal | 1.0 | 1.0 | stack | stack | recipe | 1.0 | 1.0 | — | 1.0 | 1.0 | even |
 | `keep the same subject` | identity | normal | 1.0 | 1.0 | stack | stack | preserve | 1.0 | 1.0 | — | 1.0 | 1.0 | even |
 | `copy pose and layout` | composition | grayscale blur | 0.0 | 0.25 | stack | stack | avoid | 1.2 | 0.2 | 1.25 | 1.3 | 0.3 | even |
-| `copy lighting and mood` | lighting | palette wash | 0.85 | 0.15 | 256 | stack | avoid | 1.0 | 0.55 | 1.25 | 0.8 | 1.3 | lighting |
+| `copy lighting and mood` | lighting | strong blur | 1.0 | 0.15 | 256 | stack | avoid | 1.0 | 0.55 | 1.25 | 0.8 | 1.3 | lighting |
 | `suggest the visual style` | style | strong blur | 1.0 | 0.3 | 384 | stack | avoid | 0.85 | 0.85 | 0.65 | 0.85 | 1.85 | style-transfer |
 | `suggest material or texture` | material | strong blur | 1.0 | 0.35 | 384 | stack | avoid | 0.35 | 0.9 | 0.65 | 0.8 | 1.55 | material-finish |
-| `copy big shapes only` | shape only | shape wash | 0.0 | 0.0 | 256 | stack | avoid | 1.1 | 0.0 | 1.0 | 1.2 | 0.05 | even |
+| `copy big shapes only` | shape only | shape wash | 0.0 | 0.0 | 256 | stack | avoid | 1.1 | 0.0 | 1.0 | 1.2 | 0.05 | structure-only |
 | `avoid copying text/logos` | text/logo safe | shape wash | 0.0 | 0.0 | 256 | stack | avoid | 0.75 | 0.0 | **0.03** | 0.08 | 0.0 | flat 0.15 |
 | `suggest the color palette` | palette | palette wash | 1.0 | 0.0 | 256 | stack | avoid | 0.9 | 0.9 | 0.9 | 0.7 | 1.8 | palette |
 | `use the background/setting` | environment | palette wash | 1.0 | 0.3 | 256 | stack | avoid | 1.1 | 0.6 | 1.2 | 0.7 | 0.85 | style |
@@ -397,6 +397,20 @@ prompt subject crisp and primary while the medium still arrives
 (A/B render-verified 2026-07-06; crisper prep instead re-opened source-scene
 takeover).
 
+Two more V10-only overrides (2026-07-06, both A/B render-verified):
+`copy lighting and mood` moves from palette wash to **strong blur** with a
+de-place `focus` (*"the lighting: light direction, contrast, mood, color
+cast, glow, and shadow behavior - not the place, objects, or scene
+layout"*) - palette wash flattened dramatic skies into flat location tones,
+while strong blur keeps the broad light masses alive (a brewing-storm
+reference now lands storm mood at 0.65 and full drama by 0.9, with the
+prompt scene kept). `copy big shapes only` moves from the even table to
+**structure-only** - at shape 1.2 the even table drove the deep appearance
+taps and the shape-wash study's flat gray arrived as a monochrome result
+(a focus de-selection could not override it); weighting structure taps x1.3
+and appearance taps x0.25 delivers silhouette influence with prompt-natural
+color.
+
 Role pull baselines (used by manual mode and as defaults for minimal custom
 recipes): balanced 1.0/1.0, identity 1.0/1.0, style 0.8/1.35, palette
 0.7/1.75, composition 1.25/0.35, framing 0.9/0.25, environment 0.7/0.8,
@@ -406,10 +420,12 @@ text/logo safe 0.08/0.0.
 ### 8.2 Band gain tables
 
 ```
-even:     [1.0] × 12                                    # balanced, identity, composition, framing, shape only
+even:     [1.0] × 12                                    # balanced, identity, composition, framing
 style:    [0.25, 0.35, 0.45, 0.6,  0.8,  1.0, 1.0, 2.5,   5.0,   1.1,   4.0, 1.2] # environment, loose
 style-transfer:
           [0.062,0.087,0.113,0.15, 0.2,  0.25,1.25,3.438, 6.875, 1.375, 5.5, 1.5] # visual style
+structure-only:
+          [1.3] × 6 + [0.25] × 6                        # big shapes only
 palette:  [0.15, 0.2,  0.3,  0.45, 0.7,  1.0, 1.0, 2.8, 5.5, 1.3, 4.5, 1.2]
 material: [0.2,  0.3,  0.45, 0.65, 0.85, 1.0, 1.0, 2.0, 4.0, 1.2, 3.0, 1.1]
 material-finish:
