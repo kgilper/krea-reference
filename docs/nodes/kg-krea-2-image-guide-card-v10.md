@@ -35,10 +35,10 @@ after the built-ins, picked up on node-definition refresh without a restart.
 The bundled [Recipe Builder](../../web/recipe-builder.html)
 (`web/recipe-builder.html`, also served at
 `/extensions/<pack folder>/recipe-builder.html`) generates these files from
-three plain-language questions - no schema knowledge needed. Three starter
-recipes ship enabled in `custom_recipes/starter-pack.yaml` (`borrow the
-weather`, `borrow the clothing style`, `cinematic color grade`), and the
-`focus` recipe field lets a recipe study **one named aspect** of its image
+three plain-language questions - no schema knowledge needed. Starter recipes
+ship enabled in `custom_recipes/starter-pack.yaml`, including weather,
+clothing, drawing medium, photo finish, and cinematic color grade examples.
+The `focus` recipe field lets a recipe study **one named aspect** of its image
 ("the clothing and garment style, not the person") - see the
 [recipe kit README](../../custom_recipes/README.md).
 Only `label` and `role` are required; everything else defaults from the

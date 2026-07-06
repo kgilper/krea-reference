@@ -446,12 +446,12 @@ skipped with a logged reason; the node always loads. Saved workflows
 reference custom recipes **by label**; a missing label falls back to
 `balanced` with a warning (§6.2).
 
-**Starter pack.** `custom_recipes/starter-pack.yaml` auto-loads three
-render-validated recipes — `borrow the weather` (strong blur + detail 0.15
-keeps the reference's objects out while the sky mood arrives),
-`borrow the clothing style` (focus-driven, §9), and
-`cinematic color grade` (a bolder palette sibling, cap 1.2). Delete or
-underscore the file to opt out.
+**Starter pack.** `custom_recipes/starter-pack.yaml` auto-loads
+render-validated recipes including `borrow the weather` (strong blur + detail
+0.15 keeps the reference's objects out while the sky mood arrives), `borrow
+the clothing style` (focus-driven, §9), `borrow drawing medium`, `borrow photo
+finish`, and `cinematic color grade` (a bolder palette sibling, cap 1.2).
+Delete or underscore the file to opt out.
 
 **Recipe Builder.** `web/recipe-builder.html` (also served by ComfyUI at
 `/extensions/<pack folder>/recipe-builder.html`) generates validated recipe

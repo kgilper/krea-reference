@@ -9,7 +9,7 @@ This folder is the complete kit for creating recipes:
 | Piece | What it gives you |
 | --- | --- |
 | [Recipe Builder](../web/recipe-builder.html) (`web/recipe-builder.html`) | Three plain-language questions -> a validated, downloadable recipe file. Also served by a running ComfyUI at `/extensions/<pack folder>/recipe-builder.html`. |
-| [starter-pack.yaml](starter-pack.yaml) | Three ready-made recipes, **loaded automatically**: `borrow the weather`, `borrow the clothing style`, `cinematic color grade`. Working examples to copy from; delete or underscore the file to opt out. |
+| [starter-pack.yaml](starter-pack.yaml) | Ready-made recipes, **loaded automatically**: `borrow the weather`, `borrow the clothing style`, `borrow drawing medium`, `borrow photo finish`, `cinematic color grade`. Working examples to copy from; delete or underscore the file to opt out. |
 | [_example-vintage-postcard.yaml](_example-vintage-postcard.yaml) | A fully-commented single-recipe template (disabled until you rename it). |
 | This README | The schema, what every field really does on Krea 2, the `focus` field, the layer math, and the render-validation ritual. |
 | [Technical reference](../docs/krea-v10-technical-paper.md) | The standalone V10 paper: every widget, every table, all the math. |

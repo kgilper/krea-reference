@@ -812,7 +812,13 @@ class KreaV10CustomRecipeTests(unittest.TestCase):
         self.assertEqual(errors, [])
         self.assertEqual(
             sorted(loaded),
-            ["borrow the clothing style", "borrow the weather", "cinematic color grade"],
+            [
+                "borrow drawing medium",
+                "borrow photo finish",
+                "borrow the clothing style",
+                "borrow the weather",
+                "cinematic color grade",
+            ],
         )
         # Every starter recipe demonstrates the focus field.
         for label, bundle in loaded.items():

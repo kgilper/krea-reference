@@ -1,6 +1,6 @@
 # Starter recipes - loaded automatically (no leading underscore).
 #
-# Three ready-to-use custom recipes that showcase what recipe files can do,
+# Ready-to-use custom recipes that showcase what recipe files can do,
 # including the `focus` field (telling the encoder WHICH aspect of the
 # reference to study). Every value here was render-validated on Krea 2;
 # delete this file (or prefix it with "_") if you don't want them in your
@@ -52,6 +52,48 @@ recipes:
     shape: 0.8
     global: 1.0
     focus: the clothing and garment style worn by the person, not the person's identity, face, or the background
+
+  - label: borrow drawing medium
+    description: >-
+      For sketches, ink drawings, studies, and monochrome artwork: borrow line
+      quality, hatching, paper tone, and shaded drawing feel without importing
+      the depicted pose, anatomy, or composition. Start around 0.5.
+    role: style
+    treatment: grayscale blur
+    color: 0.0
+    detail: 0.45
+    study: "384"
+    framing: stack
+    subject: avoid
+    early: 0.75
+    late: 0.9
+    guard: false
+    cap: 0.55
+    shape: 0.7
+    global: 1.35
+    layers: [0.04, 0.06, 0.09, 0.13, 0.17, 0.2, 1.2, 2.4, 4.8, 1.44, 3.6, 1.32]
+    focus: the line quality, hatching, paper texture, tonal shading, and drawing medium, not the depicted subject, anatomy, pose, text, or composition
+
+  - label: borrow photo finish
+    description: >-
+      For photographic references: borrow tone, contrast, light, grain, lens
+      softness, and color grade while muting people, objects, landmarks, text,
+      and scene layout. Start around 0.45.
+    role: lighting
+    treatment: strong blur
+    color: 1.0
+    detail: 0.2
+    study: "256"
+    framing: stack
+    subject: avoid
+    early: 0.85
+    late: 0.7
+    guard: false
+    cap: 0.55
+    shape: 0.65
+    global: 1.25
+    layers: [0.04, 0.05, 0.07, 0.1, 0.16, 0.2, 1.0, 2.2, 4.5, 1.4, 4.0, 1.2]
+    focus: the photographic tone, contrast, lighting, lens softness, grain, and color grade, not people, objects, landmarks, text, or scene layout
 
   - label: cinematic color grade
     description: >-
