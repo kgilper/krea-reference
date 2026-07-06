@@ -375,7 +375,7 @@ Values are the 2026-07 render-retuned set.
 | `copy pose and layout` | composition | grayscale blur | 0.0 | 0.25 | stack | stack | avoid | 1.2 | 0.2 | 1.25 | 1.3 | 0.3 | even |
 | `copy lighting and mood` | lighting | palette wash | 0.85 | 0.15 | 256 | stack | avoid | 1.0 | 0.55 | 1.25 | 0.8 | 1.3 | lighting |
 | `suggest the visual style` | style | strong blur | 1.0 | 0.3 | 384 | stack | avoid | 0.85 | 0.85 | 0.65 | 0.85 | 1.85 | style-transfer |
-| `suggest material or texture` | material | palette wash | 0.8 | 0.1 | 256 | stack | avoid | 0.5 | 0.75 | 0.95 | 1.0 | 1.55 | material |
+| `suggest material or texture` | material | strong blur | 1.0 | 0.35 | 384 | stack | avoid | 0.35 | 0.9 | 0.65 | 0.8 | 1.55 | material-finish |
 | `copy big shapes only` | shape only | shape wash | 0.0 | 0.0 | 256 | stack | avoid | 1.1 | 0.0 | 1.0 | 1.2 | 0.05 | even |
 | `avoid copying text/logos` | text/logo safe | shape wash | 0.0 | 0.0 | 256 | stack | avoid | 0.75 | 0.0 | **0.03** | 0.08 | 0.0 | flat 0.15 |
 | `suggest the color palette` | palette | palette wash | 1.0 | 0.0 | 256 | stack | avoid | 0.9 | 0.9 | 0.9 | 0.7 | 1.8 | palette |
@@ -401,14 +401,17 @@ style-transfer:
           [0.062,0.087,0.113,0.15, 0.2,  0.25,1.25,3.438, 6.875, 1.375, 5.5, 1.5] # visual style
 palette:  [0.15, 0.2,  0.3,  0.45, 0.7,  1.0, 1.0, 2.8, 5.5, 1.3, 4.5, 1.2]
 material: [0.2,  0.3,  0.45, 0.65, 0.85, 1.0, 1.0, 2.0, 4.0, 1.2, 3.0, 1.1]
+material-finish:
+          [0.05, 0.075,0.113,0.163,0.213,0.25,1.25,2.75, 5.5, 1.5, 4.125,1.375] # material/texture
 lighting: [0.2,  0.25, 0.35, 0.5,  0.8,  1.0, 1.0, 2.2, 4.5, 1.4, 4.0, 1.2]
 flat:     [0.15] × 12                                   # text/logo safe
 ```
 
 The design intent: bands 0–4 shallow/structure (suppressed in
 look-borrowing tables), 5–6 transition, spikes at 8 (strongest), 10, then
-7, with 9/11 mild. Material's spikes are the mildest, which is why its
-recipe runs the highest `shape` of the appearance family. The manual
+7, with 9/11 mild. The V10 material-finish table suppresses structure harder
+than the base material table and raises finish bands for visible surface
+character without turning the material source into the subject. The manual
 Structure/Finish dials scale bands 0–5 and 6–11 of the same tables.
 
 ### 8.3 Custom recipes
@@ -538,28 +541,27 @@ repurpose existing ones. Registry releases are immutable once accepted.
 `suggest the visual style`, slider 1.4, stack defaults, prompt "a portrait
 of a fox" at strength 1.0.*
 
-1. **Resolution** (§6.2): style-gentle bundle — palette wash, color 0.85,
-   detail 0.0, study 256, subject avoid, early/late 0.85/0.85, cap 0.9,
-   pulls 0.8/1.85, style band table. Slider 1.4 caps to 0.9.
-2. **Feel curve** (§3): σ = 0.9^1.6 = 0.8449.
-3. **Preparation** (§4): ≈256² px, 85% color, palette-washed to a ≤10×10
-   color grid, fully softened. The encoder sees a soft blocky color map —
-   no subject from the painting *can* arrive.
+1. **Resolution** (§6.2): style-gentle bundle — strong blur, color 1.0,
+   detail 0.3, study 384, subject avoid, early/late 0.85/0.85, cap 0.65,
+   pulls 0.85/1.85, style-transfer band table. Slider 1.4 caps to 0.65.
+2. **Feel curve** (§3): σ = 0.65^1.6 = 0.5014.
+3. **Preparation** (§4): ≈384² px, full color, strong blur, and reduced
+   small-detail study. The encoder sees softened medium and finish cues.
 4. **Prompt** (§5): system prompt gains the style role line and the avoid
    subject rule; user turn is one image-pad line plus the prompt.
-5. **Targets** (§3), both phases (m = 0.85): base = 0.8449 × 0.85 =
-   0.7181; token t = 0.7181 × 0.8 = **0.5745**; pooled g = 0.7181 × 1.85 =
-   1.3286 (inert on Krea 2).
-6. **Band weights** `w_ℓ = clamp(0.5745 γ_ℓ, ±6) − 1`:
+5. **Targets** (§3), both phases (m = 0.85): base = 0.5014 × 0.85 =
+   0.4262; token t = 0.4262 × 0.85 = **0.3623**; pooled g = 0.4262 × 1.85 =
+   0.7885 (inert on Krea 2).
+6. **Band weights** `w_ℓ = clamp(0.3623 γ_ℓ, ±6) − 1`:
 
    | ℓ | 0 | 1 | 2 | 3 | 4 | 5 | 6 | **7** | **8** | 9 | **10** | 11 |
    | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-   | w | −0.856 | −0.799 | −0.741 | −0.655 | −0.540 | −0.426 | −0.426 | **+0.436** | **+1.873** | −0.368 | **+1.298** | −0.311 |
+   | w | −0.978 | −0.968 | −0.959 | −0.946 | −0.928 | −0.909 | −0.547 | **+0.245** | **+1.491** | −0.502 | **+0.993** | −0.456 |
 
-   Structure bands suppressed to 14–57% of native; the three finish bands
-   amplified to 1.4–2.9×. The card imports look by making the finish bands
-   speak — and because the reference was palette-washed first, those bands
-   can only carry color and finish.
+   Structure bands suppressed to 2–9% of native; the three finish bands
+   amplified to 1.2–2.5×. The card imports look by making the finish bands
+   speak - and because the reference was strongly softened first, those bands
+   carry look and finish instead of source structure.
 7. **Passes** (§2.2): prompt strength 1.0 → no prompt delta; one image
    delta; **2 encoder passes** (0 on a cache hit). Both phases equal here,
    so the two range-tagged compositions are numerically identical.

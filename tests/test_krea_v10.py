@@ -329,6 +329,26 @@ class KreaV10CardBehaviorTests(unittest.TestCase):
         self.assertAlmostEqual(card["resolved_shape_pull"], 0.85)
         self.assertAlmostEqual(card["resolved_global_pull"], 1.85)
 
+    def test_material_texture_recipe_uses_v10_finish_override(self):
+        card = self._build(**{
+            "Use image for": "suggest material or texture",
+            "How strongly this image guides": 1.2,
+        })
+
+        self.assertEqual(card["quick_recipe"], "texture gentle")
+        self.assertEqual(card["resolved_role"], "material")
+        self.assertEqual(card["resolved_treatment"], "strong blur")
+        self.assertAlmostEqual(card["resolved_color_keep"], 1.0)
+        self.assertAlmostEqual(card["resolved_detail"], 0.35)
+        self.assertEqual(card["resolved_reference_resolution"], "384")
+        self.assertAlmostEqual(card["resolved_early_multiplier"], 0.35)
+        self.assertAlmostEqual(card["resolved_late_multiplier"], 0.9)
+        self.assertEqual(card["v9_strength_cap"], 0.65)
+        self.assertAlmostEqual(card["strength"], 0.65)
+        self.assertAlmostEqual(card["resolved_shape_pull"], 0.8)
+        self.assertAlmostEqual(card["resolved_global_pull"], 1.55)
+        self.assertEqual(card["resolved_layer_pull"], self.nodes.recipes.MATERIAL_FINISH_LAYER_PULL)
+
     def test_away_direction_forces_subject_avoid(self):
         card = self._build(**{
             "Use image for": "keep the same subject",

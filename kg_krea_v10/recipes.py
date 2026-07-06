@@ -20,6 +20,7 @@ PALETTE_LAYER_PULL = _v9_recipes.PALETTE_LAYER_PULL
 MATERIAL_LAYER_PULL = _v9_recipes.MATERIAL_LAYER_PULL
 LIGHTING_LAYER_PULL = _v9_recipes.LIGHTING_LAYER_PULL
 STYLE_TRANSFER_LAYER_PULL = [0.062, 0.087, 0.113, 0.15, 0.2, 0.25, 1.25, 3.438, 6.875, 1.375, 5.5, 1.5]
+MATERIAL_FINISH_LAYER_PULL = [0.05, 0.075, 0.113, 0.163, 0.213, 0.25, 1.25, 2.75, 5.5, 1.5, 4.125, 1.375]
 
 role_pull_defaults = _v9_recipes.role_pull_defaults
 role_layer_pull_defaults = _v9_recipes.role_layer_pull_defaults
@@ -51,6 +52,25 @@ QUICK_RECIPES.update({
         "shape": 0.85,
         "global": 1.85,
         "layers": STYLE_TRANSFER_LAYER_PULL,
+    },
+    "texture gentle": {
+        "role": "material",
+        "treatment": "strong blur",
+        "color": 1.0,
+        # V10 material override: preserve enough softened surface signal for
+        # fabric, glaze, stone, and finish cues while keeping source-shape
+        # influence low and late-weighted.
+        "detail": 0.35,
+        "study": "384",
+        "framing": "stack",
+        "subject": "avoid",
+        "early": 0.35,
+        "late": 0.9,
+        "guard": False,
+        "cap": 0.65,
+        "shape": 0.8,
+        "global": 1.55,
+        "layers": MATERIAL_FINISH_LAYER_PULL,
     },
     "palette only": {
         "role": "palette",

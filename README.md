@@ -22,7 +22,7 @@ inspect the exact setup.
 | Put image 2's style onto image 1 | Image 1: `keep the same subject` at `0.80`. Image 2: `suggest the visual style` at `0.45` to `0.65`. |
 | Keep a product or character recognizable | Use `keep the same subject` for the identity image, then add lower-strength style, lighting, or material cards. |
 | Borrow lighting without copying the subject | Use `copy lighting and mood` around `0.30` to `0.45`. |
-| Borrow a surface or finish | Use `suggest material or texture` around `0.25` to `0.40`. |
+| Borrow a surface or finish | Use `suggest material or texture` around `0.45` to `0.65`. |
 | Follow a pose, crop, or composition | Use `copy pose and layout` or `copy big shapes only` at gentle to medium strength. |
 | Use a reference that contains text or logos | Add `avoid copying text/logos` at very low strength, usually around `0.03`. |
 
@@ -116,7 +116,7 @@ The full showcase demonstrates five roles:
 | --- | --- | --- |
 | Content anchor | `keep the same subject` | `0.80` |
 | Visual style | `suggest the visual style` | `0.65` |
-| Material/texture | `suggest material or texture` | `0.35` |
+| Material/texture | `suggest material or texture` | `0.55` |
 | Lighting/mood | `manual tuning` with lighting controls | `0.45` |
 | Text/logo guard | `avoid copying text/logos` | `0.03` |
 

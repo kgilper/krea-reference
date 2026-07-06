@@ -239,24 +239,24 @@ print(layers)
 
 ### Worked example (render-validated)
 
-"Borrow a material reference's surface palette and finish, never its
-shapes" - this is the shipped `suggest material or texture` recipe, and the
-reasoning generalizes:
+"Borrow a material reference's surface finish and pattern energy while keeping
+source shape quiet" - this mirrors the shipped `suggest material or texture`
+recipe, and the reasoning generalizes:
 
 ```yaml
 label: surface finish borrow
 role: material
-treatment: palette wash   # colors/finish only; the source's forms cannot leak
-color: 0.8                # keep most of the source's color in the study
-detail: 0.1               # a whisper of texture energy
-study: "256"              # coarse study - appearance recipes land best here
+treatment: strong blur    # keep softened material cues, not sharp source detail
+color: 1.0                # keep the material's color/finish signal
+detail: 0.35              # enough detail for glaze, fabric, stone, or finish
+study: "384"              # moderate study for surface character
 subject: avoid
-early: 0.5                # finish work belongs late
-late: 0.75
-cap: 0.95
-shape: 1.0                # material's gain table is mild, so run more volume
+early: 0.35               # keep source structure quiet
+late: 0.9                 # let finish arrive late
+cap: 0.65
+shape: 0.8
 global: 1.55              # no effect on Krea 2; harmless to keep for other models
-# layers omitted -> material family table
+layers: [0.05, 0.075, 0.113, 0.163, 0.213, 0.25, 1.25, 2.75, 5.5, 1.5, 4.125, 1.375]
 ```
 
 ### Validate by rendering (two minutes)

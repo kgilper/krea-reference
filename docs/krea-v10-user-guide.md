@@ -131,7 +131,7 @@ and seed are directly comparable - the only change between them is the card.
 | `suggest the color palette` | slot2 style reference | `0.65` | `972101` | [PNG](assets/krea-v10/demos/suggest-color-palette.png) | The reference's color relationships, as soft color fields - composition identical to the no-card baseline. |
 | `suggest the visual style` | slot2 style reference | `0.65` | `972101` | [PNG](assets/krea-v10/demos/recipe-suggest-visual-style.png) | Same inputs and seed as the palette row: a broader, softer overall grade - the look, not the source's shapes. |
 | `copy lighting and mood` | slot4 lighting/mood | `0.65` | `972113` | [PNG](assets/krea-v10/demos/recipe-copy-lighting-mood.png) | The reference's light color and tonal mood as a scene-wide cast. |
-| `suggest material or texture` | slot3 material/texture | `0.75` | `972114` | [PNG](assets/krea-v10/demos/recipe-suggest-material-texture.png) | The material's surface palette and finish energy - a stony recolor, not a literal texture decal. |
+| `suggest material or texture` | slot3 material/texture | `0.55` | `972114` | [PNG](assets/krea-v10/demos/recipe-suggest-material-texture.png) | The material's surface finish and pattern energy, with source structure kept quiet. |
 | `use the background/setting` | slot8 background/environment | `0.65` | `972102` | [PNG](assets/krea-v10/demos/use-background-setting.png) | The setting's palette and room mood; the model builds a coherent place around the prompt's subject. |
 | `mood board only` | slot2 style reference | `0.50` | `972104` | [PNG](assets/krea-v10/demos/mood-board-only.png) | A gentle borrowed palette and feeling under a hard cap - never a dictated composition. |
 
