@@ -396,6 +396,14 @@ guarantees - keep `subject: avoid` and a job-appropriate treatment, and
 render-check like everything else. The stack report prints each card's
 focus so you can confirm it reached the encoder.
 
+One built-in uses it too: `suggest the visual style` ships an anti-blur
+focus ("...not the image's blurriness or soft focus, and not its subject or
+scene layout"). The recipe softens the reference before study on purpose -
+that is its safety guarantee - and the focus keeps that deliberate blur from
+being read back as the style, so subjects stay crisp while the palette,
+medium, and brushwork arrive. You will see it on the card's stack-report
+line; that is expected.
+
 A complete example (the shipped template - render-validated values):
 
 ```yaml
@@ -782,6 +790,7 @@ If a loaded demo reports missing images, copy
 | Away card makes the image muddy or empty. | Lower its strength below `0.30`, and make sure something positive (prompt or toward card) says what you *do* want. |
 | Many cards fight each other. | Turn on `gentle balance`, or lower the two strongest cards. The report shows the applied scale. |
 | Style card drags its subject in. | Check the prepared-references preview; if the subject is visible there, lower detail or strengthen the treatment. In manual mode, lower `Structure layers pull`. |
+| Style results look soft or out of focus. | Make sure you are on the current tuning: `suggest the visual style` ships an anti-blur focus (printed on its stack-report line) that stops the recipe's deliberate reference-softening from being copied as the style. If soft-medium references (watercolor, hazy photos) still read soft, that is the medium arriving - lower the card below `0.6` or add crispness words to the prompt. |
 | Re-runs are slow while tuning. | Set `Reuse image studies` to `reuse between runs` and keep the prompt fixed while you tune strengths. |
 | Behaves oddly after swapping CLIP patches. | Use `always re-study` while experimenting with CLIP-side changes. |
 

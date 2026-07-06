@@ -365,8 +365,8 @@ Caveat: reuse assumes the connected CLIP's behavior is unchanged — pick
 
 ### 8.1 Built-in quick recipes (the shipped values)
 
-All fourteen keys per bundle; `layers` refers to the family tables in §8.2.
-Values are the 2026-07 render-retuned set.
+All fourteen core keys per bundle; `layers` refers to the family tables in
+§8.2. Values are the 2026-07 render-retuned set.
 
 | Recipe (dropdown label) | role | treatment | color | detail | study | framing | subject | early | late | cap | shape | global* | layers |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -385,6 +385,17 @@ Values are the 2026-07 render-retuned set.
 
 \* `global` is inert on Krea 2 (§2.1); values are kept for pooled-emitting
 encoders.
+
+`suggest the visual style` additionally ships a `focus` (§9): *"the artistic
+style: palette, medium, brushwork, art direction, and rendering finish - not
+the image's blurriness or soft focus, and not its subject or scene layout"*.
+The strong-blur prep is the recipe's structure-safety guarantee, but without
+the focus the encoder also studied the blur itself - on soft-medium
+references (watercolor, gouache, aged photos) renders came out pervasively
+soft. De-selecting softness and layout at the instruction channel keeps the
+prompt subject crisp and primary while the medium still arrives
+(A/B render-verified 2026-07-06; crisper prep instead re-opened source-scene
+takeover).
 
 Role pull baselines (used by manual mode and as defaults for minimal custom
 recipes): balanced 1.0/1.0, identity 1.0/1.0, style 0.8/1.35, palette
@@ -547,8 +558,9 @@ of a fox" at strength 1.0.*
 2. **Feel curve** (§3): σ = 0.65^1.6 = 0.5014.
 3. **Preparation** (§4): ≈384² px, full color, strong blur, and reduced
    small-detail study. The encoder sees softened medium and finish cues.
-4. **Prompt** (§5): system prompt gains the style role line and the avoid
-   subject rule; user turn is one image-pad line plus the prompt.
+4. **Prompt** (§5): system prompt gains the style role line, the recipe's
+   anti-blur focus line (§8.1), and the avoid subject rule; user turn is one
+   image-pad line plus the prompt.
 5. **Targets** (§3), both phases (m = 0.85): base = 0.5014 × 0.85 =
    0.4262; token t = 0.4262 × 0.85 = **0.3623**; pooled g = 0.4262 × 1.85 =
    0.7885 (inert on Krea 2).

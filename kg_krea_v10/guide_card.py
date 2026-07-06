@@ -24,6 +24,14 @@ class _V9Resolution(_V9Card):
 
     QUICK_RECIPES = recipes.QUICK_RECIPES
 
+    @classmethod
+    def _recipe_settings(cls, recipe_key):
+        # V9's resolver predates the focus field and drops unknown bundle
+        # keys, so a V10 built-in recipe's focus is forwarded here.
+        settings = super()._recipe_settings(recipe_key)
+        settings["focus"] = cls.QUICK_RECIPES[recipe_key].get("focus", "")
+        return settings
+
 
 class KGKrea2ImageGuideCardV10:
     """

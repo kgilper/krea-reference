@@ -22,6 +22,22 @@ LIGHTING_LAYER_PULL = _v9_recipes.LIGHTING_LAYER_PULL
 STYLE_TRANSFER_LAYER_PULL = [0.062, 0.087, 0.113, 0.15, 0.2, 0.25, 1.25, 3.438, 6.875, 1.375, 5.5, 1.5]
 MATERIAL_FINISH_LAYER_PULL = [0.05, 0.075, 0.113, 0.163, 0.213, 0.25, 1.25, 2.75, 5.5, 1.5, 4.125, 1.375]
 
+# Render-tuned 2026-07-06: the strong-blur prep is the style recipe's
+# structure-safety guarantee, but the encoder was also *studying the blur* -
+# on soft-medium references (watercolor, gouache, aged photos) renders came
+# out pervasively soft, with the subject small and hazy. Crisper prep
+# (higher detail, larger study) re-opened source-scene takeover instead, so
+# the correction rides the instruction channel: de-selecting softness and
+# scene layout keeps the prompt subject crisp and primary while palette,
+# medium, and brushwork still arrive. A/B render-verified across five
+# references, two strengths, and three seeds, single-card and in the
+# two-card style-transfer method.
+STYLE_TRANSFER_FOCUS = (
+    "the artistic style: palette, medium, brushwork, art direction, and "
+    "rendering finish - not the image's blurriness or soft focus, and not "
+    "its subject or scene layout"
+)
+
 role_pull_defaults = _v9_recipes.role_pull_defaults
 role_layer_pull_defaults = _v9_recipes.role_layer_pull_defaults
 effective_image_strength = _v9_recipes.effective_image_strength
@@ -52,6 +68,7 @@ QUICK_RECIPES.update({
         "shape": 0.85,
         "global": 1.85,
         "layers": STYLE_TRANSFER_LAYER_PULL,
+        "focus": STYLE_TRANSFER_FOCUS,
     },
     "texture gentle": {
         "role": "material",

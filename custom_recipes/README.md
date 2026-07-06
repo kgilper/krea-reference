@@ -155,6 +155,13 @@ changed):
 guarantees. Keep `subject: avoid` and the treatment appropriate to the job,
 and render-validate like everything else.
 
+- **De-selection also fixes prep artifacts:** the built-in `suggest the
+  visual style` recipe ships a focus ending in "*not the image's blurriness
+  or soft focus, and not its subject or scene layout*" - its strong-blur
+  prep is the safety guarantee, and the focus stops that deliberate blur
+  from being studied as if it were the style. Copy the pattern if your own
+  heavy-treatment recipe starts echoing its treatment in renders.
+
 ## The `layers` Array, Exactly
 
 ### What the 12 positions are

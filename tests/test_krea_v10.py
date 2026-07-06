@@ -252,9 +252,13 @@ class KreaV10LabelContractTests(unittest.TestCase):
         ):
             self.assertIn(key, recipes)
             self.assertEqual(recipes[key]["role"], role)
-        # Every recipe (V9 and V10) carries the full settings bundle.
+        # Every recipe (V9 and V10) carries the full settings bundle;
+        # `focus` is the only optional extra a bundle may add.
         for key, recipe in recipes.items():
-            self.assertEqual(set(recipe.keys()), RECIPE_KEYS, "recipe {} is incomplete".format(key))
+            self.assertEqual(
+                set(recipe.keys()) - {"focus"}, RECIPE_KEYS,
+                "recipe {} is incomplete".format(key),
+            )
 
     def test_v10_max_layer_scale_constant(self):
         self.assertEqual(self.nodes.KGTextEncodeKreaImageReferencesV10.MAX_LAYER_SCALE, 6.0)
@@ -303,7 +307,11 @@ class KreaV10CardBehaviorTests(unittest.TestCase):
         self.assertGreater(card["resolved_shape_pull"], 0.4)
         self.assertAlmostEqual(card["resolved_global_pull"], 1.85)
         self.assertEqual(card["resolved_layer_pull"], self.nodes.recipes.STYLE_TRANSFER_LAYER_PULL)
-        self.assertEqual(card["resolved_focus"], "")
+        # Anti-blur focus (2026-07-06): the strong-blur prep must not itself
+        # be studied as the style.
+        self.assertEqual(card["resolved_focus"], self.nodes.recipes.STYLE_TRANSFER_FOCUS)
+        self.assertIn("not the image's blurriness", card["resolved_focus"])
+        self.assertEqual(card["focus"], self.nodes.recipes.STYLE_TRANSFER_FOCUS)
         self.assertEqual(card["resolved_direction"], "toward")
         self.assertEqual(card["resolved_timing"], "recipe")
 
@@ -766,9 +774,12 @@ class KreaV10CustomRecipeTests(unittest.TestCase):
         card = self._build("clothing borrower")
         self.assertEqual(card["resolved_focus"], "the clothing and garment style, not the person")
         self.assertEqual(card["focus"], "the clothing and garment style, not the person")
-        # Built-in recipes carry an empty focus (key present, no text).
-        builtin = self._build("suggest the visual style")
+        # Built-in recipes without a focus carry an empty one (key present,
+        # no text); the V10 style recipe ships its anti-blur focus.
+        builtin = self._build("suggest the color palette")
         self.assertEqual(builtin["resolved_focus"], "")
+        style = self._build("suggest the visual style")
+        self.assertEqual(style["resolved_focus"], self.nodes.recipes.STYLE_TRANSFER_FOCUS)
 
     def test_focus_without_text_is_omitted_from_the_bundle(self):
         self._write("nofocus.json", json.dumps({"label": "plain style", "role": "style", "focus": "   "}))
