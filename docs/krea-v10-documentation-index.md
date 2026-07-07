@@ -18,6 +18,7 @@ map for the V9 nodes.
 | [Project README](../README.md) | Product overview, installation, and what V10 adds. |
 | [V10 visual HTML guide](krea-v10-user-guide.html) | Rich visual walkthrough of every V10 control, with the full recipe gallery. |
 | [V10 Markdown guide](krea-v10-user-guide.md) | GitHub-friendly version of the guide. |
+| [Recipe visual guide](recipe-visual-guide.md) | One before/after figure for every recipe - all twelve built-ins and all twenty bundled pack recipes, each on a real reference at its documented starting strength. |
 | [Recipe Kit](../custom_recipes/README.md) | Everything for making your own recipes: the Builder, the starter pack, the schema, the `focus` field, and the render-validation ritual. |
 | [Recipe Builder](../web/recipe-builder.html) | Three plain-language questions -> a validated recipe file. Also served by a running ComfyUI at `/extensions/<pack folder>/recipe-builder.html`. |
 | [V10 technical reference](krea-v10-technical-paper.md) | The standalone technical account of every V10 feature: all widgets, the conditioning math, recipes, caches, outputs, and verification. |

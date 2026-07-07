@@ -856,6 +856,12 @@ scene plates for the light matchers, clean product shots for subject
 carrying), and what to expect when a reference fights the recipe. Delete or
 underscore either file to remove its labels from the dropdown.
 
+To see every one of these recipes in action - reference, prompt-only
+baseline, and result side by side - open the
+[recipe visual guide](recipe-visual-guide.md), which shows all twelve
+built-ins and all twenty bundled recipes at their documented starting
+strengths.
+
 ### A complete example, annotated
 
 The shipped template
