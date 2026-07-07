@@ -126,14 +126,17 @@ more-vs-less axis from Krea 2's own text encoder at encode time.
 | `Overall slider reach` | One multiplier over every slider's push - tame or amplify the whole stack at once. |
 | `slider_report` output | Each slider's exact pole sentences, computed push, what was skipped and why, and encoder-pass vs cache counts. |
 
-![Age slider audit sheet: the same portrait reads younger to older across the dial](docs/assets/concept-slider/sheet-age.png)
+![A custom "golden-hour light" slider grading the same coastal photograph from cool overcast at -3, to the untouched prompt at 0, to warm golden hour at +6](docs/assets/concept-slider/hero-golden-hour.jpg)
 
-The sheet above is from the ten-slider render audit (fixed seed, one render
-per dial position): eight of ten user-defined sliders worked as desired and
-two worked after pole rewording, with no image degradation at full
-deflection. Results, all ten sheets, and a slider-writing cookbook - what
-makes a strong axis, how to fix a weak direction - are in the
-[Concept Slider guide](docs/concept-slider-v1.md).
+Above is one custom slider - a `golden-hour light` axis spelled out with two
+pole phrases - on a single coastal prompt at a fixed seed. Only the dial
+value changes between frames: it grades the light from cool overcast down at
+`-3`, through your untouched prompt at `0`, to full golden hour at `+6`,
+while the cliff, shoreline, and framing hold. It is one of ten sliders in
+the render audit (eight worked as desired, two after pole rewording, no
+degradation at full deflection). Results, all ten audit sheets, and a
+slider-writing cookbook - what makes a strong axis, how to fix a weak
+direction - are in the [Concept Slider guide](docs/concept-slider-v1.md).
 Try [krea-slider-v1-showcase-workflow.json](example_workflows/krea-slider-v1-showcase-workflow.json)
 for six sliders, the report, and a same-seed with-vs-without branch in one
 graph.
