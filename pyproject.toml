@@ -1,14 +1,14 @@
 [project]
 name = "comfyui-krea-reference"
-version = "0.3.0"
-description = "Guide Krea 2 with reference images: stack up to 12 guide cards using plain-language recipes - keep the subject, borrow style/palette/lighting/material, copy pose or shapes, avoid text/logos - with per-card strength, toward/away direction, timing, and user-defined custom recipes."
+version = "0.4.0"
+description = "Guide Krea 2 with reference images and training-free concept sliders: stack up to 12 guide cards using plain-language recipes - keep the subject, borrow style/palette/lighting/material, copy pose or shapes, avoid text/logos - write your own recipes, and dial any attribute you can name from -6 to +6 with slider cards. No LoRA training or extra weights."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { file = "LICENSE" }
 authors = [
   { name = "Kevin Gilper" }
 ]
-keywords = ["comfyui", "krea", "krea2", "image-reference"]
+keywords = ["comfyui", "krea", "krea2", "image-reference", "concept-slider", "attribute-slider"]
 dependencies = []
 
 [project.urls]

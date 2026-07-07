@@ -1,5 +1,37 @@
 # Changelog
 
+## 0.4.0 - Concept Sliders And The Recipe Visual Guide
+
+- **Two new nodes: Concept Slider V1.** `KG Krea 2 Concept Slider Card V1`
+  names an attribute (`brightness`, `age`, `fog density` - anything you can
+  describe) and `KG Krea 2 Concept Slider Stack V1` turns the cards plus
+  your written prompt into Krea conditioning, deriving each more-vs-less
+  axis from Krea 2's own text encoder at encode time. No LoRA training, no
+  downloads, no extra model weights. The dial runs `-6..+6` (`+/-3..4` is
+  the reliable working band); optional custom pole sentences turn any
+  describable contrast into an axis, including style axes like
+  photoreal-vs-cartoon; up to eight sliders stack; `Overall slider reach`
+  scales the whole stack at once; and the `slider_report` output narrates
+  every pole sentence, computed push, skip, and cache hit. A slider at `0`
+  is excluded from the encode entirely - render-proven pixel-identical to a
+  plain prompt encode - and a stack with no cards behaves exactly like CLIP
+  Text Encode, so it can also carry the negative prompt. Render-audited on
+  ten user-defined sliders (eight worked as desired, two after pole
+  rewording; the guide's cookbook covers fixing a weak direction). The
+  full manual with all audit sheets is `docs/concept-slider-v1.md`, and
+  `example_workflows/krea-slider-v1-showcase-workflow.json` wires six
+  sliders with a same-seed with-vs-without comparison branch.
+- **The recipe visual guide.** `docs/recipe-visual-guide.md` shows every
+  recipe doing its job: all twelve built-in quick recipes and all twenty
+  bundled pack recipes, each as a reference / prompt-alone / with-card
+  figure rendered at the recipe's documented starting strength, with honest
+  notes on what to look for and where each recipe's edges are.
+- **README restructured around the two product lines** - reference
+  conditioning (the V9/V10 guide cards) and Concept Sliders - with a new
+  Repository Structure section; the docs landing page and the
+  example-workflows guide now cover all three node pairs.
+- V9 behavior is completely unchanged.
+
 ## 0.3.0 - True Style Transfer And Render-Audited V10 Recipes
 
 Every change below applies to the V10 nodes and was render-verified on the
