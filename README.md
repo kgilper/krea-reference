@@ -1,12 +1,19 @@
 # ComfyUI Krea Reference
 
-Give each reference image a job before it reaches Krea.
+Give each reference image a job, and every attribute a dial.
 
-Krea Reference is a small ComfyUI custom-node package for directing Krea 2 with
-multiple image references. Instead of one source image vaguely influencing the
-whole result, each image gets a clear role: preserve the subject, borrow a
-visual style, copy lighting, suggest a material, follow a layout, or avoid
-copying text and logos.
+Krea Reference is a small ComfyUI custom-node package for directing Krea 2.
+It ships two instruments that work alone or together:
+
+- **Reference conditioning** (the guide cards, V9 and V10): instead of one
+  source image vaguely influencing the whole result, each reference image
+  gets a clear role - preserve the subject, borrow a visual style, copy
+  lighting, suggest a material, follow a layout, or avoid copying text and
+  logos.
+- **Concept Sliders** (V1): training-free attribute dials. Name anything you
+  can describe - `brightness`, `age`, `fog density`, photoreal-vs-cartoon -
+  and drag a `-6..+6` value; the axis is derived from Krea 2's own text
+  encoder at encode time. No LoRAs, no downloads, no extra weights.
 
 ![Krea V9 recipe demo output gallery](docs/assets/krea-v9/demos/recipe-gallery.png)
 
@@ -25,6 +32,7 @@ inspect the exact setup.
 | Borrow a surface or finish | Use `suggest material or texture` at `0.55` (raise toward its `0.65` cap only when the object's exact form matters less). |
 | Follow a pose, crop, or composition | Use `copy pose and layout` around `0.90`, or `copy big shapes only` around `0.90` for silhouette-only steering. |
 | Use a reference that contains text or logos | Add `avoid copying text/logos` at very low strength, usually around `0.03`. |
+| Make one attribute adjustable - brighter, older, foggier, more detailed | Add a `Concept Slider Card` named for the attribute to a `Concept Slider Stack` and drag `-6..+6`; `0` changes nothing at all. |
 
 ## How The Workflow Thinks
 
@@ -46,6 +54,14 @@ be responsible for the subject, an abstract image can be responsible for style,
 a third image can be responsible for lighting, and a fourth can protect against
 text/logo copying.
 
+Concept sliders follow the same pattern with named attributes instead of
+images - a slider card answers "what should this dial change?" and "how far
+is it turned?":
+
+```text
+KG Krea 2 Concept Slider Card V1 -> KG Krea 2 Concept Slider Stack V1 -> KSampler positive input
+```
+
 ## Included Nodes
 
 | Node | Purpose |
@@ -54,9 +70,13 @@ text/logo copying.
 | `KG Krea 2 Reference Stack Encoder V9` | Combines the final prompt and up to 12 guide cards into Krea conditioning. |
 | `KG Krea 2 Image Guide Card V10` | The V9 card plus four more recipes, guide direction, per-card timing, and layer dials. |
 | `KG Krea 2 Reference Stack Encoder V10` | The V9 stack plus balance, study reuse, a stack report, and a prepared-reference preview. |
+| `KG Krea 2 Concept Slider Card V1` | Describes one user-defined attribute slider: a description plus a -6..+6 value. |
+| `KG Krea 2 Concept Slider Stack V1` | Turns slider cards into Krea conditioning - training-free sliders for any attribute you can name. |
 
-The nodes expose plain-language controls for prompt strength, image strength
-feel, image detail level, framing, timing, and text/logo guard behavior.
+The guide cards and stack encoders expose plain-language controls for prompt
+strength, image strength feel, image detail level, framing, timing, and
+text/logo guard behavior; the slider pair works the same way for named
+attributes.
 
 ## What V10 Adds
 
@@ -89,6 +109,34 @@ Per-node details: [V10 guide card](docs/nodes/kg-krea-2-image-guide-card-v10.md)
 and [V10 stack encoder](docs/nodes/kg-krea-2-reference-stack-encoder-v10.md).
 Try [krea-v10-full-showcase-workflow.json](example_workflows/krea-v10-full-showcase-workflow.json)
 for all of it in one graph.
+
+## What Concept Sliders Add
+
+Slider LoRAs without the LoRA. A `Concept Slider Card` names an attribute
+(`height`, `brightness`, `age` - a noun works best); the
+`Concept Slider Stack` replaces your CLIP Text Encode node and derives the
+more-vs-less axis from Krea 2's own text encoder at encode time.
+
+| Slider control | What it does |
+| --- | --- |
+| `Slider value` | The dial: `-6..+6`. Negative pushes toward less/the opposite, positive toward more. `+/-3..4` is the reliable working band. |
+| `0` position | Exactly your prompt - a zero slider is excluded from the encode entirely (render-proven pixel-identical to a plain encode) and costs nothing. |
+| Custom poles | Optional "what -6 looks like" / "what +6 looks like" sentences turn any describable contrast into an axis - including style axes like photoreal-vs-cartoon. |
+| Up to 8 sliders | Sliders stack, each with its own dial. |
+| `Overall slider reach` | One multiplier over every slider's push - tame or amplify the whole stack at once. |
+| `slider_report` output | Each slider's exact pole sentences, computed push, what was skipped and why, and encoder-pass vs cache counts. |
+
+![Age slider audit sheet: the same portrait reads younger to older across the dial](docs/assets/concept-slider/sheet-age.png)
+
+The sheet above is from the ten-slider render audit (fixed seed, one render
+per dial position): eight of ten user-defined sliders worked as desired and
+two worked after pole rewording, with no image degradation at full
+deflection. Results, all ten sheets, and a slider-writing cookbook - what
+makes a strong axis, how to fix a weak direction - are in the
+[Concept Slider guide](docs/concept-slider-v1.md).
+Try [krea-slider-v1-showcase-workflow.json](example_workflows/krea-slider-v1-showcase-workflow.json)
+for six sliders, the report, and a same-seed with-vs-without branch in one
+graph.
 
 ## Install
 
@@ -138,6 +186,7 @@ or drag it into ComfyUI to load the embedded workflow.
 
 | Workflow | Best for |
 | --- | --- |
+| [krea-slider-v1-showcase-workflow.json](example_workflows/krea-slider-v1-showcase-workflow.json) | First Concept Slider run. Six user-made sliders (auto and custom poles, active and parked), the slider report, and a same-seed WITH vs WITHOUT comparison branch. |
 | [krea-v10-full-showcase-workflow.json](example_workflows/krea-v10-full-showcase-workflow.json) | First V10 run. Six cards including the new palette, environment, and framing recipes, per-card timing, gentle balance, and both feedback outputs. |
 | [krea-v10-counter-example-workflow.json](example_workflows/krea-v10-counter-example-workflow.json) | The V10 `away from this image` direction: keep the subject, push a style out. |
 | [krea-v10-reference-stack-workflow.json](example_workflows/krea-v10-reference-stack-workflow.json) | Compact V10 starter graph with the report and prepared-references previews wired. |
@@ -175,6 +224,8 @@ Tips:
 | --- | --- |
 | [V10 visual HTML guide](docs/krea-v10-user-guide.html) | Visual walkthrough of everything V10 adds: new recipes, direction, timing, balance, reuse, and the feedback outputs. |
 | [V10 Markdown user guide](docs/krea-v10-user-guide.md) | Same V10 guide in Markdown form for GitHub reading. |
+| [Concept Slider guide](docs/concept-slider-v1.md) | The complete slider manual: quick start, the dial, the ten-slider render audit with images, and the slider-writing cookbook. |
+| [Recipe visual guide](docs/recipe-visual-guide.md) | One before/after figure for every recipe - all twelve built-ins and all twenty bundled pack recipes on real references. |
 | [V9 visual HTML guide](docs/krea-v9-user-guide.html) | Full visual walkthrough of the core recipes with embedded-workflow demo PNGs. |
 | [V9 Markdown user guide](docs/krea-v9-user-guide.md) | Same guide in Markdown form for GitHub reading. |
 | [Documentation landing page](docs/README.md) | Short navigation by task. |
@@ -184,13 +235,29 @@ Tips:
 | [Example workflows](example_workflows/README.md) | What each bundled workflow is for. |
 | [Testing guide](docs/testing.md) | Maintainer checks for contract tests and workflow validation. |
 
+## Repository Structure
+
+Three product packages, side by side, plus the shared material around them:
+
+| Path | What it is |
+| --- | --- |
+| [kg_krea_v9/](kg_krea_v9) | The V9 product: guide card + stack encoder, recipes, treatments, the text/logo guard. Frozen surface - saved V9 workflows keep working unchanged. |
+| [kg_krea_v10/](kg_krea_v10) | The V10 product: everything V9 plus more recipes, custom-recipe loading, direction, timing, balance, caching, and the feedback outputs. |
+| [kg_krea_slider/](kg_krea_slider) | The Concept Slider product: slider card + slider stack, pole derivation, the slider report, and its study cache. |
+| [custom_recipes/](custom_recipes/README.md) | The Recipe Kit: schema, starter/designer/edit packs, and where your own recipe files go. |
+| [web/](web) | Browser-side pieces: the Recipe Builder and the node UI script. |
+| [example_workflows/](example_workflows/README.md) | Ready-made graphs for all three products. |
+| [example_assets/](example_assets/krea-reference-examples) | Synthetic reference images for first runs. |
+| [docs/](docs/README.md) | User guides, node pages, technical papers, and demo galleries for V9, V10, and the sliders. |
+| [tests/](tests) | Contract tests pinning the frozen widget/packet surfaces of all three products. |
+
 ## Development Checks
 
 The contract tests run without launching ComfyUI:
 
 ```bash
 python -m unittest discover -s tests -p "test_*.py" -v
-python -m compileall -q kg_krea_v9 kg_krea_v10 __init__.py
+python -m compileall -q kg_krea_v9 kg_krea_v10 kg_krea_slider __init__.py
 ```
 
 ## License
