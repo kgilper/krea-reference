@@ -10,6 +10,8 @@ This folder is the complete kit for creating recipes:
 | --- | --- |
 | [Recipe Builder](../web/recipe-builder.html) (`web/recipe-builder.html`) | Three plain-language questions -> a validated, downloadable recipe file. Also served by a running ComfyUI at `/extensions/<pack folder>/recipe-builder.html`. |
 | [starter-pack.yaml](starter-pack.yaml) | Ready-made recipes, **loaded automatically**: `borrow the weather`, `borrow the clothing style`, `borrow drawing medium`, `borrow photo finish`, `cinematic color grade`. Working examples to copy from; delete or underscore the file to opt out. |
+| [designer-artwork-pack.yaml](designer-artwork-pack.yaml) | Ten render-validated recipes for designers working from artwork, **loaded automatically**: `borrow the poster style`, `borrow the soft media look`, `borrow the pattern energy`, `borrow the era print look`, `borrow the paper and canvas`, `borrow the metallic accents`, `borrow the ornament borders`, `borrow the stained glass look`, `style the finish only`, `style the layout first`. |
+| [edit-composite-pack.yaml](edit-composite-pack.yaml) | Five render-validated recipes for editing and compositing, **loaded automatically**: `match the scene light`, `match the monochrome look`, `match the atmosphere`, `use the background only`, `carry the subject over`. |
 | [_example-vintage-postcard.yaml](_example-vintage-postcard.yaml) | A fully-commented single-recipe template (disabled until you rename it). |
 | This README | The schema, what every field really does on Krea 2, the `focus` field, the layer math, and the render-validation ritual. |
 | [Technical reference](../docs/krea-v10-technical-paper.md) | The standalone V10 paper: every widget, every table, all the math. |
@@ -111,7 +113,7 @@ Required: `label`, `role`. Unknown keys are rejected (typo protection).
 | `study` | no | `stack`, `256`, `384`, `512`, `768` - study resolution; coarser = looser, and appearance recipes land best at `256` | `stack` |
 | `framing` | no | `stack`, `preserve aspect`, `center crop square`, `stretch square` | `stack` |
 | `subject` | no | `recipe`, `avoid`, `allow`, `preserve` | `recipe` |
-| `early` / `late` | no | `0.0` to `5.0` - phase multipliers | `1.0` |
+| `early` / `late` | no | `0.0` to `5.0` - phase multipliers. Under the stack's default smart timing, `early` is the structure-phase volume: motif-scale borrows (patterns, ornament, borders) need `early` >= ~0.8 or they arrive as palette only; keep `early` low only for coarse surface color/sheen. | `1.0` |
 | `guard` | no | `true` enables the text/logo blank-surface guard (clamps the card like the built-in guard recipe) | `false` |
 | `cap` | no | `0.0` to `3.0`, or omit for no cap - hard ceiling on effective strength | none |
 | `shape` | no | `0.0` to `3.0` - **the main transfer volume** (see the anchors above) | role default |
@@ -248,7 +250,7 @@ print(layers)
 ### Worked example (render-validated)
 
 "Borrow a material reference's surface finish and pattern energy while keeping
-source shape quiet" - this mirrors the shipped `suggest material or texture`
+source shape quiet" - this mirrors the bundled `borrow the pattern energy`
 recipe, and the reasoning generalizes:
 
 ```yaml
@@ -259,7 +261,9 @@ color: 1.0                # keep the material's color/finish signal
 detail: 0.35              # enough detail for glaze, fabric, stone, or finish
 study: "384"              # moderate study for surface character
 subject: avoid
-early: 0.35               # keep source structure quiet
+early: 0.85               # motif-scale detail needs structure-phase signal under
+                          # smart timing; drop toward 0.35 only for pure color/sheen
+                          # borrows (the shipped material recipe's coarse payload)
 late: 0.9                 # let finish arrive late
 cap: 0.65
 shape: 0.8
@@ -271,6 +275,9 @@ layers: [0.05, 0.075, 0.113, 0.163, 0.213, 0.25, 1.25, 2.75, 5.5, 1.5, 4.125, 1.
 
 1. Drop the file in, refresh node definitions, pick your label on a card.
 2. Fix the seed. Render the same prompt at strengths `0.4`, `0.65`, `0.9`.
+   Leave the stack's `When images guide` on its default (`smart per-card
+   timing`): the constant mode ignores your `early`/`late` values and can
+   make a recipe look stronger than users will ever see it.
 3. Read the results against three checks:
    - **Silent?** (0.9 looks like no card at all) -> raise `shape` a step, or
      coarsen `study` to `256`.

@@ -476,12 +476,22 @@ skipped with a logged reason; the node always loads. Saved workflows
 reference custom recipes **by label**; a missing label falls back to
 `balanced` with a warning (§6.2).
 
-**Starter pack.** `custom_recipes/starter-pack.yaml` auto-loads
-render-validated recipes including `borrow the weather` (strong blur + detail
-0.15 keeps the reference's objects out while the sky mood arrives), `borrow
-the clothing style` (focus-driven, §9), `borrow drawing medium`, `borrow photo
-finish`, and `cinematic color grade` (a bolder palette sibling, cap 1.2).
-Delete or underscore the file to opt out.
+**Bundled packs.** Three pack files auto-load from `custom_recipes/`, all
+render-validated. `starter-pack.yaml`: `borrow the weather` (strong blur +
+detail 0.15 keeps the reference's objects out while the sky mood arrives),
+`borrow the clothing style` (focus-driven, §9), `borrow drawing medium`,
+`borrow photo finish`, and `cinematic color grade` (a bolder palette sibling,
+cap 1.2). `designer-artwork-pack.yaml`: ten recipes for working from artwork
+(poster style, soft media, pattern energy, era print look, paper and canvas,
+metallic accents, ornament borders, stained glass, and an early/late timing
+pair over the style base). `edit-composite-pack.yaml`: five compositing
+recipes (scene light, monochrome look, atmosphere, background only, carry
+the subject over). Delete or underscore any file to opt out. A tuning note
+from the packs' render series: under the stack's default smart timing the
+early multiplier is the structure-phase volume, and motif-scale payloads
+(patterns, ornament, borders) need `early` around 0.85 to arrive - a low
+early leaves only coarse surface color/sheen (which is exactly what the
+shipped material recipe's late-weighted curve is for).
 
 **Recipe Builder.** `web/recipe-builder.html` (also served by ComfyUI at
 `/extensions/<pack folder>/recipe-builder.html`) generates validated recipe

@@ -40,9 +40,13 @@ after the built-ins, picked up on node-definition refresh without a restart.
 The bundled [Recipe Builder](../../web/recipe-builder.html)
 (`web/recipe-builder.html`, also served at
 `/extensions/<pack folder>/recipe-builder.html`) generates these files from
-three plain-language questions - no schema knowledge needed. Starter recipes
-ship enabled in `custom_recipes/starter-pack.yaml`, including weather,
-clothing, drawing medium, photo finish, and cinematic color grade examples.
+three plain-language questions - no schema knowledge needed. Twenty recipes
+ship enabled in `custom_recipes/`: the starter pack (weather, clothing,
+drawing medium, photo finish, cinematic color grade), the designer artwork
+pack (poster style, soft media, pattern energy, era print look, paper and
+canvas, metallic accents, ornament borders, stained glass, and two
+style-timing presets), and the edit-and-composite pack (scene light,
+monochrome look, atmosphere, background only, carry the subject over).
 The `focus` recipe field lets a recipe study **one named aspect** of its image
 ("the clothing and garment style, not the person") - see the
 [recipe kit README](../../custom_recipes/README.md).

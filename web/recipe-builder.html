@@ -309,9 +309,9 @@ var LOUDNESS = [
 ];
 
 // Labels reserved by the node (built-in dropdown labels + internal recipe
-// keys), plus the shipped starter-pack labels (custom_recipes/starter-pack.yaml
-// loads them automatically, and across recipe files the first definition of a
-// label wins - so a new file reusing one would silently lose).
+// keys), plus the shipped pack labels (custom_recipes/*.yaml load them
+// automatically, and across recipe files the first definition of a label
+// wins - so a new file reusing one would silently lose).
 var RESERVED = [
   "manual tuning", "balanced", "keep the same subject", "copy pose and layout",
   "copy lighting and mood", "suggest the visual style", "suggest material or texture",
@@ -320,7 +320,13 @@ var RESERVED = [
   "identity", "composition", "lighting", "style gentle", "texture gentle",
   "shape only", "text/logo safe", "palette only", "environment", "framing", "mood board",
   "borrow the weather", "borrow the clothing style", "cinematic color grade",
-  "borrow drawing medium", "borrow photo finish"
+  "borrow drawing medium", "borrow photo finish",
+  "borrow the poster style", "borrow the soft media look", "borrow the pattern energy",
+  "borrow the era print look", "borrow the paper and canvas", "borrow the metallic accents",
+  "borrow the ornament borders", "borrow the stained glass look",
+  "style the finish only", "style the layout first",
+  "match the scene light", "match the monochrome look", "match the atmosphere",
+  "use the background only", "carry the subject over"
 ];
 
 function round2(x) { return Math.round(x * 100) / 100; }

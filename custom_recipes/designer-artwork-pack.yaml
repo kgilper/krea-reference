@@ -1,0 +1,270 @@
+# Designer artwork pack - loaded automatically (no leading underscore).
+#
+# Ten recipes for designers working FROM artwork references: poster and
+# print language, soft media, patterns, substrates, metallic accents,
+# borders, print texture, and two timing presets for safe style work.
+# Every bundle starts from a render-validated shipped base (the V10 style,
+# material, and lighting recipes) and was render-tested on Krea 2.
+# Delete this file (or prefix it with "_") to remove these from your
+# "Use image for" dropdown.
+
+recipes:
+  - label: borrow the poster style
+    description: >-
+      Flat graphic poster language - bold simple shapes, flat color fills,
+      clean edges - re-draws the whole image like vector poster art. Works
+      best from full-bleed artwork; crop away borders and big lettering
+      first, or they arrive as a printed object in the scene. Describe
+      your scene fully - sparse prompts let the reference's scenery fill
+      the gaps. Lands clearly from about 0.55.
+    role: style
+    treatment: strong blur
+    color: 1.0
+    detail: 0.3
+    study: "384"
+    framing: stack
+    subject: avoid
+    early: 0.85
+    late: 0.85
+    guard: false
+    cap: 0.65
+    shape: 0.85
+    global: 1.85
+    layers: [0.062, 0.087, 0.113, 0.15, 0.2, 0.25, 1.25, 3.438, 6.875, 1.375, 5.5, 1.5]
+    focus: >-
+      the flat graphic poster style as a way of rendering the whole image:
+      bold simple shapes, flat color fills, clean edges - not any words or
+      letters, not the scenes or objects it depicts, and not as a poster,
+      stamp, or framed print in the scene
+
+  - label: borrow the soft media look
+    description: >-
+      Watercolor, gouache, and pastel character - washes, pigment blooms,
+      paper tone - with your subject kept crisp: the focus line stops the
+      soft medium from arriving as overall blur. Start around 0.6. The
+      reference's own subject can join the scene; if it intrudes, drop
+      strength or crop the reference to a texture-rich area.
+    role: style
+    treatment: strong blur
+    color: 1.0
+    detail: 0.3
+    study: "384"
+    framing: stack
+    subject: avoid
+    early: 0.85
+    late: 0.85
+    guard: false
+    cap: 0.65
+    shape: 0.85
+    global: 1.85
+    layers: [0.062, 0.087, 0.113, 0.15, 0.2, 0.25, 1.25, 3.438, 6.875, 1.375, 5.5, 1.5]
+    focus: >-
+      the soft media character: watercolor washes, pigment blooms, gouache
+      flatness, and paper tone - not the image's blurriness or soft focus,
+      and not its subject or scene layout
+
+  - label: borrow the pattern energy
+    description: >-
+      Repeating motif rhythm and ornament density from textiles, wallpaper,
+      and decorative art, onto your subject's surfaces. Start around 0.65 -
+      below 0.6 only the palette arrives. All-over pattern references work
+      best; single-subject artwork brings its subject along.
+    role: material
+    treatment: strong blur
+    color: 1.0
+    detail: 0.45
+    study: "384"
+    framing: stack
+    subject: avoid
+    early: 0.85
+    late: 0.9
+    guard: false
+    cap: 0.65
+    shape: 0.8
+    global: 1.55
+    layers: [0.05, 0.075, 0.113, 0.163, 0.213, 0.25, 1.25, 2.75, 5.5, 1.5, 4.125, 1.375]
+    focus: >-
+      the repeating pattern: motif rhythm, ornament density, and decorative
+      structure - not the specific depicted objects or scenes, and not any
+      words or letters
+
+  - label: borrow the era print look
+    description: >-
+      A period's print character - color reproduction, ink palette, and
+      design-era finish - re-draws the whole image like vintage printed
+      matter. Use full-bleed scans and crop away borders and lettering, or
+      they arrive as a stamp-like object; art dominated by one subject
+      decorates your subject instead. Describe your scene fully. Start
+      around 0.55.
+    role: style
+    treatment: strong blur
+    color: 1.0
+    detail: 0.3
+    study: "384"
+    framing: stack
+    subject: avoid
+    early: 0.85
+    late: 0.85
+    guard: false
+    cap: 0.65
+    shape: 0.85
+    global: 1.85
+    layers: [0.062, 0.087, 0.113, 0.15, 0.2, 0.25, 1.25, 3.438, 6.875, 1.375, 5.5, 1.5]
+    focus: >-
+      the era's print character as a way of rendering the whole image:
+      color reproduction, ink palette, and period design feel - not any
+      words or letters, not the scenes or objects it depicts, and not as
+      a poster, stamp, or framed print in the scene
+
+  - label: borrow the paper and canvas
+    description: >-
+      The substrate only: paper grain, canvas weave, surface tooth, and
+      material tone from an artwork - not what is drawn or printed on it.
+      Start around 0.5.
+    role: material
+    treatment: strong blur
+    color: 1.0
+    detail: 0.25
+    study: "384"
+    framing: stack
+    subject: avoid
+    early: 0.85
+    late: 0.9
+    guard: false
+    cap: 0.65
+    shape: 0.8
+    global: 1.55
+    layers: [0.05, 0.075, 0.113, 0.163, 0.213, 0.25, 1.25, 2.75, 5.5, 1.5, 4.125, 1.375]
+    focus: >-
+      the substrate: paper grain, canvas weave, surface tooth, aging, and
+      material tone - not anything drawn, painted, or printed on it
+
+  - label: borrow the metallic accents
+    description: >-
+      Gold leaf, gilding, and foil shine - how metal catches the light -
+      from gilded artwork. At 0.55 the whole subject gilds; go lower for
+      a touch of it. Works best when the gilding dominates the reference
+      (gilded panels, illuminated borders); scene-heavy artwork brings
+      its figures along.
+    role: material
+    treatment: strong blur
+    color: 1.0
+    detail: 0.35
+    study: "384"
+    framing: stack
+    subject: avoid
+    early: 0.85
+    late: 0.9
+    guard: false
+    cap: 0.65
+    shape: 0.8
+    global: 1.55
+    layers: [0.05, 0.075, 0.113, 0.163, 0.213, 0.25, 1.25, 2.75, 5.5, 1.5, 4.125, 1.375]
+    focus: >-
+      the metallic accents: gold leaf, gilding, foil shine, and how light
+      catches them - not the objects, figures, or scenes they decorate
+
+  - label: borrow the ornament borders
+    description: >-
+      The decorative border and frame treatment around an artwork -
+      manuscript borders, print frames, ornamental edges - applied as
+      edge ornament on your subject, not the scene inside. Border-dominant
+      references work best; strong frame geometry can square the subject
+      up a touch. Keeps the reference's aspect. Start around 0.55.
+    role: material
+    treatment: strong blur
+    color: 1.0
+    detail: 0.35
+    study: "384"
+    framing: preserve aspect
+    subject: avoid
+    early: 0.85
+    late: 0.9
+    guard: false
+    cap: 0.65
+    shape: 0.8
+    global: 1.55
+    layers: [0.05, 0.075, 0.113, 0.163, 0.213, 0.25, 1.25, 2.75, 5.5, 1.5, 4.125, 1.375]
+    focus: >-
+      the decorative border and frame treatment around the image - the
+      ornament style at its edges - not the scene, figures, or subject
+      inside the frame
+
+  - label: borrow the stained glass look
+    description: >-
+      Stained glass as a rendering style: bold leaded shapes, jewel-tone
+      color fields, and glowing translucency re-draw the whole image the
+      way a glass panel is built - not the window's own scene. Start
+      around 0.6. Full-bleed panel photos work best; crop away frames.
+    role: style
+    treatment: strong blur
+    color: 1.0
+    detail: 0.3
+    study: "384"
+    framing: stack
+    subject: avoid
+    early: 0.85
+    late: 0.85
+    guard: false
+    cap: 0.65
+    shape: 0.85
+    global: 1.85
+    layers: [0.062, 0.087, 0.113, 0.15, 0.2, 0.25, 1.25, 3.438, 6.875, 1.375, 5.5, 1.5]
+    focus: >-
+      the stained glass style as a way of rendering the whole image: bold
+      shapes outlined in dark lead lines, jewel-tone glass color fields,
+      and glowing translucency - not the scenes or figures it depicts, and
+      not as a window or panel appearing in the scene
+
+  - label: style the finish only
+    description: >-
+      The safe style preset for precious compositions: the reference's
+      style arrives only in the final detail passes, so your prompt and
+      other cards own the layout completely. Busy figurative references
+      can paint their motifs onto surfaces - drop strength or use a
+      cleaner style source if that shows. Raise toward the 0.65 cap when
+      it whispers.
+    role: style
+    treatment: strong blur
+    color: 1.0
+    detail: 0.3
+    study: "384"
+    framing: stack
+    subject: avoid
+    early: 0.0
+    late: 0.95
+    guard: false
+    cap: 0.65
+    shape: 0.85
+    global: 1.85
+    layers: [0.062, 0.087, 0.113, 0.15, 0.2, 0.25, 1.25, 3.438, 6.875, 1.375, 5.5, 1.5]
+    focus: >-
+      the artistic style: palette, medium, brushwork, art direction, and
+      rendering finish - not the image's blurriness or soft focus, and not
+      its subject or scene layout
+
+  - label: style the layout first
+    description: >-
+      The exploratory inverse: the reference's style blocks in the early
+      composition - broad fields, placement, palette - and its influence
+      fades in the final passes. The early-built look tends to carry
+      through, so expect a strongly reference-flavored image; good for
+      mood-first exploration. Start around 0.55.
+    role: style
+    treatment: strong blur
+    color: 1.0
+    detail: 0.3
+    study: "384"
+    framing: stack
+    subject: avoid
+    early: 1.0
+    late: 0.15
+    guard: false
+    cap: 0.65
+    shape: 0.85
+    global: 1.85
+    layers: [0.062, 0.087, 0.113, 0.15, 0.2, 0.25, 1.25, 3.438, 6.875, 1.375, 5.5, 1.5]
+    focus: >-
+      the artistic style: palette, medium, brushwork, art direction, and
+      rendering finish - not the image's blurriness or soft focus, and not
+      its subject or scene layout

@@ -70,9 +70,14 @@ The V9 gallery lives at [assets/krea-v9/demos](assets/krea-v9/demos/).
 - A recipe's `focus` field targets **one named aspect** of its reference
   ("the clothing and garment style, not the person") - naming what to skip
   is render-verified to keep the rest behind.
-- Five starter recipes ship enabled: `borrow the weather`,
-  `borrow the clothing style`, `borrow drawing medium`,
-  `borrow photo finish`, and `cinematic color grade`.
+- Twenty bundled recipes ship enabled: the starter pack (`borrow the
+  weather`, `borrow the clothing style`, `borrow drawing medium`,
+  `borrow photo finish`, `cinematic color grade`), the designer artwork
+  pack (poster style, soft media, pattern energy, era print look, paper
+  and canvas, metallic accents, ornament borders, stained glass, and the
+  `style the finish only` / `style the layout first` timing pair), and
+  the edit-and-composite pack (scene light, monochrome look, atmosphere,
+  background only, carry the subject over).
 - `Guide direction` turns any card into a counter-example: not this style,
   not this palette, not this subject.
 - `When this card guides` gives every card its own timing without touching
@@ -104,7 +109,7 @@ positive - a written prompt or a toward card - that says what you do want.
 ## Maintainer Source Touchpoints
 
 - [kg_krea_v10/](../kg_krea_v10) (node classes in `guide_card.py` and `encoder.py`; V10 tables in `recipes.py` and `prompts.py`; the user-recipe loader in `custom_recipes.py`; the study cache, report builder, and contact sheet in `cache.py`, `report.py`, and `preview.py`; V9 locating shim in `_v9.py`)
-- [custom_recipes/](../custom_recipes) (the Recipe Kit: README, schema, `starter-pack.yaml`, and the disabled template)
+- [custom_recipes/](../custom_recipes) (the Recipe Kit: README, schema, `starter-pack.yaml`, `designer-artwork-pack.yaml`, `edit-composite-pack.yaml`, and the disabled template)
 - [web/recipe-builder.html](../web/recipe-builder.html) (the artist-facing recipe generator; its logic block is machine-verified against the real loader)
 - [kg_krea_v9/](../kg_krea_v9) (shared math and host adapters)
 - [__init__.py](../__init__.py)

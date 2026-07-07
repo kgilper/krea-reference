@@ -1,0 +1,138 @@
+# Edit & composite pack - loaded automatically (no leading underscore).
+#
+# Five recipes for image editing and compositing: matching light, a
+# black-and-white look, and atmosphere across plates, borrowing a
+# background's look, and carrying a subject into a new setting. Every
+# bundle starts from a render-validated shipped base (the V10 lighting/
+# environment/identity recipes) and was render-tested on Krea 2.
+# Delete this file (or prefix it with "_") to remove these from your
+# "Use image for" dropdown.
+
+recipes:
+  - label: match the scene light
+    description: >-
+      Compositing light match: the target plate's light direction,
+      key-to-fill contrast, color temperature, and shadow softness arrive
+      on your generated subject - the plate's place and objects stay out.
+      Feed it the scene plate whose light you want; tight portraits carry
+      their light on the person and transfer poorly. Start around 0.65;
+      push toward 0.9 for strong looks.
+    role: lighting
+    treatment: strong blur
+    color: 1.0
+    detail: 0.15
+    study: "256"
+    framing: stack
+    subject: avoid
+    early: 1.0
+    late: 0.75
+    guard: false
+    cap: 1.1
+    shape: 0.8
+    global: 1.3
+    layers: [0.2, 0.25, 0.35, 0.5, 0.8, 1.0, 1.0, 2.2, 4.5, 1.4, 4.0, 1.2]
+    focus: >-
+      the light itself: direction, key-to-fill contrast, color temperature,
+      shadow softness, and highlight behavior - not the place, objects, or
+      people in the image
+
+  - label: match the monochrome look
+    description: >-
+      Black-and-white plate matching: the reference's monochrome
+      character - its tonal range, contrast, and grain feel - arrives so
+      your render commits to the same black-and-white look instead of
+      staying in color. Lands from about 0.9. Scene plates work best;
+      person-heavy references can re-stage their people at this strength.
+    role: lighting
+    treatment: grayscale blur
+    color: 1.0
+    detail: 0.2
+    study: "256"
+    framing: stack
+    subject: avoid
+    early: 1.0
+    late: 0.75
+    guard: false
+    cap: 1.1
+    shape: 0.8
+    global: 1.3
+    layers: [0.2, 0.25, 0.35, 0.5, 0.8, 1.0, 1.0, 2.2, 4.5, 1.4, 4.0, 1.2]
+    focus: >-
+      the black-and-white character: monochrome tonality, tonal range,
+      contrast, and grain - not the scene, place, people, or objects
+
+  - label: match the atmosphere
+    description: >-
+      Atmospheric depth for seamless composites: haze, fog, air thickness,
+      and how distant things fade - without the reference's location or
+      objects. Strong sources can flavor the vegetation and scenery a
+      little; drop strength if that shows. Lands clearly from about 0.7.
+    role: lighting
+    treatment: strong blur
+    color: 1.0
+    detail: 0.15
+    study: "256"
+    framing: stack
+    subject: avoid
+    early: 1.0
+    late: 0.8
+    guard: false
+    cap: 1.1
+    shape: 0.75
+    global: 1.3
+    layers: [0.2, 0.25, 0.35, 0.5, 0.8, 1.0, 1.0, 2.2, 4.5, 1.4, 4.0, 1.2]
+    focus: >-
+      the atmospheric depth: haze, fog, air thickness, glow, and how
+      distant things fade - not the location, objects, or people
+
+  - label: use the background only
+    description: >-
+      Borrow a plate's background feel - setting palette, room mood,
+      spatial atmosphere - while every foreground subject in the reference
+      is explicitly skipped. Structure-safe: it sets the mood around your
+      subject rather than pasting the literal room. Lands from about 0.65.
+    role: environment
+    treatment: palette wash
+    color: 1.0
+    detail: 0.3
+    study: "256"
+    framing: stack
+    subject: avoid
+    early: 1.1
+    late: 0.6
+    guard: false
+    cap: 1.2
+    shape: 0.7
+    global: 0.85
+    layers: [0.25, 0.35, 0.45, 0.6, 0.8, 1.0, 1.0, 2.5, 5.0, 1.1, 4.0, 1.2]
+    focus: >-
+      the background environment and setting only - its palette, light,
+      and mood - not any foreground subject, person, or object in the
+      image
+
+  - label: carry the subject over
+    description: >-
+      Carry the reference's subject into a new setting with its identity,
+      shape, colors, and details intact. The old surroundings are not
+      copied - they are re-imagined to suit your new scene - so busy
+      reference backgrounds add matching props around the subject. Use a
+      clean-background reference when you want nothing else to follow.
+      Use from about 0.9.
+    role: identity
+    treatment: normal
+    color: 1.0
+    detail: 1.0
+    study: "stack"
+    framing: stack
+    subject: preserve
+    early: 1.0
+    late: 1.0
+    guard: false
+    cap: 1.2
+    shape: 1.0
+    global: 1.0
+    layers: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+    focus: >-
+      the main subject: its identity, shape, colors, materials, and
+      details - not the background, setting, surrounding objects, or the
+      lighting around it
