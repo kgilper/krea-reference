@@ -2,17 +2,18 @@
 
 Each demo's shipped sidecar workflow (docs/assets/krea-v9/demos/<slug>.workflow.json)
 is the source of truth: its widget values are converted to an API graph, rendered on
-the LAN ComfyUI box, and the very same sidecar is embedded in the fresh PNG so the
+the configured ComfyUI server, and the very same sidecar is embedded in the fresh PNG so the
 drag-in workflow always matches what rendered. Use this whenever node behavior
 changes (recipe retunes, image-prep fixes) so the public demo set shows current
 output quality. Sidecar files themselves are not rewritten.
 
 Usage:
-    python docs/recipe-lab/regenerate_v9_demos.py [--server http://10.0.0.35:8188]
+    python docs/recipe-lab/regenerate_v9_demos.py [--server http://127.0.0.1:8188]
                                                   [--only slug1,slug2] [--skip-render]
 """
 import argparse
 import json
+import os
 import time
 import urllib.parse
 import urllib.request
@@ -21,7 +22,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw
 
 DEMO_DIR = Path(__file__).resolve().parents[1] / "assets" / "krea-v9" / "demos"
-DEFAULT_SERVER = "http://10.0.0.35:8188"
+DEFAULT_SERVER = os.environ.get("KREA_COMFYUI_SERVER", "http://127.0.0.1:8188")
 
 CARD_CLASS = "KGKrea2ImageGuideCardV9"
 ENCODER_CLASS = "KGTextEncodeKreaImageReferencesV9"
@@ -122,7 +123,7 @@ def touch_manifest():
     manifest = json.loads(path.read_text(encoding="utf-8"))
     manifest["generated_at"] = "2026-07-03"
     manifest["engine_note"] = ("Re-rendered with the current V9 nodes (retuned appearance "
-                               "recipes, bilinear palette wash) on the LAN ComfyUI box; "
+                               "recipes, bilinear palette wash) on the configured ComfyUI server; "
                                "sidecar workflow values are exactly what rendered.")
     path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     print("manifest touched")

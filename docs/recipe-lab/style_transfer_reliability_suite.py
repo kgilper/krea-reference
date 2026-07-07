@@ -10,6 +10,7 @@ Examples:
 """
 import argparse
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -19,12 +20,22 @@ from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 REPO = Path(__file__).resolve().parents[2]
 RUNS = REPO / "docs" / "recipe-lab" / "runs"
-LOCAL_REFS = Path(r"C:\Users\kgilp\AppData\Local\Temp\krea-style-variety-refs-20260705")
+LOCAL_REFS = Path(os.environ.get("KREA_REFERENCE_STYLE_REFS", REPO / "docs" / "recipe-lab" / "refs"))
 STACK_TEST = REPO / "docs" / "recipe-lab" / "style_transfer_stack_test.py"
 STYLE_RECIPE = REPO / "docs" / "recipe-lab" / "runs" / "codex-style-transfer-final.json"
 
 SUITE_ID = "20260705"
 METHODS = ["content-only", "two-card", "final-style", "final-style-guarded"]
+REQUIRED_REF_FILENAMES = [
+    "durer_hare.jpg",
+    "starry_night.jpg",
+    "apollo_bootprint.jpg",
+    "hokusai_great_wave.jpg",
+    "vitruvian.jpg",
+    "mondrian_color_fields.jpg",
+    "migrant_mother.jpg",
+    "pillars_creation.jpg",
+]
 
 CASES = [
     {
@@ -98,6 +109,18 @@ def output_path(case_key, method):
     return RUNS / f"{output_name(case_key, method)}.png"
 
 
+def validate_local_refs():
+    missing = [name for name in REQUIRED_REF_FILENAMES if not (LOCAL_REFS / name).exists()]
+    if not missing:
+        return
+    missing_list = ", ".join(missing)
+    raise FileNotFoundError(
+        "Missing style-transfer reference images in "
+        f"{LOCAL_REFS}. Add the files there or set KREA_REFERENCE_STYLE_REFS "
+        f"to the folder that contains them. Missing: {missing_list}"
+    )
+
+
 def run_render(case, method, skip_existing):
     image = output_path(case["key"], method)
     if skip_existing and image.exists():
@@ -136,16 +159,32 @@ def write_metrics(records):
     return out
 
 
+def load_font(names, size):
+    candidates = []
+    for name in names:
+        candidates.extend([
+            name,
+            f"C:/Windows/Fonts/{name}",
+            f"/System/Library/Fonts/{name}",
+            f"/Library/Fonts/{name}",
+            f"/usr/share/fonts/truetype/dejavu/{name}",
+            f"/usr/share/fonts/truetype/liberation2/{name}",
+        ])
+    for candidate in candidates:
+        try:
+            return ImageFont.truetype(candidate, size)
+        except Exception:
+            continue
+    return ImageFont.load_default()
+
+
 def build_sheet():
     out = RUNS / f"codex-style-transfer-reliability-suite-{SUITE_ID}.png"
     cols = [("Content ref", "content"), ("Style ref", "style")] + [(m, m) for m in METHODS]
 
-    try:
-        title_font = ImageFont.truetype(r"C:\Windows\Fonts\arialbd.ttf", 21)
-        header_font = ImageFont.truetype(r"C:\Windows\Fonts\arialbd.ttf", 13)
-        label_font = ImageFont.truetype(r"C:\Windows\Fonts\arial.ttf", 12)
-    except Exception:
-        title_font = header_font = label_font = ImageFont.load_default()
+    title_font = load_font(["arialbd.ttf", "Arial Bold.ttf", "DejaVuSans-Bold.ttf"], 21)
+    header_font = load_font(["arialbd.ttf", "Arial Bold.ttf", "DejaVuSans-Bold.ttf"], 13)
+    label_font = load_font(["arial.ttf", "Arial.ttf", "DejaVuSans.ttf"], 12)
 
     thumb = 146
     label_h = 38
@@ -206,6 +245,7 @@ def main():
     args = ap.parse_args()
 
     RUNS.mkdir(parents=True, exist_ok=True)
+    validate_local_refs()
     records = []
     if args.render and not args.sheet_only:
         for case in CASES:

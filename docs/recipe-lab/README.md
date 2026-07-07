@@ -54,9 +54,30 @@ render, Fable judges, and the run returns per-recipe verdicts.
 
 ## Requirements
 
-- The ComfyUI box (default `http://10.0.0.35:8188`) with the V10 nodes
-  installed and the reference images in its `input/` folder.
+- A running ComfyUI server (default `http://127.0.0.1:8188`) with the V10
+  nodes installed and the reference images in its `input/` folder.
 - Renders and reference copies go to the dedicated `claude-generations/` output
   folder; the harness only reads back what it generated.
+
+You can point all recipe-lab scripts at another server without editing files:
+
+```bash
+KREA_COMFYUI_SERVER=http://192.0.2.10:8188 python docs/recipe-lab/tweak_test.py ...
+```
+
+Optional path overrides:
+
+- `KREA_REFERENCE_REPO`: repo root for the `recipe-tweak-test` workflow.
+- `KREA_REFERENCE_SCRATCH`: scratch folder for temporary recipe JSON from that
+  workflow. Defaults to `docs/recipe-lab/runs/scratchpad`.
+- `KREA_REFERENCE_CUSTOM_RECIPES`: where lab recipe JSON files are written for
+  ComfyUI to discover. Defaults to the repo's `custom_recipes/` folder, which is
+  correct when this repo is installed as a ComfyUI custom node.
+- `KREA_REFERENCE_STYLE_REFS`: local folder for the style-transfer reliability
+  reference images. Defaults to `docs/recipe-lab/refs/`. The reliability suite
+  will print the exact missing filenames if those larger public-domain stress
+  references are not present in your checkout.
+- `KREA_MODEL`, `KREA_CLIP`, and `KREA_VAE`: ComfyUI model filenames if your
+  local names differ from the defaults.
 
 Maintainer tooling - lives under `docs/` (excluded from registry packs).

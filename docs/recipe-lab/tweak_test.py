@@ -14,16 +14,17 @@ Usage:
 
 Prints one JSON line: {"name","image","metrics":{...}} (image = local PNG path).
 """
-import argparse, io, json, sys, time, urllib.parse, urllib.request
+import argparse, io, json, os, sys, time, urllib.parse, urllib.request
 from pathlib import Path
 from PIL import Image, ImageFilter
 
-DEFAULT_SERVER = "http://10.0.0.35:8188"
-OLGA_RECIPES = Path("//Olga/d/ComfyUI/custom_nodes/comfyui-krea-reference/custom_recipes")
+REPO = Path(__file__).resolve().parents[2]
+DEFAULT_SERVER = os.environ.get("KREA_COMFYUI_SERVER", "http://127.0.0.1:8188")
+CUSTOM_RECIPES = Path(os.environ.get("KREA_REFERENCE_CUSTOM_RECIPES", REPO / "custom_recipes"))
 OUTDIR = Path(__file__).resolve().parent / "runs"
-MODEL = "krea2\\krea2_turbo_nvfp4.safetensors"
-CLIP = "krea2\\qwen3vl_4b_fp8_scaled.safetensors"
-VAE = "krea2\\qwen_image_vae.safetensors"
+MODEL = os.environ.get("KREA_MODEL", "krea2/krea2_turbo_nvfp4.safetensors")
+CLIP = os.environ.get("KREA_CLIP", "krea2/qwen3vl_4b_fp8_scaled.safetensors")
+VAE = os.environ.get("KREA_VAE", "krea2/qwen_image_vae.safetensors")
 NEG = "boring, dull, blurry, low-quality, text, watermark"
 
 CARD_DEFAULTS = {
@@ -139,8 +140,8 @@ def main():
     if args.recipe_json:
         bundle = json.loads(Path(args.recipe_json).read_text(encoding="utf-8"))
         label = bundle["label"]
-        OLGA_RECIPES.mkdir(parents=True, exist_ok=True)
-        (OLGA_RECIPES / ("lab-" + label.replace(" ", "-") + ".json")).write_text(json.dumps(bundle), encoding="utf-8")
+        CUSTOM_RECIPES.mkdir(parents=True, exist_ok=True)
+        (CUSTOM_RECIPES / ("lab-" + label.replace(" ", "-") + ".json")).write_text(json.dumps(bundle), encoding="utf-8")
     elif args.builtin:
         label = args.builtin
     else:

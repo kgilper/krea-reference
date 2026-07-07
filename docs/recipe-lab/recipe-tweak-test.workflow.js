@@ -4,9 +4,15 @@ export const meta = {
   phases: [{ title: 'Render', detail: 'cheap agents render each variant on ComfyUI' }, { title: 'Judge', detail: 'Fable judges variants against the recipe intent' }],
 }
 
-const REPO = 'D:/projects/krea-reference'
+const RAW_ARGS = (typeof args === 'undefined') ? {} : args
+const A = (RAW_ARGS && typeof RAW_ARGS === 'string') ? JSON.parse(RAW_ARGS) : (RAW_ARGS || {})
+const ENV = globalThis.process?.env || {}
+const opt = (name, fallback) => (A[name] || ENV[`KREA_REFERENCE_${name.toUpperCase()}`] || fallback)
+const trimTrailingSlash = value => String(value).replace(/[\\/]+$/, '')
+
+const REPO = trimTrailingSlash(opt('repo', globalThis.process?.cwd?.() || '.'))
 const TWEAK = 'docs/recipe-lab/tweak_test.py'
-const SCRATCH = 'C:/Users/kgilp/AppData/Local/Temp/claude/D--projects-krea-reference/041278b8-2cfd-439d-9154-7ba2dadc027f/scratchpad'
+const SCRATCH = trimTrailingSlash(opt('scratch', `${REPO}/docs/recipe-lab/runs/scratchpad`))
 
 const DEFAULT_JOBS = [
   { label: 'suggest the visual style', intent: "Borrow the reference vase's colors and painterly finish onto the prompt's plain bowl, WITHOUT turning the bowl into the vase (keep the bowl shape/subject).", ref_input: 'layerprobe2/base.png', ref_local: `${REPO}/docs/recipe-lab/refs/base.png`, prompt: 'a plain smooth white ceramic bowl on a light wooden table, soft even studio light, no text', strength: 0.6, seed: 424242,
@@ -55,7 +61,6 @@ ${list}
 Return scores [{name,score,notes}] for every candidate, the single best name, a one-line verdict, and a concrete 'recommended' settings change if the current variant underperforms (else "keep current"). Judge only from what you see.`
 }
 
-const A = (args && typeof args === 'string') ? JSON.parse(args) : (args || {})
 const jobs = (A.jobs && A.jobs.length) ? A.jobs : DEFAULT_JOBS
 log(`testing ${jobs.length} recipes`)
 

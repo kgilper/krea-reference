@@ -86,12 +86,9 @@ def build_sheet():
         for seed in SEEDS:
             columns.append((f"{method}\n{seed}", method, seed))
 
-    try:
-        title_font = ImageFont.truetype(r"C:\Windows\Fonts\arialbd.ttf", 21)
-        header_font = ImageFont.truetype(r"C:\Windows\Fonts\arialbd.ttf", 12)
-        label_font = ImageFont.truetype(r"C:\Windows\Fonts\arial.ttf", 12)
-    except Exception:
-        title_font = header_font = label_font = ImageFont.load_default()
+    title_font = suite.load_font(["arialbd.ttf", "Arial Bold.ttf", "DejaVuSans-Bold.ttf"], 21)
+    header_font = suite.load_font(["arialbd.ttf", "Arial Bold.ttf", "DejaVuSans-Bold.ttf"], 12)
+    label_font = suite.load_font(["arial.ttf", "Arial.ttf", "DejaVuSans.ttf"], 12)
 
     thumb = 132
     label_h = 38
@@ -153,6 +150,7 @@ def main():
     args = ap.parse_args()
 
     RUNS.mkdir(parents=True, exist_ok=True)
+    suite.validate_local_refs()
     records = []
     if args.render and not args.sheet_only:
         for case in CASES:

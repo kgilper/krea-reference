@@ -4,7 +4,7 @@ Renders one attribute slider at several values (default -6 / 0 / +6) with a
 fixed seed and prints one JSON line per arm with the local image path plus
 quick objective metrics (mean luma for brightness-style axes, edge energy as
 a fry check). The 0 arm is the no-change baseline: it must match a plain
-prompt encode. No judgment here - a judge (or Kevin's eyes) reads the images.
+prompt encode. No judgment here - a reviewer reads the images.
 
 Requires the Concept Slider nodes REGISTERED on the box: deploy the package
 and restart ComfyUI first; this script refuses to run against an old module.
@@ -14,15 +14,15 @@ Usage:
   python slider_smoke_test.py --attribute height --values "-6,6" \
       --increase "a very tall person" --decrease "a very short person"
 """
-import argparse, io, json, sys, time, urllib.parse, urllib.request
+import argparse, io, json, os, sys, time, urllib.parse, urllib.request
 from pathlib import Path
 from PIL import Image, ImageFilter
 
-DEFAULT_SERVER = "http://10.0.0.35:8188"
+DEFAULT_SERVER = os.environ.get("KREA_COMFYUI_SERVER", "http://127.0.0.1:8188")
 OUTDIR = Path(__file__).resolve().parent / "runs"
-MODEL = "krea2\\krea2_turbo_nvfp4.safetensors"
-CLIP = "krea2\\qwen3vl_4b_fp8_scaled.safetensors"
-VAE = "krea2\\qwen_image_vae.safetensors"
+MODEL = os.environ.get("KREA_MODEL", "krea2/krea2_turbo_nvfp4.safetensors")
+CLIP = os.environ.get("KREA_CLIP", "krea2/qwen3vl_4b_fp8_scaled.safetensors")
+VAE = os.environ.get("KREA_VAE", "krea2/qwen_image_vae.safetensors")
 NEG = "boring, dull, blurry, low-quality, text, watermark"
 STACK = "KGKrea2ConceptSliderStackV1"
 CARD = "KGKrea2ConceptSliderCardV1"
