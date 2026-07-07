@@ -1,10 +1,29 @@
 # Example Workflows
 
-This folder contains the V10 and V9 starter workflows. The Load Image nodes use the included synthetic example filenames; copy `../example_assets/krea-reference-examples/` into your ComfyUI input folder, or replace the Load Image nodes with your own test images before queueing.
+This folder contains the Concept Slider, V10, and V9 starter workflows. The Load Image nodes use the included synthetic example filenames; copy `../example_assets/krea-reference-examples/` into your ComfyUI input folder, or replace the Load Image nodes with your own test images before queueing. (The Concept Slider workflow needs no images at all.)
 
-The examples intentionally avoid LoRA and model-enhancer plumbing so the graph stays focused on Krea plus the reference nodes.
+The examples intentionally avoid LoRA and model-enhancer plumbing so the graph stays focused on Krea plus the reference and slider nodes.
 
 ![Synthetic reference images included with Krea Reference](../example_assets/krea-reference-examples/contact_sheet.png)
+
+## Concept Slider V1 Showcase
+
+File: [krea-slider-v1-showcase-workflow.json](krea-slider-v1-showcase-workflow.json)
+
+Training-free attribute sliders in one graph, with a walkthrough note on the canvas. Six slider cards feed the main stack:
+
+- `brightness` at `+3` and `fog density` at `+2` - auto poles: the stack derives more-vs-less from the attribute name alone.
+- `height` at `-4` with custom poles - the render-proven concrete wording for a weak direction.
+- `realism` at `0` with custom style poles, ready to drag: negative goes cartoon, positive goes photoreal.
+- `age` and `color saturation` parked at `0` - a zero slider is skipped entirely and costs nothing.
+
+Plus the feedback and comparison wiring:
+
+- `slider_report -> Preview Any`: each slider's exact pole sentences, its computed push, and everything skipped and why.
+- A second stack on the same prompt and seed with zero cards, so one queue renders the WITH-vs-WITHOUT pair side by side.
+- The negative prompt runs through a third slider stack with no cards - a cardless slider stack behaves exactly like CLIP Text Encode.
+
+Queue once, compare the pair, then drag values; with study reuse on, re-runs only re-encode the sliders you changed. The full manual - the dial table, the ten-slider audit, and the slider-writing cookbook - is the [Concept Slider guide](../docs/concept-slider-v1.md).
 
 ## V10 Full Showcase
 
@@ -109,6 +128,7 @@ The V10 workflows additionally use the core `Preview Any` and `Preview Image` no
 
 ## Related Docs
 
+- [Concept Slider V1 guide](../docs/concept-slider-v1.md)
 - [Krea 2 V10 visual user guide](../docs/krea-v10-user-guide.html)
 - [Krea 2 V10 documentation index](../docs/krea-v10-documentation-index.md)
 - [KG Krea 2 Image Guide Card V10](../docs/nodes/kg-krea-2-image-guide-card-v10.md)

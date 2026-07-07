@@ -1,0 +1,1565 @@
+{
+ "id": "kg-krea-slider-v1-showcase-workflow",
+ "revision": 0,
+ "last_node_id": 24,
+ "last_link_id": 27,
+ "nodes": [
+  {
+   "id": 1,
+   "type": "UNETLoader",
+   "pos": [
+    80,
+    90
+   ],
+   "size": [
+    380,
+    106
+   ],
+   "flags": {},
+   "order": 0,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "MODEL",
+     "type": "MODEL",
+     "links": [
+      1
+     ]
+    }
+   ],
+   "properties": {
+    "cnr_id": "comfy-core",
+    "ver": "0.26.2",
+    "Node name for S&R": "UNETLoader"
+   },
+   "widgets_values": [
+    "krea2\\krea2_turbo_nvfp4.safetensors",
+    "default"
+   ]
+  },
+  {
+   "id": 2,
+   "type": "ModelSamplingAuraFlow",
+   "pos": [
+    80,
+    250
+   ],
+   "size": [
+    380,
+    80
+   ],
+   "flags": {},
+   "order": 1,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "model",
+     "type": "MODEL",
+     "link": 1
+    }
+   ],
+   "outputs": [
+    {
+     "name": "MODEL",
+     "type": "MODEL",
+     "links": [
+      2,
+      3
+     ]
+    }
+   ],
+   "properties": {
+    "cnr_id": "comfy-core",
+    "ver": "0.26.2",
+    "Node name for S&R": "ModelSamplingAuraFlow"
+   },
+   "widgets_values": [
+    3.14
+   ]
+  },
+  {
+   "id": 3,
+   "type": "CLIPLoader",
+   "pos": [
+    80,
+    390
+   ],
+   "size": [
+    380,
+    130
+   ],
+   "flags": {},
+   "order": 2,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "CLIP",
+     "type": "CLIP",
+     "links": [
+      4,
+      5,
+      6
+     ]
+    }
+   ],
+   "properties": {
+    "cnr_id": "comfy-core",
+    "ver": "0.26.2",
+    "Node name for S&R": "CLIPLoader"
+   },
+   "widgets_values": [
+    "krea2\\qwen3vl_4b_fp8_scaled.safetensors",
+    "krea2",
+    "default"
+   ]
+  },
+  {
+   "id": 4,
+   "type": "VAELoader",
+   "pos": [
+    80,
+    580
+   ],
+   "size": [
+    380,
+    80
+   ],
+   "flags": {},
+   "order": 3,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "VAE",
+     "type": "VAE",
+     "links": [
+      22,
+      24
+     ]
+    }
+   ],
+   "properties": {
+    "cnr_id": "comfy-core",
+    "ver": "0.26.2",
+    "Node name for S&R": "VAELoader"
+   },
+   "widgets_values": [
+    "krea2\\qwen_image_vae.safetensors"
+   ]
+  },
+  {
+   "id": 5,
+   "type": "PrimitiveStringMultiline",
+   "pos": [
+    580,
+    110
+   ],
+   "size": [
+    500,
+    220
+   ],
+   "flags": {},
+   "order": 4,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "STRING",
+     "type": "STRING",
+     "links": [
+      7,
+      8
+     ]
+    }
+   ],
+   "properties": {
+    "cnr_id": "comfy-core",
+    "ver": "0.26.2",
+    "Node name for S&R": "PrimitiveStringMultiline"
+   },
+   "widgets_values": [
+    "full body photo of a man standing in a city park, natural light"
+   ],
+   "title": "Your prompt (feeds BOTH branches)"
+  },
+  {
+   "id": 6,
+   "type": "KGKrea2ConceptSliderCardV1",
+   "pos": [
+    580,
+    700
+   ],
+   "size": [
+    460,
+    240
+   ],
+   "flags": {},
+   "order": 5,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "What this slider changes",
+     "type": "STRING",
+     "link": null,
+     "widget": {
+      "name": "What this slider changes"
+     }
+    },
+    {
+     "name": "Slider value",
+     "type": "FLOAT",
+     "link": null,
+     "widget": {
+      "name": "Slider value"
+     }
+    },
+    {
+     "name": "What +6 looks like (optional)",
+     "type": "STRING",
+     "link": null,
+     "widget": {
+      "name": "What +6 looks like (optional)"
+     }
+    },
+    {
+     "name": "What -6 looks like (optional)",
+     "type": "STRING",
+     "link": null,
+     "widget": {
+      "name": "What -6 looks like (optional)"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "slider",
+     "type": "KG_KREA_SLIDER",
+     "links": [
+      9
+     ]
+    }
+   ],
+   "properties": {
+    "aux_id": "kgilper/krea-reference",
+    "Node name for S&R": "KGKrea2ConceptSliderCardV1"
+   },
+   "widgets_values": [
+    "brightness",
+    3.0,
+    "",
+    ""
+   ],
+   "title": "Slider - brightness +3 (auto poles)"
+  },
+  {
+   "id": 7,
+   "type": "KGKrea2ConceptSliderCardV1",
+   "pos": [
+    580,
+    990
+   ],
+   "size": [
+    460,
+    240
+   ],
+   "flags": {},
+   "order": 6,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "What this slider changes",
+     "type": "STRING",
+     "link": null,
+     "widget": {
+      "name": "What this slider changes"
+     }
+    },
+    {
+     "name": "Slider value",
+     "type": "FLOAT",
+     "link": null,
+     "widget": {
+      "name": "Slider value"
+     }
+    },
+    {
+     "name": "What +6 looks like (optional)",
+     "type": "STRING",
+     "link": null,
+     "widget": {
+      "name": "What +6 looks like (optional)"
+     }
+    },
+    {
+     "name": "What -6 looks like (optional)",
+     "type": "STRING",
+     "link": null,
+     "widget": {
+      "name": "What -6 looks like (optional)"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "slider",
+     "type": "KG_KREA_SLIDER",
+     "links": [
+      10
+     ]
+    }
+   ],
+   "properties": {
+    "aux_id": "kgilper/krea-reference",
+    "Node name for S&R": "KGKrea2ConceptSliderCardV1"
+   },
+   "widgets_values": [
+    "fog density",
+    2.0,
+    "",
+    ""
+   ],
+   "title": "Slider - fog density +2 (auto poles)"
+  },
+  {
+   "id": 8,
+   "type": "KGKrea2ConceptSliderCardV1",
+   "pos": [
+    580,
+    1280
+   ],
+   "size": [
+    460,
+    240
+   ],
+   "flags": {},
+   "order": 7,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "What this slider changes",
+     "type": "STRING",
+     "link": null,
+     "widget": {
+      "name": "What this slider changes"
+     }
+    },
+    {
+     "name": "Slider value",
+     "type": "FLOAT",
+     "link": null,
+     "widget": {
+      "name": "Slider value"
+     }
+    },
+    {
+     "name": "What +6 looks like (optional)",
+     "type": "STRING",
+     "link": null,
+     "widget": {
+      "name": "What +6 looks like (optional)"
+     }
+    },
+    {
+     "name": "What -6 looks like (optional)",
+     "type": "STRING",
+     "link": null,
+     "widget": {
+      "name": "What -6 looks like (optional)"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "slider",
+     "type": "KG_KREA_SLIDER",
+     "links": [
+      11
+     ]
+    }
+   ],
+   "properties": {
+    "aux_id": "kgilper/krea-reference",
+    "Node name for S&R": "KGKrea2ConceptSliderCardV1"
+   },
+   "widgets_values": [
+    "height",
+    -4.0,
+    "a very tall man with long legs, towering height",
+    "a very short man with a small compact stature, much shorter than average"
+   ],
+   "title": "Slider - height -4 (custom poles, proven wording)"
+  },
+  {
+   "id": 9,
+   "type": "KGKrea2ConceptSliderCardV1",
+   "pos": [
+    1080,
+    700
+   ],
+   "size": [
+    460,
+    240
+   ],
+   "flags": {},
+   "order": 8,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "What this slider changes",
+     "type": "STRING",
+     "link": null,
+     "widget": {
+      "name": "What this slider changes"
+     }
+    },
+    {
+     "name": "Slider value",
+     "type": "FLOAT",
+     "link": null,
+     "widget": {
+      "name": "Slider value"
+     }
+    },
+    {
+     "name": "What +6 looks like (optional)",
+     "type": "STRING",
+     "link": null,
+     "widget": {
+      "name": "What +6 looks like (optional)"
+     }
+    },
+    {
+     "name": "What -6 looks like (optional)",
+     "type": "STRING",
+     "link": null,
+     "widget": {
+      "name": "What -6 looks like (optional)"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "slider",
+     "type": "KG_KREA_SLIDER",
+     "links": [
+      12
+     ]
+    }
+   ],
+   "properties": {
+    "aux_id": "kgilper/krea-reference",
+    "Node name for S&R": "KGKrea2ConceptSliderCardV1"
+   },
+   "widgets_values": [
+    "age",
+    0.0,
+    "",
+    ""
+   ],
+   "title": "Slider - age 0 (parked: costs nothing)"
+  },
+  {
+   "id": 10,
+   "type": "KGKrea2ConceptSliderCardV1",
+   "pos": [
+    1080,
+    990
+   ],
+   "size": [
+    460,
+    240
+   ],
+   "flags": {},
+   "order": 9,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "What this slider changes",
+     "type": "STRING",
+     "link": null,
+     "widget": {
+      "name": "What this slider changes"
+     }
+    },
+    {
+     "name": "Slider value",
+     "type": "FLOAT",
+     "link": null,
+     "widget": {
+      "name": "Slider value"
+     }
+    },
+    {
+     "name": "What +6 looks like (optional)",
+     "type": "STRING",
+     "link": null,
+     "widget": {
+      "name": "What +6 looks like (optional)"
+     }
+    },
+    {
+     "name": "What -6 looks like (optional)",
+     "type": "STRING",
+     "link": null,
+     "widget": {
+      "name": "What -6 looks like (optional)"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "slider",
+     "type": "KG_KREA_SLIDER",
+     "links": [
+      13
+     ]
+    }
+   ],
+   "properties": {
+    "aux_id": "kgilper/krea-reference",
+    "Node name for S&R": "KGKrea2ConceptSliderCardV1"
+   },
+   "widgets_values": [
+    "realism",
+    0.0,
+    "a photorealistic photograph with natural skin texture",
+    "a flat 2D cartoon illustration with bold outlines"
+   ],
+   "title": "Slider - realism 0 (style axis: -6 cartoon)"
+  },
+  {
+   "id": 11,
+   "type": "KGKrea2ConceptSliderCardV1",
+   "pos": [
+    1080,
+    1280
+   ],
+   "size": [
+    460,
+    240
+   ],
+   "flags": {},
+   "order": 10,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "What this slider changes",
+     "type": "STRING",
+     "link": null,
+     "widget": {
+      "name": "What this slider changes"
+     }
+    },
+    {
+     "name": "Slider value",
+     "type": "FLOAT",
+     "link": null,
+     "widget": {
+      "name": "Slider value"
+     }
+    },
+    {
+     "name": "What +6 looks like (optional)",
+     "type": "STRING",
+     "link": null,
+     "widget": {
+      "name": "What +6 looks like (optional)"
+     }
+    },
+    {
+     "name": "What -6 looks like (optional)",
+     "type": "STRING",
+     "link": null,
+     "widget": {
+      "name": "What -6 looks like (optional)"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "slider",
+     "type": "KG_KREA_SLIDER",
+     "links": [
+      14
+     ]
+    }
+   ],
+   "properties": {
+    "aux_id": "kgilper/krea-reference",
+    "Node name for S&R": "KGKrea2ConceptSliderCardV1"
+   },
+   "widgets_values": [
+    "color saturation",
+    0.0,
+    "",
+    ""
+   ],
+   "title": "Slider - color saturation 0 (parked)"
+  },
+  {
+   "id": 12,
+   "type": "KGKrea2ConceptSliderStackV1",
+   "pos": [
+    1640,
+    700
+   ],
+   "size": [
+    560,
+    460
+   ],
+   "flags": {},
+   "order": 11,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "Krea CLIP",
+     "type": "CLIP",
+     "link": 4
+    },
+    {
+     "name": "Final image prompt",
+     "type": "STRING",
+     "link": 7,
+     "widget": {
+      "name": "Final image prompt"
+     }
+    },
+    {
+     "name": "Overall slider reach",
+     "type": "FLOAT",
+     "link": null,
+     "widget": {
+      "name": "Overall slider reach"
+     }
+    },
+    {
+     "name": "Reuse slider studies",
+     "type": "COMBO",
+     "link": null,
+     "widget": {
+      "name": "Reuse slider studies"
+     }
+    },
+    {
+     "name": "Slider 1",
+     "type": "KG_KREA_SLIDER",
+     "link": 9
+    },
+    {
+     "name": "Slider 2",
+     "type": "KG_KREA_SLIDER",
+     "link": 10
+    },
+    {
+     "name": "Slider 3",
+     "type": "KG_KREA_SLIDER",
+     "link": 11
+    },
+    {
+     "name": "Slider 4",
+     "type": "KG_KREA_SLIDER",
+     "link": 12
+    },
+    {
+     "name": "Slider 5",
+     "type": "KG_KREA_SLIDER",
+     "link": 13
+    },
+    {
+     "name": "Slider 6",
+     "type": "KG_KREA_SLIDER",
+     "link": 14
+    },
+    {
+     "name": "Slider 7",
+     "type": "KG_KREA_SLIDER",
+     "link": null
+    }
+   ],
+   "outputs": [
+    {
+     "name": "conditioning",
+     "type": "CONDITIONING",
+     "links": [
+      15
+     ]
+    },
+    {
+     "name": "slider_report",
+     "type": "STRING",
+     "links": [
+      27
+     ]
+    }
+   ],
+   "properties": {
+    "aux_id": "kgilper/krea-reference",
+    "Node name for S&R": "KGKrea2ConceptSliderStackV1"
+   },
+   "widgets_values": [
+    "",
+    1.0,
+    "reuse between runs - faster tuning"
+   ],
+   "title": "Concept Slider Stack - WITH sliders"
+  },
+  {
+   "id": 13,
+   "type": "KGKrea2ConceptSliderStackV1",
+   "pos": [
+    1640,
+    1240
+   ],
+   "size": [
+    560,
+    260
+   ],
+   "flags": {},
+   "order": 12,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "Krea CLIP",
+     "type": "CLIP",
+     "link": 5
+    },
+    {
+     "name": "Final image prompt",
+     "type": "STRING",
+     "link": null,
+     "widget": {
+      "name": "Final image prompt"
+     }
+    },
+    {
+     "name": "Overall slider reach",
+     "type": "FLOAT",
+     "link": null,
+     "widget": {
+      "name": "Overall slider reach"
+     }
+    },
+    {
+     "name": "Reuse slider studies",
+     "type": "COMBO",
+     "link": null,
+     "widget": {
+      "name": "Reuse slider studies"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "conditioning",
+     "type": "CONDITIONING",
+     "links": [
+      16,
+      18
+     ]
+    },
+    {
+     "name": "slider_report",
+     "type": "STRING",
+     "links": []
+    }
+   ],
+   "properties": {
+    "aux_id": "kgilper/krea-reference",
+    "Node name for S&R": "KGKrea2ConceptSliderStackV1"
+   },
+   "widgets_values": [
+    "boring, dull, blurry, low-quality, text, watermark",
+    1.0,
+    "reuse between runs - faster tuning"
+   ],
+   "title": "Negative prompt (slider stack, no cards)"
+  },
+  {
+   "id": 14,
+   "type": "KGKrea2ConceptSliderStackV1",
+   "pos": [
+    1640,
+    1580
+   ],
+   "size": [
+    560,
+    260
+   ],
+   "flags": {},
+   "order": 13,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "Krea CLIP",
+     "type": "CLIP",
+     "link": 6
+    },
+    {
+     "name": "Final image prompt",
+     "type": "STRING",
+     "link": 8,
+     "widget": {
+      "name": "Final image prompt"
+     }
+    },
+    {
+     "name": "Overall slider reach",
+     "type": "FLOAT",
+     "link": null,
+     "widget": {
+      "name": "Overall slider reach"
+     }
+    },
+    {
+     "name": "Reuse slider studies",
+     "type": "COMBO",
+     "link": null,
+     "widget": {
+      "name": "Reuse slider studies"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "conditioning",
+     "type": "CONDITIONING",
+     "links": [
+      17
+     ]
+    },
+    {
+     "name": "slider_report",
+     "type": "STRING",
+     "links": []
+    }
+   ],
+   "properties": {
+    "aux_id": "kgilper/krea-reference",
+    "Node name for S&R": "KGKrea2ConceptSliderStackV1"
+   },
+   "widgets_values": [
+    "",
+    1.0,
+    "reuse between runs - faster tuning"
+   ],
+   "title": "WITHOUT sliders - same stack, zero cards"
+  },
+  {
+   "id": 15,
+   "type": "EmptyLatentImage",
+   "pos": [
+    2290,
+    1600
+   ],
+   "size": [
+    320,
+    130
+   ],
+   "flags": {},
+   "order": 14,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "width",
+     "type": "INT",
+     "link": null,
+     "widget": {
+      "name": "width"
+     }
+    },
+    {
+     "name": "height",
+     "type": "INT",
+     "link": null,
+     "widget": {
+      "name": "height"
+     }
+    },
+    {
+     "name": "batch_size",
+     "type": "INT",
+     "link": null,
+     "widget": {
+      "name": "batch_size"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "name": "LATENT",
+     "type": "LATENT",
+     "links": [
+      19,
+      20
+     ]
+    }
+   ],
+   "properties": {
+    "cnr_id": "comfy-core",
+    "ver": "0.26.2",
+    "Node name for S&R": "EmptyLatentImage"
+   },
+   "widgets_values": [
+    1024,
+    1536,
+    1
+   ]
+  },
+  {
+   "id": 16,
+   "type": "KSampler",
+   "pos": [
+    2290,
+    700
+   ],
+   "size": [
+    320,
+    300
+   ],
+   "flags": {},
+   "order": 15,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "model",
+     "type": "MODEL",
+     "link": 2
+    },
+    {
+     "name": "positive",
+     "type": "CONDITIONING",
+     "link": 15
+    },
+    {
+     "name": "negative",
+     "type": "CONDITIONING",
+     "link": 16
+    },
+    {
+     "name": "latent_image",
+     "type": "LATENT",
+     "link": 19
+    }
+   ],
+   "outputs": [
+    {
+     "name": "LATENT",
+     "type": "LATENT",
+     "links": [
+      21
+     ]
+    }
+   ],
+   "properties": {
+    "cnr_id": "comfy-core",
+    "ver": "0.26.2",
+    "Node name for S&R": "KSampler"
+   },
+   "widgets_values": [
+    424242,
+    "fixed",
+    8,
+    1,
+    "euler",
+    "simple",
+    1
+   ],
+   "title": "KSampler - WITH sliders"
+  },
+  {
+   "id": 17,
+   "type": "KSampler",
+   "pos": [
+    2290,
+    1120
+   ],
+   "size": [
+    320,
+    300
+   ],
+   "flags": {},
+   "order": 16,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "model",
+     "type": "MODEL",
+     "link": 3
+    },
+    {
+     "name": "positive",
+     "type": "CONDITIONING",
+     "link": 17
+    },
+    {
+     "name": "negative",
+     "type": "CONDITIONING",
+     "link": 18
+    },
+    {
+     "name": "latent_image",
+     "type": "LATENT",
+     "link": 20
+    }
+   ],
+   "outputs": [
+    {
+     "name": "LATENT",
+     "type": "LATENT",
+     "links": [
+      23
+     ]
+    }
+   ],
+   "properties": {
+    "cnr_id": "comfy-core",
+    "ver": "0.26.2",
+    "Node name for S&R": "KSampler"
+   },
+   "widgets_values": [
+    424242,
+    "fixed",
+    8,
+    1,
+    "euler",
+    "simple",
+    1
+   ],
+   "title": "KSampler - WITHOUT sliders (same seed)"
+  },
+  {
+   "id": 18,
+   "type": "VAEDecode",
+   "pos": [
+    2660,
+    700
+   ],
+   "size": [
+    200,
+    60
+   ],
+   "flags": {},
+   "order": 17,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "samples",
+     "type": "LATENT",
+     "link": 21
+    },
+    {
+     "name": "vae",
+     "type": "VAE",
+     "link": 22
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      25
+     ]
+    }
+   ],
+   "properties": {
+    "cnr_id": "comfy-core",
+    "ver": "0.26.2",
+    "Node name for S&R": "VAEDecode"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 19,
+   "type": "VAEDecode",
+   "pos": [
+    2660,
+    1120
+   ],
+   "size": [
+    200,
+    60
+   ],
+   "flags": {},
+   "order": 18,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "samples",
+     "type": "LATENT",
+     "link": 23
+    },
+    {
+     "name": "vae",
+     "type": "VAE",
+     "link": 24
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      26
+     ]
+    }
+   ],
+   "properties": {
+    "cnr_id": "comfy-core",
+    "ver": "0.26.2",
+    "Node name for S&R": "VAEDecode"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 20,
+   "type": "SaveImage",
+   "pos": [
+    2910,
+    660
+   ],
+   "size": [
+    400,
+    460
+   ],
+   "flags": {},
+   "order": 19,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "images",
+     "type": "IMAGE",
+     "link": 25
+    }
+   ],
+   "outputs": [],
+   "properties": {
+    "cnr_id": "comfy-core",
+    "ver": "0.26.2",
+    "Node name for S&R": "SaveImage"
+   },
+   "widgets_values": [
+    "krea-slider-v1"
+   ],
+   "title": "WITH sliders - saved"
+  },
+  {
+   "id": 21,
+   "type": "PreviewImage",
+   "pos": [
+    2910,
+    1180
+   ],
+   "size": [
+    400,
+    420
+   ],
+   "flags": {},
+   "order": 20,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "images",
+     "type": "IMAGE",
+     "link": 26
+    }
+   ],
+   "outputs": [],
+   "properties": {
+    "cnr_id": "comfy-core",
+    "ver": "0.26.2",
+    "Node name for S&R": "PreviewImage"
+   },
+   "widgets_values": [],
+   "title": "WITHOUT sliders - compare"
+  },
+  {
+   "id": 22,
+   "type": "PreviewAny",
+   "pos": [
+    1640,
+    100
+   ],
+   "size": [
+    660,
+    420
+   ],
+   "flags": {},
+   "order": 21,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "source",
+     "type": "*",
+     "link": 27
+    }
+   ],
+   "outputs": [],
+   "properties": {
+    "cnr_id": "comfy-core",
+    "ver": "0.26.2",
+    "Node name for S&R": "PreviewAny"
+   },
+   "widgets_values": [],
+   "title": "Slider report - read this after every queue"
+  },
+  {
+   "id": 23,
+   "type": "Note",
+   "pos": [
+    40,
+    760
+   ],
+   "size": [
+    460,
+    1000
+   ],
+   "flags": {},
+   "order": 22,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [],
+   "properties": {
+    "cnr_id": "comfy-core",
+    "ver": "0.26.2",
+    "Node name for S&R": "Note"
+   },
+   "widgets_values": [
+    "Krea 2 Concept Slider V1 - full showcase\n\nSix user-made sliders on one prompt, plus a same-seed comparison branch.\nQueue once, look at three things: the WITH image, the WITHOUT image, and\nthe slider report (top).\n\nThe sliders:\n1 - brightness +3 (auto poles): the reliable working band.\n2 - fog density +2 (auto): subtle atmosphere. Multi-word descriptions work.\n3 - height -4 (custom poles): a negative direction done right - the decrease\n    pole names concrete stature (\"a very short man with a small compact\n    stature, much shorter than average\"). Vague poles make weak negatives,\n    and raising push does NOT fix wording (render-proven).\n4 - age 0 (auto): parked at 0 - costs zero encoder passes; the report logs\n    the skip. Drag it to taste.\n5 - realism 0 (custom poles): a style axis - drag to -6 for a flat cartoon,\n    +6 for extra photoreal. Custom poles can be two LOOKS, not just amounts.\n6 - color saturation 0 (auto): parked.\n\nThe dial: 0 = exactly your prompt. +/-1..2 subtle, +/-3..4 working band,\n+/-5..6 maximum push (expect reframing and identity drift on people).\n\nTuning ritual:\n1. Queue once. The stack studies each active slider (1 + 2 passes per\n   active slider); parked sliders are free.\n2. Read the slider report: every slider's exact pole sentences, its push,\n   and every skip with a reason.\n3. Drag one Slider value and queue again - with \"reuse between runs\" the\n   report shows 0 new encoder passes: value drags are compose-only.\n\nThe comparison branch: WITHOUT runs the same prompt and seed through a\nslider stack with zero cards. Set every slider to 0 and the two images\ncome out identical - that is the no-change guarantee, and it also means\nthe stack is a drop-in replacement for CLIP Text Encode.\n\nLearn more: docs/concept-slider-v1.md - the full guide with the\nten-slider render audit, the slider-writing cookbook, and the worked\nweak-slider fixes."
+   ],
+   "title": "READ ME - showcase walkthrough"
+  },
+  {
+   "id": 24,
+   "type": "Note",
+   "pos": [
+    2910,
+    1650
+   ],
+   "size": [
+    400,
+    220
+   ],
+   "flags": {},
+   "order": 23,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [],
+   "properties": {
+    "cnr_id": "comfy-core",
+    "ver": "0.26.2",
+    "Node name for S&R": "Note"
+   },
+   "widgets_values": [
+    "WITH vs WITHOUT\n\nBoth samplers share the seed, latent, and negative. The only difference\nis the positive conditioning: sliders vs none.\n\nTry: set all six sliders to 0 and queue - the two images match exactly.\nThen drag brightness to +3 and watch only the left image change."
+   ],
+   "title": "The comparison"
+  }
+ ],
+ "links": [
+  [
+   1,
+   1,
+   0,
+   2,
+   0,
+   "MODEL"
+  ],
+  [
+   2,
+   2,
+   0,
+   16,
+   0,
+   "MODEL"
+  ],
+  [
+   3,
+   2,
+   0,
+   17,
+   0,
+   "MODEL"
+  ],
+  [
+   4,
+   3,
+   0,
+   12,
+   0,
+   "CLIP"
+  ],
+  [
+   5,
+   3,
+   0,
+   13,
+   0,
+   "CLIP"
+  ],
+  [
+   6,
+   3,
+   0,
+   14,
+   0,
+   "CLIP"
+  ],
+  [
+   7,
+   5,
+   0,
+   12,
+   1,
+   "STRING"
+  ],
+  [
+   8,
+   5,
+   0,
+   14,
+   1,
+   "STRING"
+  ],
+  [
+   9,
+   6,
+   0,
+   12,
+   4,
+   "KG_KREA_SLIDER"
+  ],
+  [
+   10,
+   7,
+   0,
+   12,
+   5,
+   "KG_KREA_SLIDER"
+  ],
+  [
+   11,
+   8,
+   0,
+   12,
+   6,
+   "KG_KREA_SLIDER"
+  ],
+  [
+   12,
+   9,
+   0,
+   12,
+   7,
+   "KG_KREA_SLIDER"
+  ],
+  [
+   13,
+   10,
+   0,
+   12,
+   8,
+   "KG_KREA_SLIDER"
+  ],
+  [
+   14,
+   11,
+   0,
+   12,
+   9,
+   "KG_KREA_SLIDER"
+  ],
+  [
+   15,
+   12,
+   0,
+   16,
+   1,
+   "CONDITIONING"
+  ],
+  [
+   16,
+   13,
+   0,
+   16,
+   2,
+   "CONDITIONING"
+  ],
+  [
+   17,
+   14,
+   0,
+   17,
+   1,
+   "CONDITIONING"
+  ],
+  [
+   18,
+   13,
+   0,
+   17,
+   2,
+   "CONDITIONING"
+  ],
+  [
+   19,
+   15,
+   0,
+   16,
+   3,
+   "LATENT"
+  ],
+  [
+   20,
+   15,
+   0,
+   17,
+   3,
+   "LATENT"
+  ],
+  [
+   21,
+   16,
+   0,
+   18,
+   0,
+   "LATENT"
+  ],
+  [
+   22,
+   4,
+   0,
+   18,
+   1,
+   "VAE"
+  ],
+  [
+   23,
+   17,
+   0,
+   19,
+   0,
+   "LATENT"
+  ],
+  [
+   24,
+   4,
+   0,
+   19,
+   1,
+   "VAE"
+  ],
+  [
+   25,
+   18,
+   0,
+   20,
+   0,
+   "IMAGE"
+  ],
+  [
+   26,
+   19,
+   0,
+   21,
+   0,
+   "IMAGE"
+  ],
+  [
+   27,
+   12,
+   1,
+   22,
+   0,
+   "STRING"
+  ]
+ ],
+ "groups": [
+  {
+   "id": 1,
+   "title": "1 - Krea 2 model path",
+   "bounding": [
+    40,
+    20,
+    470,
+    680
+   ],
+   "color": "#334",
+   "font_size": 24,
+   "flags": {}
+  },
+  {
+   "id": 2,
+   "title": "2 - Your prompt",
+   "bounding": [
+    540,
+    20,
+    1030,
+    380
+   ],
+   "color": "#335",
+   "font_size": 24,
+   "flags": {}
+  },
+  {
+   "id": 3,
+   "title": "3 - Six sliders: drag the dials",
+   "bounding": [
+    540,
+    620,
+    1030,
+    950
+   ],
+   "color": "#353",
+   "font_size": 24,
+   "flags": {}
+  },
+  {
+   "id": 4,
+   "title": "4 - Concept Slider stacks (positive / negative / comparison)",
+   "bounding": [
+    1600,
+    620,
+    640,
+    1260
+   ],
+   "color": "#533",
+   "font_size": 24,
+   "flags": {}
+  },
+  {
+   "id": 5,
+   "title": "5 - Same-seed sampling: WITH vs WITHOUT",
+   "bounding": [
+    2250,
+    620,
+    1160,
+    1290
+   ],
+   "color": "#453",
+   "font_size": 24,
+   "flags": {}
+  },
+  {
+   "id": 6,
+   "title": "6 - Slider report",
+   "bounding": [
+    1600,
+    20,
+    760,
+    560
+   ],
+   "color": "#345",
+   "font_size": 24,
+   "flags": {}
+  }
+ ],
+ "config": {},
+ "extra": {
+  "frontendVersion": "1.45.19",
+  "workflow_name": "Krea Concept Slider V1 Showcase Workflow"
+ },
+ "version": 0.4
+}
