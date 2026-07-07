@@ -1,5 +1,62 @@
 # Changelog
 
+## 0.3.0 - True Style Transfer And Render-Audited V10 Recipes
+
+Every V10 recipe was render-audited end to end on the real Krea 2 model
+(fresh public-domain and self-generated references, fixed-seed A/B pairs);
+everything below is proven by renders. V9 behavior is completely untouched.
+
+- **`suggest the visual style` (V10) now does true style transfer.** The old
+  recipe had collapsed into a color-grade twin of the palette recipe; the
+  V10 override moves it to strong-blur preparation with a finish-heavy layer
+  table, so the reference's medium, palette, brushwork character, and finish
+  energy actually arrive. Because the deliberate preparation blur is itself
+  visible to the encoder, the recipe also ships an **anti-blur `focus`**
+  ("...not the image's blurriness or soft focus, and not its subject or
+  scene layout") - without it, soft-medium references (watercolor, gouache,
+  aged photos) made results pervasively soft. Subjects now stay crisp and
+  primary at every strength; capped at `0.65`, lands clearly from about
+  `0.55`. For the strongest content-plus-style results use the documented
+  two-card method (content anchor `0.9` + style card `0.55`).
+- **`copy lighting and mood` (V10) now lands dramatic light.** The inherited
+  palette-wash preparation flattened dramatic skies into flat location tones
+  (a brewing-storm reference delivered a sunny field at every strength). The
+  V10 override studies the reference through a strong blur - keeping the
+  broad light and cloud masses alive - with a de-place `focus` so the mood
+  arrives without the reference's location taking over. Storm mood lands at
+  `0.65`, full drama by `0.9`.
+- **`copy big shapes only` (V10) no longer drains color.** At working
+  strengths the recipe's gray shape-wash study leaked through the deep
+  appearance taps and turned results monochrome. The V10 override uses a
+  structure-only layer table (structure taps x1.3, appearance taps x0.25):
+  silhouette guidance arrives with the prompt's natural colors kept.
+- **`suggest material or texture` (V10) carries real surface character** -
+  textile ornament, fabric weave, ceramic glaze, carved relief - instead of
+  mostly recoloring. Capped at `0.65`; use `0.55` when the object's exact
+  form must not move.
+- **Two new starter recipes** ship in `custom_recipes/starter-pack.yaml`:
+  `borrow drawing medium` (a deliberately gentle monochrome paper-and-ink
+  tonal shift - louder tunings render-provably import the drawing's subject,
+  so the description now says exactly what it can and cannot do) and
+  `borrow photo finish` (photographic tone, contrast, grain, and grade;
+  retuned after the first values proved near-silent - now lands clearly
+  from about `0.55`, capped at `0.65`).
+- **The Recipe Builder generates the current recipes.** Its intent bases
+  were still emitting the pre-retune bundles; they now mirror the shipped
+  values exactly, including the style/lighting focus texts and the
+  style-transfer, material-finish, and structure-only layer tables. All
+  builder outputs re-verified through the pack's real recipe loader.
+- **The full V10 demo set was re-rendered** through the shipped tuning
+  (every PNG still embeds its exact workflow), and the README's strength
+  guidance moved to the render-calibrated bands: appearance recipes land
+  clearly from about `0.55`-`0.65` and whisper below `0.5` by design;
+  structure and identity work at `0.9`-`1.2`.
+- Documentation sync across the V10 user guides, technical paper (recipe
+  tables, override footnotes, worked example), node pages, testing guide,
+  docs index, and the Recipe Kit README - including honest notes on what
+  the conditioning cannot do (no brushwork-repaint onto surfaces, no
+  scene-behind-subject compositing, drawing-medium-without-its-subject).
+
 ## 0.2.1 - Sharper Listing Description
 
 - The package description now says exactly what the nodes do - guide cards
