@@ -40,6 +40,8 @@ Start here if you want to understand, install, or extend Krea Reference.
 - [KG Krea 2 Reference Stack Encoder V10](nodes/kg-krea-2-reference-stack-encoder-v10.md)
 - [KG Krea 2 Image Guide Card V9](nodes/kg-krea-2-image-guide-card-v9.md)
 - [KG Krea 2 Reference Stack Encoder V9](nodes/kg-krea-2-reference-stack-encoder-v9.md)
+- [KG Krea 2 Concept Slider Card V1](nodes/kg-krea-2-concept-slider-card-v1.md)
+- [KG Krea 2 Concept Slider Stack V1](nodes/kg-krea-2-concept-slider-stack-v1.md)
 
 ## Demo Assets
 
