@@ -22,6 +22,13 @@ individual PNG in [docs/assets/krea-v9/demos](docs/assets/krea-v9/demos/) has
 ComfyUI workflow metadata embedded, so you can drag a demo PNG into ComfyUI to
 inspect the exact setup.
 
+## Support
+
+Krea Reference is free for everyone. If it saves you time and you feel like
+making a one-time contribution, you can do that through
+[GitHub Sponsors](https://github.com/sponsors/kgilper?frequency=one-time).
+Useful issues, examples, and feedback help too.
+
 ## What It Helps You Do
 
 | Goal | How to set it up |
