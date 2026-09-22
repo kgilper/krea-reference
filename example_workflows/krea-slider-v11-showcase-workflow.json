@@ -715,7 +715,8 @@
         1.0,
         "reuse between runs - faster tuning",
         2.0,
-        0.4
+        0.4,
+        "automatic"
       ],
       "title": "Concept Slider Stack - WITH sliders"
     },
@@ -788,7 +789,8 @@
         1.0,
         "reuse between runs - faster tuning",
         2.0,
-        0.4
+        0.4,
+        "automatic"
       ],
       "title": "Negative prompt (slider stack, no cards)"
     },
@@ -860,7 +862,8 @@
         1.0,
         "reuse between runs - faster tuning",
         2.0,
-        0.4
+        0.4,
+        "automatic"
       ],
       "title": "WITHOUT sliders - same stack, zero cards"
     },
@@ -1245,7 +1248,7 @@
         "Node name for S&R": "Note"
       },
       "widgets_values": [
-        "Krea V11 opt-in example\n\nSee docs/krea-v11-user-guide.md. Existing V9/V10/V1 graphs are unchanged.\nReference balance stays off unless selected.\nSlider total budget defaults to 2; start with one nonzero card.\nTiming and presets are creative controls, not identity or framing guarantees.\nNear zero blends toward the plain prompt; compare both signs.\nChoose installed model files and replace sample image filenames before queueing."
+        "Krea V11 opt-in example\n\nSee docs/krea-v11-user-guide.md. Existing V9/V10/V1 graphs are unchanged.\nReference balance stays off unless selected.\nSlider total budget defaults to 2; start with one nonzero card.\nTiming and presets are creative controls, not identity or framing guarantees.\nNear zero blends toward the plain prompt; compare both signs.\nChoose installed model files and replace sample image filenames before queueing.\nAutomatic scaling sizes reach/budget to active cards. Manual reach and budget are ignored in automatic mode. Effective values appear in the slider report. Choose manual for prior behavior."
       ],
       "title": "READ ME - showcase walkthrough"
     },
@@ -1271,7 +1274,7 @@
         "Node name for S&R": "Note"
       },
       "widgets_values": [
-        "Krea V11 opt-in example\n\nSee docs/krea-v11-user-guide.md. Existing V9/V10/V1 graphs are unchanged.\nReference balance stays off unless selected.\nSlider total budget defaults to 2; start with one nonzero card.\nTiming and presets are creative controls, not identity or framing guarantees.\nNear zero blends toward the plain prompt; compare both signs.\nChoose installed model files and replace sample image filenames before queueing."
+        "Krea V11 opt-in example\n\nSee docs/krea-v11-user-guide.md. Existing V9/V10/V1 graphs are unchanged.\nReference balance stays off unless selected.\nSlider total budget defaults to 2; start with one nonzero card.\nTiming and presets are creative controls, not identity or framing guarantees.\nNear zero blends toward the plain prompt; compare both signs.\nChoose installed model files and replace sample image filenames before queueing.\nAutomatic scaling sizes reach/budget to active cards. Manual reach and budget are ignored in automatic mode. Effective values appear in the slider report. Choose manual for prior behavior."
       ],
       "title": "The comparison"
     }

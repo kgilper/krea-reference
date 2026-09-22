@@ -105,6 +105,43 @@ class V11Tests(unittest.TestCase):
         weights, _ = self.nodes.slider_encoder.budget_weights(self.nodes.slider_encoder.grouped_sliders([a, b]), 2)
         self.assertEqual(weights, [[1, 1], [1, 1]])
 
+    def test_automatic_keeps_independent_card_requests_until_ceiling(self):
+        groups = [{'weights': [1, 1]}, {'weights': [2 / 3, 2 / 3]}, {'weights': [-4 / 3, -4 / 3]}]
+        reach, budget = self.nodes.slider_encoder.automatic_controls(groups)
+        self.assertEqual(reach, 1)
+        self.assertEqual(budget, 3)
+        self.assertEqual(self.nodes.slider_encoder.budget_weights(groups, budget)[1], [1, 1])
+
+    def test_automatic_limits_extremes_without_amplifying_small_values(self):
+        controls = self.nodes.slider_encoder.automatic_controls
+        self.assertEqual(controls([{'weights': [.01, 0]}]), (1, .01))
+        self.assertEqual(controls([]), (1, 0))
+        reach, budget = controls([{'weights': [2, 2]} for _ in range(8)])
+        self.assertEqual(budget, 6)
+        self.assertEqual(reach, .375)
+        self.assertEqual(16 * reach, 6)
+
+    def test_automatic_accounts_for_cancellation_and_phase_overlap(self):
+        group = self.nodes.slider_encoder.grouped_sliders
+        controls = self.nodes.slider_encoder.automatic_controls
+        self.assertEqual(controls(group([self.slider(), self.slider(reverse=True)])), (1, 0))
+        self.assertEqual(controls(group([self.slider(2, 'early layout only'), self.slider(-2, 'final details only')])), (1, 2))
+
+    def test_automatic_ignores_manual_zero_and_bypasses_cancelled_axes(self):
+        stack = self.nodes.KGKrea2ConceptSliderStackV11()
+        class Clip:
+            def tokenize(self, text): return text
+            def encode_from_tokens_scheduled(self, tokens): return ['plain', tokens]
+        with patch.object(stack, '_collect_sliders', return_value=([], [])) as collect:
+            result = stack.execute(**{'Krea CLIP': Clip(), 'Final image prompt': 'hello',
+                'Slider scaling mode': 'automatic', 'Overall slider reach': 0, 'Combined slider budget': 0})
+            self.assertEqual(collect.call_args.args[1], 1)
+            self.assertEqual(result[0], ['plain', 'hello'])
+
+    def test_scaling_mode_is_optional_and_legacy_default_is_manual(self):
+        inputs = self.nodes.KGKrea2ConceptSliderStackV11.INPUT_TYPES()
+        self.assertEqual(inputs['optional']['Slider scaling mode'][1]['default'], 'manual')
+
     def test_neutral_blend_preserves_endpoints_and_metadata(self):
         plain = [['plain', {'attention_mask': 'a'}]]
         steered = [['steered', {'attention_mask': 'b'}]]
