@@ -29,3 +29,18 @@ NODE_DISPLAY_NAME_MAPPINGS = {
 }
 
 __all__ = ["NODE_CLASS_MAPPINGS", "NODE_DISPLAY_NAME_MAPPINGS", "WEB_DIRECTORY"]
+
+from .kg_krea_v11 import KGKrea2ImageGuideCardV11, KGTextEncodeKreaImageReferencesV11, KGKrea2ConceptSliderCardV11, KGKrea2ConceptSliderStackV11
+
+NODE_CLASS_MAPPINGS.update({
+    "KGKrea2ImageGuideCardV11": KGKrea2ImageGuideCardV11,
+    "KGTextEncodeKreaImageReferencesV11": KGTextEncodeKreaImageReferencesV11,
+    "KGKrea2ConceptSliderCardV11": KGKrea2ConceptSliderCardV11,
+    "KGKrea2ConceptSliderStackV11": KGKrea2ConceptSliderStackV11,
+})
+NODE_DISPLAY_NAME_MAPPINGS.update({
+    "KGKrea2ImageGuideCardV11": "KG Krea 2 Image Guide Card V11",
+    "KGTextEncodeKreaImageReferencesV11": "KG Krea 2 Reference Stack Encoder V11",
+    "KGKrea2ConceptSliderCardV11": "KG Krea 2 Concept Slider Card V11",
+    "KGKrea2ConceptSliderStackV11": "KG Krea 2 Concept Slider Stack V11",
+})
