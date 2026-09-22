@@ -17,6 +17,19 @@ class V11Tests(unittest.TestCase):
     def target(self, values, pooled=0):
         return {'token': values[0], 'pooled': pooled, 'token_layers': [v - 1 for v in values]}
 
+    def test_portable_v11_examples_use_only_v11_card_and_stack_classes(self):
+        import json
+        root = Path(__file__).resolve().parents[1] / 'example_workflows'
+        expected = {
+            'krea-v11-reference-stack-workflow.json': {'KGKrea2ImageGuideCardV11', 'KGTextEncodeKreaImageReferencesV11'},
+            'krea-slider-v11-showcase-workflow.json': {'KGKrea2ConceptSliderCardV11', 'KGKrea2ConceptSliderStackV11'},
+        }
+        prefixes = ('KGKrea2ImageGuideCard', 'KGTextEncodeKreaImageReferences', 'KGKrea2ConceptSliderCard', 'KGKrea2ConceptSliderStack')
+        for filename, wanted in expected.items():
+            graph = json.loads((root / filename).read_text())
+            classes = {n['type'] for n in graph['nodes'] if n['type'].startswith(prefixes)}
+            self.assertEqual(classes, wanted, filename)
+
     def test_balance_never_reverses_away_or_restores_zero(self):
         targets = [self.target([-0.1, 0, -6]) for _ in range(4)]
         scale = self.nodes.encoder.balance_targets(targets, 1.5)

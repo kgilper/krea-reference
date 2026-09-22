@@ -145,3 +145,5 @@ The V10 workflows additionally use the core `Preview Any` and `Preview Image` no
 - [Krea 2 V9 documentation index](../docs/krea-v9-documentation-index.md)
 - [KG Krea 2 Image Guide Card V9](../docs/nodes/kg-krea-2-image-guide-card-v9.md)
 - [KG Krea 2 Reference Stack Encoder V9](../docs/nodes/kg-krea-2-reference-stack-encoder-v9.md)
+
+[V11 worked examples and troubleshooting](../docs/krea-v11-worked-examples.md) covers product/style guidance, counter-examples, brightness, custom poles, presets, timing, budgets, caching and migration.

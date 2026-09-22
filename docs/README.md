@@ -56,3 +56,5 @@ Start here if you want to understand, install, or extend Krea Reference.
 - [Recipe visual guide figures](assets/recipe-visual-guide/) - reference, prompt-alone, and with-card panels for all 32 recipes
 - [Concept Slider audit sheets](assets/concept-slider/) - ten user-defined sliders swept across the dial at fixed seed
 - [Synthetic source images](../example_assets/krea-reference-examples/)
+
+[V11 worked examples and troubleshooting](krea-v11-worked-examples.md) covers product/style guidance, counter-examples, brightness, custom poles, presets, timing, budgets, caching and migration.

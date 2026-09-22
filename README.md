@@ -278,3 +278,5 @@ python -m compileall -q kg_krea_v9 kg_krea_v10 kg_krea_slider __init__.py
 ## License
 
 MIT. See [LICENSE](LICENSE).
+
+[V11 worked examples and troubleshooting](docs/krea-v11-worked-examples.md) covers product/style guidance, counter-examples, brightness, custom poles, presets, timing, budgets, caching and migration.
