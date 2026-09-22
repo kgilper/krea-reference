@@ -1,18 +1,10 @@
-# Node Documentation Index
+# V11 node index
 
-Every registered node in this package has a page here.
+| Display name | Serialized class | Usage |
+|---|---|---|
+| KG Krea2 Image Guide Card V11 | `KGKrea2ImageGuideCardV11` | [Reference controls](../krea-v11-user-guide.md#reference-controls) |
+| KG Krea2 Reference Stack Encoder V11 | `KGTextEncodeKreaImageReferencesV11` | [Reference wiring](../krea-v11-user-guide.md#reference-wiring) |
+| KG Krea2 Concept Slider Card V11 | `KGKrea2ConceptSliderCardV11` | [Slider controls](../krea-v11-user-guide.md#slider-controls) |
+| KG Krea2 Concept Slider Stack V11 | `KGKrea2ConceptSliderStackV11` | [Slider wiring](../krea-v11-user-guide.md#slider-wiring) |
 
-## Krea 2 V10
-
-- [KG Krea 2 Image Guide Card V10](kg-krea-2-image-guide-card-v10.md)
-- [KG Krea 2 Reference Stack Encoder V10](kg-krea-2-reference-stack-encoder-v10.md)
-
-## Krea 2 V9
-
-- [KG Krea 2 Image Guide Card V9](kg-krea-2-image-guide-card-v9.md)
-- [KG Krea 2 Reference Stack Encoder V9](kg-krea-2-reference-stack-encoder-v9.md)
-
-## Concept Slider V1
-
-- [KG Krea 2 Concept Slider Card V1](kg-krea-2-concept-slider-card-v1.md)
-- [KG Krea 2 Concept Slider Stack V1](kg-krea-2-concept-slider-stack-v1.md)
+[Illustrated examples](../krea-v11-gallery.md) · [Cookbook](../krea-v11-worked-examples.md) · [Prior-version node guides](../previous-versions/README.md)

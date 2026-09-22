@@ -1,5 +1,9 @@
 # Krea V11 worked examples
 
+[View the V11 example gallery](krea-v11-gallery.md): synthetic reference inputs, reference-guided outputs, a slider value comparison and the native showcase result.
+
+![V11 example output](assets/krea-v11/reference-style.png)
+
 These examples use the four V11 node classes listed in the [user guide](krea-v11-user-guide.md). They are starting points for controlled exploration, not guarantees of identity preservation or perfectly isolated edits. Keep the seed fixed while comparing settings. Change one control at a time, then try several seeds before choosing a setting.
 
 The two downloadable ComfyUI graphs are [Reference starter](../example_workflows/krea-v11-reference-stack-workflow.json) and [Concept Slider showcase](../example_workflows/krea-slider-v11-showcase-workflow.json). Load them as workflows, select your installed model files, and replace reference-image placeholders. Both contain V11 cards and V11 stacks throughout. Examples below describe edits to those graphs; they are not additional downloaded workflows.

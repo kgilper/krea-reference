@@ -1,5 +1,9 @@
 # Krea Reference V11
 
+[View the V11 example gallery](krea-v11-gallery.md): synthetic reference inputs, reference-guided outputs, a slider value comparison and the native showcase result.
+
+![V11 example output](assets/krea-v11/reference-style.png)
+
 V11 is an explicit alternative to the V9/V10 reference nodes and Concept Slider V1. Existing graphs keep their original node classes and behavior. The `balanced` recipe and all V10 recipe tables are reused without retuning.
 
 
@@ -44,7 +48,7 @@ The Comfy slider stack accepts up to eight cards; the Studio slider package expo
 
 ## Reference controls
 
-Recipe selection supplies coordinated settings; manual controls are not universally independent overrides of a quick recipe. Start with `Use image for`, strength, direction and timing. The inherited [guide-card field reference](nodes/kg-krea-2-image-guide-card-v10.md) describes unchanged recipe/manual behavior; the balance/cache changes below are V11-specific.
+Recipe selection supplies coordinated settings; manual controls are not universally independent overrides of a quick recipe. Start with `Use image for`, strength, direction and timing. The inherited [guide-card field reference](previous-versions/v10/nodes/kg-krea-2-image-guide-card-v10.md) describes unchanged recipe/manual behavior; the balance/cache changes below are V11-specific.
 
 | Card control | Purpose / practical use |
 |---|---|

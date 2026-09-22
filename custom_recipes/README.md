@@ -14,7 +14,7 @@ This folder is the complete kit for creating recipes:
 | [edit-composite-pack.yaml](edit-composite-pack.yaml) | Five render-validated recipes for editing and compositing, **loaded automatically**: `match the scene light`, `match the monochrome look`, `match the atmosphere`, `use the background only`, `carry the subject over`. |
 | [_example-vintage-postcard.yaml](_example-vintage-postcard.yaml) | A fully-commented single-recipe template (disabled until you rename it). |
 | This README | The schema, what every field really does on Krea 2, the `focus` field, the layer math, and the render-validation ritual. |
-| [Technical reference](../docs/krea-v10-technical-paper.md) | The standalone V10 paper: every widget, every table, all the math. |
+| [Technical reference](../docs/previous-versions/v10/krea-v10-technical-paper.md) | The standalone V10 paper: every widget, every table, all the math. |
 
 Files can also live in `<ComfyUI user dir>/krea_reference/recipes/`, which
 survives reinstalling or updating this node pack. Files whose names start
@@ -307,9 +307,9 @@ logged warning). Ship the recipe file alongside shared workflows.
 
 ## Learn More
 
-- [Creating recipes - full guide section](../docs/krea-v10-user-guide.md#create-your-own-recipes)
-- [Guide Card V10 node docs](../docs/nodes/kg-krea-2-image-guide-card-v10.md)
-- [Technical companion - loader and validation](../docs/krea-v10-technical-paper.md)
+- [Creating recipes - full guide section](../docs/previous-versions/v10/krea-v10-user-guide.md#create-your-own-recipes)
+- [Guide Card V10 node docs](../docs/previous-versions/v10/nodes/kg-krea-2-image-guide-card-v10.md)
+- [Technical companion - loader and validation](../docs/previous-versions/v10/krea-v10-technical-paper.md)
 - [How the 12 taps were determined](../docs/deepstack-layers/README.md) - the
   model-verified account of what the layers scale and how the tables were
   derived and re-derived by render measurement.

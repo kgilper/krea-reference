@@ -1,0 +1,193 @@
+{
+  "note": "Synthetic examples; display PNGs have no embedded workflow. For these 512x512 comparisons use Krea turbo INT8 ConvRot, Krea Qwen3-VL FP8 scaled, Qwen image VAE and shift 3.14. See README for input provenance and the separate NVFP4 native showcase.",
+  "examples": [
+    {
+      "image": "reference-anchor.png",
+      "kind": "V11 result",
+      "sampler": {
+        "seed": 424242,
+        "steps": 8,
+        "cfg": 1.0,
+        "sampler_name": "euler",
+        "scheduler": "simple",
+        "denoise": 1.0
+      },
+      "conditioning": {
+        "Final image prompt": "A studio photograph of the same amber ceramic teapot with cobalt handle on a pale stone pedestal, full object visible, centered against a clean warm gray backdrop, crisp detail, no other objects, no lettering.",
+        "Written prompt strength": 1.0,
+        "Image slider feel": "artist friendly - soft at low values",
+        "Image detail level": "medium - balanced default (384)",
+        "Image framing": "keep full image shape",
+        "When images guide": "smart per-card timing",
+        "Early-to-final handoff": 0.4,
+        "Text/logo guard prompt handling": "gentle guard - keep my prompt words",
+        "Balance strong cards": "off - use my values",
+        "Reuse image studies": "always re-study"
+      },
+      "cards": [
+        {
+          "How strongly this image guides": 0.65,
+          "Use image for": "balanced",
+          "Manual mode borrows": "overall image",
+          "Prepare image by": "use image as-is",
+          "Color kept": 1.0,
+          "Small details kept": 1.0,
+          "Study this image at": "use stack setting",
+          "Frame this reference by": "use stack setting",
+          "Subject copying": "recipe decides",
+          "Early layout guidance": 1.0,
+          "Final detail copying": 1.0,
+          "Maximum image pull": 3.0,
+          "Shape copied": 1.0,
+          "Overall style reach": 1.0,
+          "Guide direction": "toward this image",
+          "When this card guides": "recipe decides",
+          "Structure layers pull": 1.0,
+          "Finish layers pull": 1.0
+        }
+      ]
+    },
+    {
+      "image": "reference-style.png",
+      "kind": "V11 result",
+      "sampler": {
+        "seed": 424242,
+        "steps": 8,
+        "cfg": 1.0,
+        "sampler_name": "euler",
+        "scheduler": "simple",
+        "denoise": 1.0
+      },
+      "conditioning": {
+        "Final image prompt": "A studio photograph of the same amber ceramic teapot with cobalt handle on a pale stone pedestal, full object visible, centered against a clean warm gray backdrop, crisp detail, no other objects, no lettering.",
+        "Written prompt strength": 1.0,
+        "Image slider feel": "artist friendly - soft at low values",
+        "Image detail level": "medium - balanced default (384)",
+        "Image framing": "keep full image shape",
+        "When images guide": "smart per-card timing",
+        "Early-to-final handoff": 0.4,
+        "Text/logo guard prompt handling": "gentle guard - keep my prompt words",
+        "Balance strong cards": "gentle sign-preserving balance",
+        "Reuse image studies": "always re-study"
+      },
+      "cards": [
+        {
+          "How strongly this image guides": 0.9,
+          "Use image for": "keep the same subject",
+          "Manual mode borrows": "overall image",
+          "Prepare image by": "use image as-is",
+          "Color kept": 1.0,
+          "Small details kept": 1.0,
+          "Study this image at": "use stack setting",
+          "Frame this reference by": "use stack setting",
+          "Subject copying": "recipe decides",
+          "Early layout guidance": 1.0,
+          "Final detail copying": 1.0,
+          "Maximum image pull": 3.0,
+          "Shape copied": 1.0,
+          "Overall style reach": 1.0,
+          "Guide direction": "toward this image",
+          "When this card guides": "recipe decides",
+          "Structure layers pull": 1.0,
+          "Finish layers pull": 1.0
+        },
+        {
+          "How strongly this image guides": 0.55,
+          "Use image for": "suggest the visual style",
+          "Manual mode borrows": "overall image",
+          "Prepare image by": "use image as-is",
+          "Color kept": 1.0,
+          "Small details kept": 1.0,
+          "Study this image at": "use stack setting",
+          "Frame this reference by": "use stack setting",
+          "Subject copying": "recipe decides",
+          "Early layout guidance": 1.0,
+          "Final detail copying": 1.0,
+          "Maximum image pull": 3.0,
+          "Shape copied": 1.0,
+          "Overall style reach": 1.0,
+          "Guide direction": "toward this image",
+          "When this card guides": "recipe decides",
+          "Structure layers pull": 1.0,
+          "Finish layers pull": 1.0
+        }
+      ]
+    },
+    {
+      "image": "slider-neutral.png",
+      "kind": "plain-prompt control",
+      "sampler": {
+        "seed": 424242,
+        "steps": 8,
+        "cfg": 1.0,
+        "sampler_name": "euler",
+        "scheduler": "simple",
+        "denoise": 1.0
+      },
+      "conditioning": {
+        "Final image prompt": "A natural studio photograph of an amber ceramic teapot with a cobalt blue handle on a pale stone pedestal, moderately lit gray backdrop, full object visible, crisp glaze.",
+        "Overall slider reach": 1.0,
+        "Reuse slider studies": "always re-study"
+      },
+      "cards": []
+    },
+    {
+      "image": "slider-tiny-positive.png",
+      "kind": "V11 result",
+      "sampler": {
+        "seed": 424242,
+        "steps": 8,
+        "cfg": 1.0,
+        "sampler_name": "euler",
+        "scheduler": "simple",
+        "denoise": 1.0
+      },
+      "conditioning": {
+        "Final image prompt": "A natural studio photograph of an amber ceramic teapot with a cobalt blue handle on a pale stone pedestal, moderately lit gray backdrop, full object visible, crisp glaze.",
+        "Overall slider reach": 1.0,
+        "Reuse slider studies": "always re-study",
+        "Combined slider budget": 2.0,
+        "Early-to-final handoff": 0.4
+      },
+      "cards": [
+        {
+          "What this slider changes": "brightness",
+          "Slider value": 0.05,
+          "What +6 looks like (optional)": "",
+          "What -6 looks like (optional)": "",
+          "Slider preset": "custom or automatic",
+          "When this slider guides": "whole image"
+        }
+      ]
+    },
+    {
+      "image": "slider-brightness-positive.png",
+      "kind": "V11 result",
+      "sampler": {
+        "seed": 424242,
+        "steps": 8,
+        "cfg": 1.0,
+        "sampler_name": "euler",
+        "scheduler": "simple",
+        "denoise": 1.0
+      },
+      "conditioning": {
+        "Final image prompt": "A natural studio photograph of an amber ceramic teapot with a cobalt blue handle on a pale stone pedestal, moderately lit gray backdrop, full object visible, crisp glaze.",
+        "Overall slider reach": 1.0,
+        "Reuse slider studies": "always re-study",
+        "Combined slider budget": 2.0,
+        "Early-to-final handoff": 0.4
+      },
+      "cards": [
+        {
+          "What this slider changes": "brightness",
+          "Slider value": 3,
+          "What +6 looks like (optional)": "",
+          "What -6 looks like (optional)": "",
+          "Slider preset": "custom or automatic",
+          "When this slider guides": "whole image"
+        }
+      ]
+    }
+  ]
+}

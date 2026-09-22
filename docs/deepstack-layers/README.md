@@ -273,7 +273,7 @@ levels for the variance decomposition.
 | [analyze_tables.py](analyze_tables.py) | Prints the five tables' designed shape from live code. | now, local |
 | [extract_model_prior.py](extract_model_prior.py) | Extracts the model's learned per-tap weighting from a checkpoint. | now (reads model file) |
 | [compare_to_model_prior.py](compare_to_model_prior.py) | Stage 0: tables vs. the model prior. | now, local |
-| [probe_node/](probe_node/) | ComfyUI node that saves per-tap conditioning signatures. | install on box |
+| [probe_node/](probe_node) | ComfyUI node that saves per-tap conditioning signatures. | install on box |
 | [probe_selectivity.py](probe_selectivity.py) | Stage 1: tap x attribute selectivity + self-test. | now (selftest), needs data (real) |
 | [generate_probe_graphs.py](generate_probe_graphs.py) | Builds the encode-only probe graphs. | now (dry-run), needs box (encode) |
 | [generate_sweep.py](generate_sweep.py) | Stage 2: single-tap render sweep. | needs V10 box |
@@ -281,6 +281,6 @@ levels for the variance decomposition.
 
 ## Cross-references
 
-- [V9 technical paper 5.2](../krea-v9-technical-paper.md#52-per-layer-gains-steering-inside-the-token-channel) - the channel math (inherits the "deepstack" naming corrected here).
-- [V9 technical paper 16.4](../krea-v9-technical-paper.md#164-re-tune-layer-gains-for-a-new-checkpoint) - the render-sweep methodology.
+- [V9 technical paper 5.2](../previous-versions/v9/krea-v9-technical-paper.md#52-per-layer-gains-steering-inside-the-token-channel) - the channel math (inherits the "deepstack" naming corrected here).
+- [V9 technical paper 16.4](../previous-versions/v9/krea-v9-technical-paper.md#164-re-tune-layer-gains-for-a-new-checkpoint) - the render-sweep methodology.
 - [custom_recipes/README.md](../../custom_recipes/README.md#deriving-the-layers-array) - authoring a `layers` array from this structure.
