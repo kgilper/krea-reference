@@ -1,5 +1,13 @@
 # Example Workflows
 
+## V11 opt-in examples
+
+- [Reference starter](krea-v11-reference-stack-workflow.json): the established reference topology with V11 classes; balance starts off. Replace the sample image filenames and select your installed models.
+- [Concept Slider showcase](krea-slider-v11-showcase-workflow.json): six cards, combined budget 2, per-card presets/timing and a same-seed plain comparison. Start with one nonzero card. Near-zero values blend toward the plain prompt; larger changes can still reframe the subject.
+
+See the [V11 guide](../docs/krea-v11-user-guide.md). Existing example files remain available unchanged.
+
+
 This folder contains the Concept Slider, V10, and V9 starter workflows. The Load Image nodes use the included synthetic example filenames; copy `../example_assets/krea-reference-examples/` into your ComfyUI input folder, or replace the Load Image nodes with your own test images before queueing. (The Concept Slider workflow needs no images at all.)
 
 The examples intentionally avoid LoRA and model-enhancer plumbing so the graph stays focused on Krea plus the reference and slider nodes.

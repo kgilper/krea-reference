@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.0 - Opt-in V11 Reference and Slider Controls
+
+- Add four separate V11 nodes, preserving existing V9/V10/V1 workflows and recipe defaults.
+- Preserve signed reference targets under balancing and hash complete prepared images with encoder-revision-aware study caching.
+- Group duplicate/opposite slider axes, bound their combined coefficients and add early/final timing plus person-height and plaza-crowd presets.
+- Smooth the transition from zero to tiny slider values with plain/steered conditioning; preserve exact zero bypass and ordinary working-band composition.
+- Include portable V11 examples and documentation covering tested behavior, extra near-neutral compute and remaining style/identity limitations.
+
+
 ## 0.4.0 - Concept Sliders And The Recipe Visual Guide
 
 - **Two new nodes: Concept Slider V1.** `KG Krea 2 Concept Slider Card V1`

@@ -1,5 +1,10 @@
 # ComfyUI Krea Reference
 
+## V11 controls
+
+V11 adds sign-preserving reference balance, full-content study caching, a combined slider budget, early/final timing, concrete presets, and a smoother transition near zero. Existing V9/V10/V1 graphs keep their behavior; there is no automatic migration. See the [V11 guide](docs/krea-v11-user-guide.md) and [portable examples](example_workflows/README.md). Strong controls can still alter framing or identity.
+
+
 Give each reference image a job, and every attribute a dial.
 
 Krea Reference is a small ComfyUI custom-node package for directing Krea 2.

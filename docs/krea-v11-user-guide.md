@@ -14,6 +14,7 @@ For attributes, use **KG Krea 2 Concept Slider Card V11** with **KG Krea 2 Conce
 - Image-study keys hash the full prepared image content and include the CLIP patch revision. Unknown patch revisions bypass the cache. In-place model modifications outside Comfy's revision protocol require `always re-study`.
 - Slider stacks group duplicate/opposite pole pairs before encoding and budget their total absolute coefficients separately for early/final phases. Default total budget is 2, equal to a single full-range slider at reach 1; up to 6 can be selected deliberately.
 - Per-card timing can affect the whole image, early layout, or final details. The stack handoff defaults to 0.4. Timing is a creative control, not a promise that late influence preserves every structure.
+- Near neutral, total applied axis weight below 0.25 blends the plain prompt and steered conditioning branches. Zero remains exactly plain; larger working values retain the existing composition. This transition can add a denoiser branch and cost more near zero.
 - Zero overall reach, zero budget, or fully cancelled axes bypass pole encoding entirely. Unsupported active token-muting hosts raise a clear error instead of producing a silent slider.
 
 ## Compatibility and limitations
@@ -26,6 +27,10 @@ Reference image preparation stays at the accepted V10 behavior until controlled 
 
 ## Validation and rollback
 
-The initial implementation passes the existing contract suite plus V11 regression tests. Image-quality acceptance and portable example graphs are being evaluated separately; a passing code test is not a visual-quality claim.
+The 105-test contract suite passes. Live synthetic comparisons verified exact neutral bypass for zero reach, zero budget and cancelled axes. At brightness +/-0.05 over ten seeds, V11 stayed closer to the zero image in all 20 comparisons; mean absolute RGB difference fell from 37.52 to 5.02 on a 0-255 scale. This is one prompt/model continuity benchmark, not a general image-quality score. The ordinary +3 brightness output matched Slider V1 in three same-seed comparisons, and the balanced reference recipe with balancing off matched V10 in three comparisons.
+
+Style-reference borders and weak fine-texture transfer remain possible. Person-height and plaza-crowd presets do not guarantee identity, framing, clothing, or anatomy preservation. Decreasing a crowd can still be weak. Reference preparation and recipe tables are unchanged.
+
+Portable ComfyUI graphs: [reference starter](../example_workflows/krea-v11-reference-stack-workflow.json) and [slider showcase](../example_workflows/krea-slider-v11-showcase-workflow.json). Choose the model files installed on your host; reference examples use replaceable sample-image filenames. See the [technical notes](krea-v11-technical-notes.md) for the coefficient and cache contract.
 
 Rollback is workflow selection: choose the unchanged V10 reference stack or Slider V1 stack and the original workflow copy. Keeping V11 installed does not change existing node behavior. Do not delete older nodes or overwrite saved workflow files during migration.

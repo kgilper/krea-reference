@@ -1,5 +1,11 @@
 # Documentation
 
+## V11
+
+- [User guide](krea-v11-user-guide.md)
+- [Technical notes](krea-v11-technical-notes.md)
+
+
 Start here if you want to understand, install, or extend Krea Reference.
 
 ![Krea V9 recipe demo output gallery](assets/krea-v9/demos/recipe-gallery.png)
