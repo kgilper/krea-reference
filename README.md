@@ -280,3 +280,5 @@ python -m compileall -q kg_krea_v9 kg_krea_v10 kg_krea_slider __init__.py
 MIT. See [LICENSE](LICENSE).
 
 [V11 worked examples and troubleshooting](docs/krea-v11-worked-examples.md) covers product/style guidance, counter-examples, brightness, custom poles, presets, timing, budgets, caching and migration.
+
+Run V11 without Photo Studio: download the [native ComfyUI Reference starter](example_workflows/krea-v11-reference-stack-workflow.json) or [Concept Slider showcase](example_workflows/krea-slider-v11-showcase-workflow.json), then follow the [load-and-run instructions](example_workflows/README.md#open-directly-in-comfyui).

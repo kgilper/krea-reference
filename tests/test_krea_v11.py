@@ -27,6 +27,13 @@ class V11Tests(unittest.TestCase):
         prefixes = ('KGKrea2ImageGuideCard', 'KGTextEncodeKreaImageReferences', 'KGKrea2ConceptSliderCard', 'KGKrea2ConceptSliderStack')
         for filename, wanted in expected.items():
             graph = json.loads((root / filename).read_text())
+            self.assertEqual(graph['version'], 0.4, filename)
+            self.assertNotIn('workflow', graph, 'Must be native canvas JSON, not a Studio wrapper')
+            nodes = {node['id']: node for node in graph['nodes']}
+            for link_id, source, output, target, input_index, _socket in graph['links']:
+                self.assertEqual(nodes[target]['inputs'][input_index]['link'], link_id)
+                self.assertIn(link_id, nodes[source]['outputs'][output]['links'])
+            self.assertTrue(any(node['type'] == 'SaveImage' for node in nodes.values()))
             classes = {n['type'] for n in graph['nodes'] if n['type'].startswith(prefixes)}
             self.assertEqual(classes, wanted, filename)
 
