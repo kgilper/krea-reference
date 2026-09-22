@@ -85,6 +85,17 @@ class V11Tests(unittest.TestCase):
         weights, _ = self.nodes.slider_encoder.budget_weights(self.nodes.slider_encoder.grouped_sliders([a, b]), 2)
         self.assertEqual(weights, [[1, 1], [1, 1]])
 
+    def test_neutral_blend_preserves_endpoints_and_metadata(self):
+        plain = [['plain', {'attention_mask': 'a'}]]
+        steered = [['steered', {'attention_mask': 'b'}]]
+        blend = self.nodes.slider_encoder.blend_neutral
+        self.assertIs(blend(plain, steered, 0), plain)
+        self.assertIs(blend(plain, steered, 1), steered)
+        mixed = blend(plain, steered, 0.1)
+        self.assertEqual([v[1]['strength'] for v in mixed], [0.9, 0.1])
+        self.assertEqual([v[1]['attention_mask'] for v in mixed], ['a', 'b'])
+        self.assertNotIn('strength', plain[0][1])
+
     def test_presets_allow_explicit_pole_override(self):
         card = self.nodes.KGKrea2ConceptSliderCardV11().build(**{'Slider preset': 'person height', 'What +6 looks like (optional)': 'custom plus'})[0]
         self.assertEqual(card['increase_text'], 'custom plus')

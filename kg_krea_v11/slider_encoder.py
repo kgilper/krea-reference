@@ -37,6 +37,22 @@ def budget_weights(groups, budget):
     return weights, scales
 
 
+def blend_neutral(plain, steered, amount):
+    """Blend denoiser predictions through Comfy's conditioning strengths.
+
+    Below a quarter unit of aggregate axis weight, taper the activation of
+    the extended pole sequence as well as its delta. This avoids a finite
+    token-layout jump at zero. Full working-band values use one branch.
+    """
+    if amount <= 0:
+        return plain
+    if amount >= 1:
+        return steered
+    return [[cond, {**meta, 'strength': float(meta.get('strength', 1)) * weight}]
+            for conditioning, weight in ((plain, 1 - amount), (steered, amount))
+            for cond, meta in conditioning]
+
+
 class KGKrea2ConceptSliderStackV11(sliders.KGKrea2ConceptSliderStackV1):
     @classmethod
     def INPUT_TYPES(cls):
@@ -88,7 +104,7 @@ class KGKrea2ConceptSliderStackV11(sliders.KGKrea2ConceptSliderStackV1):
         if len(spans) != 2 * len(groups) or any(end <= start for start, end in spans):
             raise RuntimeError('V11 could not resolve all slider pole spans; shorten the prompt/poles')
         reuse = kwargs.get('Reuse slider studies', 'reuse between runs - faster tuning') == 'reuse between runs - faster tuning'
-        key = cache.make_key(clip, 'slider-v11', texts[-1]) if reuse else None
+        key = cache.make_key(clip, 'slider-v11-smooth1', texts[-1]) if reuse else None
         cached = cache.lookup(key, clip)
         encodes = 0
         if cached is None:
@@ -104,10 +120,18 @@ class KGKrea2ConceptSliderStackV11(sliders.KGKrea2ConceptSliderStackV1):
                 minus = self._encode_with_spans(clip, tokens, [s for i, s in enumerate(spans) if i != position * 2 + 1])
                 axes[pair] = self._conditioning_delta(plus, minus)
                 encodes += 2
+        phase_loads = [sum(abs(w) for w in phase) for phase in weights]
+        if min(phase_loads) < 0.25 and 'plain' not in axes:
+            axes['plain'] = clip.encode_from_tokens_scheduled(self._tokenize(clip, prompt))
+            encodes += 1
         cache.store(key, clip, base, axes)
         def compose(phase):
-            return self._compose_conditioning(base, [(axes[(s['plus_text'], s['minus_text'])], w)
-                                                    for s, w in zip(groups, weights[phase]) if w])
+            if phase_loads[phase] == 0:
+                return axes['plain']
+            steered = self._compose_conditioning(base, [(axes[(s['plus_text'], s['minus_text'])], w)
+                                                        for s, w in zip(groups, weights[phase]) if w])
+            amount = min(1.0, phase_loads[phase] / 0.25)
+            return blend_neutral(axes.get('plain'), steered, amount)
         if weights[0] == weights[1]:
             result = compose(0)
         elif split == 0:
@@ -121,6 +145,8 @@ class KGKrea2ConceptSliderStackV11(sliders.KGKrea2ConceptSliderStackV1):
                  'Studies: {} encoder passes; {} distinct axes from {} active cards.'.format(encodes, len(groups), len(active)),
                  'Aggregate coefficient budget {:.2f}; phase scales {:.4f}, {:.4f}; handoff {:.2f}.'.format(budget, *scales, split),
                  'The budget bounds coefficients, not perceptual change. Start in the +/-2 to 4 working band.']
+        if min(phase_loads) < 0.25:
+            lines.append('Neutral transition active below 0.25 total axis weight; inactive phases use the plain prompt. Small values may require a second denoiser branch.')
         for i, group in enumerate(groups):
             lines.append('Cards {}: early {:.4f}, final {:.4f}; + {} / - {}'.format(
                 group['indices'], weights[0][i], weights[1][i], group['plus_text'], group['minus_text']))
