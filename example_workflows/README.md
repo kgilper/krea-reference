@@ -16,7 +16,7 @@ Every Krea guide card, reference stack, concept card and concept stack in these 
 ## V11 opt-in examples
 
 - [Reference starter](krea-v11-reference-stack-workflow.json): the established reference topology with V11 classes; balance starts off. Replace the sample image filenames and select your installed models.
-- [Concept Slider showcase](krea-slider-v11-showcase-workflow.json): six cards, combined budget 2, per-card presets/timing and a same-seed plain comparison. Start with one nonzero card. Near-zero values blend toward the plain prompt; larger changes can still reframe the subject.
+- [Concept Slider showcase](krea-slider-v11-showcase-workflow.json): six cards, automatic reach/budget based on active values, per-card presets/timing and a same-seed plain comparison. Start with one nonzero card. Near-zero values blend toward the plain prompt; larger changes can still reframe the subject.
 
 See the [V11 guide](../docs/krea-v11-user-guide.md). Existing example files remain available unchanged.
 
@@ -24,3 +24,5 @@ See the [V11 guide](../docs/krea-v11-user-guide.md). Existing example files rema
 ## Prior-version examples
 
 Older V9/V10/Slider V1 graphs retain their filenames for saved links. Their [workflow descriptions](../docs/previous-versions/native-workflows.md) and [versioned documentation](../docs/previous-versions/README.md) are archived separately.
+
+The current slider showcase requires the GitHub update containing **Slider scaling mode** (added after registry 0.5.0). After updating and restarting ComfyUI, refresh the page. For an existing canvas, choose **automatic** on its V11 stack; missing mode fields remain manual. The report shows computed controls. Automatic ignores the manual reach/budget widgets.

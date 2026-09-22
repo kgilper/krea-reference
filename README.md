@@ -18,6 +18,8 @@ V11 subject-plus-style guidance, using synthetic product and graphic references.
 
 Download the raw workflow JSON and drag it into ComfyUI. Follow the [model/image setup instructions](example_workflows/README.md#open-directly-in-comfyui). These are native ComfyUI workflows; Photo Studio is not required. The reference example needs input images; the slider example does not.
 
+The current slider showcase uses **automatic reach and budget**: card values determine the effective controls, up to the combined limit. This feature requires the latest GitHub source update after registry 0.5.0. See [automatic scaling](docs/krea-v11-user-guide.md#automatic-reach-and-budget) for migration and examples.
+
 ## Two V11 instruments
 
 **Reference cards** assign jobs such as subject, visual style, lighting, layout or a counter-example to input images. Up to 12 cards feed the V11 reference stack. Sign-preserving balance limits signed layer targets; content/revision-aware caching speeds tuning. Recipes, including balanced, retain their established settings.
@@ -26,7 +28,7 @@ Download the raw workflow JSON and drag it into ComfyUI. Follow the [model/image
 Load Image → Image Guide Card V11 → Reference Stack Encoder V11 → sampler
 ```
 
-**Concept Sliders** turn descriptions and paired endpoint text into attribute controls. Up to 8 cards feed the V11 slider stack. V11 adds combined budgeting, duplicate/opposite cancellation, per-card timing, height/crowd presets and a smoother transition near zero. No slider training or extra slider weights are needed.
+**Concept Sliders** turn descriptions and paired endpoint text into attribute controls. Up to 8 cards feed the V11 slider stack. V11 adds automatic or manual combined budgeting, duplicate/opposite cancellation, per-card timing, height/crowd presets and a smoother transition near zero. No slider training or extra slider weights are needed.
 
 ```text
 Concept Slider Card V11 → Concept Slider Stack V11 → sampler

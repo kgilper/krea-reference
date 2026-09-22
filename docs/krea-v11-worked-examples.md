@@ -146,3 +146,17 @@ Save a separate workflow copy. Replace every reference card and reference encode
 All public V11 examples and Studio V11 packages use V11 card/stack classes. Ordinary Comfy loaders, samplers, the existing LoRA loader and model enhancer keep their own class names; they do not have a Krea Reference V11 replacement. Shared link types `KG_KREA_REFERENCE` and `KG_KREA_SLIDER` are compatibility contracts, not old node versions.
 
 Rollback by reopening the saved V10 or Slider V1 workflow. V11 installation does not migrate those graphs, and the `balanced` recipe remains unchanged.
+
+## Automatic reach and budget
+
+Automatic scaling is available in the current GitHub source after registry release 0.5.0. Update the Git installation, restart ComfyUI and refresh the browser to expose the new mode; the original registry 0.5.0 build does not contain it.
+
+Select **Slider scaling mode: automatic** on the V11 slider stack to derive both controls from the active cards. The updated native showcase selects this mode. Existing workflows without the new field retain manual behavior; select automatic explicitly when upgrading an existing canvas.
+
+Automatic mode ignores the manual reach and budget widgets, including zero values. Set all cards to zero (or switch to manual and set reach to zero) for a plain-prompt comparison. The slider report shows effective reach and budget for active configurations; zero or cancelled configurations report the plain-prompt bypass.
+
+At unit reach, each card requests value / 3. Duplicate/opposite poles are combined and timing applied before measuring the maximum absolute coefficient sum across the two phases. Automatic budget equals that load up to 6. Reach stays 1 while load is at most 6; beyond that, reach becomes 6 / load and budget stays 6. Small values are never amplified to fill a budget. This limit bounds coefficients, not visual quality or concept independence.
+
+Examples: brightness +3, fog +2, height -4 produce load 3, reach 1 and budget 3. Two distinct +3 cards produce budget 2. Eight distinct +6 cards produce load 16, reach 0.375 and budget 6; the report explicitly reports the reduction. Early-only and final-only cards consume their respective phase capacity rather than being counted as simultaneous. No semantic calibration or identity preservation is implied.
+
+Earlier reach/budget tuning examples describe **manual** mode. Manual remains available with its original zero-bypass and per-phase budgeting behavior.

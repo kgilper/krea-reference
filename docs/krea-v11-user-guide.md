@@ -74,6 +74,7 @@ Recipe selection supplies coordinated settings; manual controls are not universa
 | Image detail level | Study-size choices 256/384/512/768. Medium 384 is a practical starting point; higher can copy unwanted content. |
 | Image framing | Keep full shape, center crop square or stretch square. This prepares references, not the output canvas. |
 | When images guide | Smart per-card, whole-image or two-phase behavior. Use smart timing when exploring explicit card timing. |
+| Slider scaling mode | Choose automatic to calculate reach/budget from active cards. Manual preserves existing saved behavior. The native showcase selects automatic. |
 | Early-to-final handoff | Phase boundary 0–1, default 0.4. |
 | Text/logo guard prompt handling | Full prompt rewrite or gentler preservation when using the guard behavior; inspect the report. |
 | Balance strong cards | Off by default; gentle budget 2.5 or strict budget 1.5. V11 scales signed layer targets toward zero. Smaller budget is stronger limiting, not necessarily better quality. |
@@ -92,12 +93,13 @@ The `balanced` recipe and all recipe tables are unchanged. Custom recipes load t
 | Slider preset | custom or automatic, person height, plaza crowd. Presets fill missing pole text; they do not override your nonempty poles. |
 | When this slider guides | whole image, early layout only, final details only. |
 | Final image prompt | Shared scene description on the stack. |
-| Overall slider reach | 0–3, default 1. Multiplies all card requests before per-axis and combined limits; zero gives plain conditioning. |
-| Combined slider budget | 0–6, default 2. Caps the sum of absolute coefficients separately per phase; zero gives plain conditioning. |
+| Overall slider reach | Manual mode only. 0–3, default 1. Multiplies all card requests before per-axis and combined limits; zero gives plain conditioning. |
+| Combined slider budget | Manual mode only. 0–6, default 2. Caps the sum of absolute coefficients separately per phase; zero gives plain conditioning. |
+| Slider scaling mode | Choose automatic to calculate reach/budget from active cards. Manual preserves existing saved behavior. The native showcase selects automatic. |
 | Early-to-final handoff | 0–1, default 0.4. Splits early/final sampling intervals. |
 | Reuse slider studies | Reuse content studies or always re-study. Changing values can reuse studies, while changing prompt/poles requires new ones. |
 
-The budget is shared, so adding an axis can weaken another. Duplicate and reversed identical pole pairs are combined before budgeting. At reach 1, value +3 requests coefficient 1 and value +6 requests coefficient 2. Default budget 2 allows one full-range axis; it does not promise a safe maximum perceptual change. The [cookbook](krea-v11-worked-examples.md#8-understand-duplicate-opposite-and-competing-sliders) works through cancellation and timing.
+In manual mode, the budget is shared, so adding an axis can weaken another. In automatic mode, the budget grows with active requests until the combined limit of 6 is reached. Duplicate and reversed identical pole pairs are combined before budgeting. At reach 1, value +3 requests coefficient 1 and value +6 requests coefficient 2. Default budget 2 allows one full-range axis; it does not promise a safe maximum perceptual change. The [cookbook](krea-v11-worked-examples.md#8-understand-duplicate-opposite-and-competing-sliders) works through cancellation and timing.
 
 ## Web Studio use
 
@@ -115,10 +117,10 @@ For attributes, use **KG Krea 2 Concept Slider Card V11** with **KG Krea 2 Conce
 
 - Reference balance limits the sum of maximum absolute layer targets. It scales signed targets toward zero, preserving suppression and away direction. It ignores the inactive pooled channel. This is a coefficient budget, not a measured perceptual guarantee.
 - Image-study keys hash the full prepared image content and include the CLIP patch revision. Unknown patch revisions bypass the cache. In-place model modifications outside Comfy's revision protocol require `always re-study`.
-- Slider stacks group duplicate/opposite pole pairs before encoding and budget their total absolute coefficients separately for early/final phases. Default total budget is 2, equal to a single full-range slider at reach 1; up to 6 can be selected deliberately.
+- Slider stacks group duplicate/opposite pole pairs before encoding and budget their total absolute coefficients separately for early/final phases. Manual default total budget is 2, equal to a single full-range slider at reach 1; automatic mode derives reach and budget from configured cards, with a combined limit of 6.
 - Per-card timing can affect the whole image, early layout, or final details. The stack handoff defaults to 0.4. Timing is a creative control, not a promise that late influence preserves every structure.
 - Near neutral, total applied axis weight below 0.25 blends the plain prompt and steered conditioning branches. Zero remains exactly plain; larger working values retain the existing composition. This transition can add a denoiser branch and cost more near zero.
-- Zero overall reach, zero budget, or fully cancelled axes bypass pole encoding entirely. Unsupported active token-muting hosts raise a clear error instead of producing a silent slider.
+- In manual mode, zero overall reach or zero budget bypasses pole encoding entirely. In either mode, zero cards or fully cancelled axes bypass it. Unsupported active token-muting hosts raise a clear error instead of producing a silent slider.
 
 ## Compatibility and limitations
 
@@ -130,10 +132,28 @@ Reference image preparation stays at the accepted V10 behavior until controlled 
 
 ## Validation and rollback
 
-The 105-test contract suite passes. Live synthetic comparisons verified exact neutral bypass for zero reach, zero budget and cancelled axes. At brightness +/-0.05 over ten seeds, V11 stayed closer to the zero image in all 20 comparisons; mean absolute RGB difference fell from 37.52 to 5.02 on a 0-255 scale. This is one prompt/model continuity benchmark, not a general image-quality score. The ordinary +3 brightness output matched Slider V1 in three same-seed comparisons, and the balanced reference recipe with balancing off matched V10 in three comparisons.
+The 111-test contract suite passes. Live synthetic comparisons verified exact neutral bypass for zero reach, zero budget and cancelled axes. At brightness +/-0.05 over ten seeds, V11 stayed closer to the zero image in all 20 comparisons; mean absolute RGB difference fell from 37.52 to 5.02 on a 0-255 scale. This is one prompt/model continuity benchmark, not a general image-quality score. The ordinary +3 brightness output matched Slider V1 in three same-seed comparisons, and the balanced reference recipe with balancing off matched V10 in three comparisons.
 
 Style-reference borders and weak fine-texture transfer remain possible. Person-height and plaza-crowd presets do not guarantee identity, framing, clothing, or anatomy preservation. Decreasing a crowd can still be weak. Reference preparation and recipe tables are unchanged.
 
 Portable ComfyUI graphs: [reference starter](../example_workflows/krea-v11-reference-stack-workflow.json) and [slider showcase](../example_workflows/krea-slider-v11-showcase-workflow.json). Choose the model files installed on your host; reference examples use replaceable sample-image filenames. See the [technical notes](krea-v11-technical-notes.md) for the coefficient and cache contract.
 
 Rollback is workflow selection: choose the unchanged V10 reference stack or Slider V1 stack and the original workflow copy. Keeping V11 installed does not change existing node behavior. Do not delete older nodes or overwrite saved workflow files during migration.
+
+## Automatic reach and budget
+
+Automatic scaling is available in the current GitHub source after registry release 0.5.0. Update the Git installation, restart ComfyUI and refresh the browser to expose the new mode; the original registry 0.5.0 build does not contain it.
+
+Select **Slider scaling mode: automatic** on the V11 slider stack to derive both controls from the active cards. The updated native showcase selects this mode. Existing workflows without the new field retain manual behavior; select automatic explicitly when upgrading an existing canvas.
+
+Automatic mode ignores the manual reach and budget widgets, including zero values. Set all cards to zero (or switch to manual and set reach to zero) for a plain-prompt comparison. The slider report shows effective reach and budget for active configurations; zero or cancelled configurations report the plain-prompt bypass.
+
+At unit reach, each card requests value / 3. Duplicate/opposite poles are combined and timing applied before measuring the maximum absolute coefficient sum across the two phases. Automatic budget equals that load up to 6. Reach stays 1 while load is at most 6; beyond that, reach becomes 6 / load and budget stays 6. Small values are never amplified to fill a budget. This limit bounds coefficients, not visual quality or concept independence.
+
+Examples: brightness +3, fog +2, height -4 produce load 3, reach 1 and budget 3. Two distinct +3 cards produce budget 2. Eight distinct +6 cards produce load 16, reach 0.375 and budget 6; the report explicitly reports the reduction. Early-only and final-only cards consume their respective phase capacity rather than being counted as simultaneous. No semantic calibration or identity preservation is implied.
+
+Earlier reach/budget tuning examples describe **manual** mode. Manual remains available with its original zero-bypass and per-phase budgeting behavior.
+
+### Automatic scaling verification
+
+Eleven live renders verified the updated native showcase across three seeds and paired automatic/manual tests for the aggregate limit, tiny values, early/final timing and zero cards. Every comparison matched the expected manual configuration pixel-for-pixel. These checks establish control equivalence, not improved semantic independence; fog and height can remain weak or entangled.
