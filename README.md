@@ -38,7 +38,7 @@ Concept Slider Card V11 → Concept Slider Stack V11 → sampler
 |---|---|---|
 | ![Plain prompt baseline](docs/assets/krea-v11/slider-neutral.png) | ![Brightness plus0.05 in V11](docs/assets/krea-v11/slider-tiny-positive.png) | ![Brightness plus3 in V11](docs/assets/krea-v11/slider-brightness-positive.png) |
 
-Same prompt and seed; brightness values 0, +0.05, +3. Tiny values stay closer to neutral, but stronger values can change shape and framing. Reference borders, fine-texture transfer and entangled attributes remain limitations. These are creative controls, not calibrated physical measurements. Reference and slider stacks are separate encoders; a combined image-anchor-plus-slider encoder is not included.
+Same prompt and seed; brightness values 0, +0.05, +3. Tiny values stay closer to neutral, but stronger values can change shape and framing. Reference borders, fine-texture transfer and entangled attributes remain limitations. These are creative controls, not calibrated physical measurements. Supported V11 reference and slider workflows use separate encoders. The experimental V12 developer interface below has no model-validated combined workflow support.
 
 ## Install
 
@@ -55,6 +55,7 @@ Restart ComfyUI and refresh the browser. Select installed Krea 2 diffusion, Krea
 
 - [Custom recipe kit](custom_recipes/README.md) and Recipe Builder in `web/recipe-builder.html`.
 - [V11 technical notes](docs/krea-v11-technical-notes.md), [node index](docs/nodes/README.md) and [testing](docs/testing.md).
+- [Experimental V12 native context and consumer API](docs/krea-v12-native-studies.md) for developers; source-only checks do not establish model support.
 - [Prior-version guides](docs/previous-versions/README.md): V10, V9 and Concept Slider V1, with their historical examples and technical papers.
 
 Older nodes, assets and native workflows retain their original paths. Old guide URLs forward to their archive; no saved workflow is migrated automatically.
