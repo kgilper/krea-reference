@@ -11,6 +11,7 @@ import math
 from pathlib import Path
 import sys
 import threading
+import types
 
 from .ledger import TAP_WIDTH, TAPS
 from .native import _signature
@@ -62,7 +63,35 @@ def load_enhancer_host():
     if blob != CORE_FUSION_BLOB:
         raise RuntimeError('V12 enhancer native text-fusion source revision is unverified')
     verify_loaded_functions(core, data, ('TextFusionTransformer.forward', 'TextFusionBlock.forward'))
-    return helper, compatible, enhancer_blob
+    fusion_class, block_class = core.TextFusionTransformer, core.TextFusionBlock
+    fusion_forward, block_forward = fusion_class.forward, block_class.forward
+
+    def checked_compatible(dm):
+        if not compatible(dm):
+            return False
+        _verify_fusion_instances(dm, fusion_class, block_class, fusion_forward, block_forward)
+        return True
+
+    return helper, checked_compatible, enhancer_blob
+
+
+def _verify_fusion_instances(dm, fusion_class, block_class, fusion_forward, block_forward):
+    """Bind the actual modules invoked by the helper, before installing our hook."""
+    fusion = dm.txtfusion
+    if type(fusion) is not fusion_class:
+        raise RuntimeError('V12 enhancer actual fusion class is unverified')
+    layers, refiners = fusion.layerwise_blocks, fusion.refiner_blocks
+    if len(layers) != 2 or len(refiners) != 2:
+        raise RuntimeError('V12 enhancer actual fusion block layout is unverified')
+    for obj, cls, forward in [(fusion, fusion_class, fusion_forward),
+                              *((block, block_class, block_forward) for block in (*layers, *refiners))]:
+        bound = getattr(obj, 'forward', None)
+        if (type(obj) is not cls or not isinstance(bound, types.MethodType)
+                or bound.__self__ is not obj or bound.__func__ is not forward
+                or any(name in vars(obj) for name in ('forward', '__call__', '_call_impl', '_wrapped_call_impl'))
+                or getattr(obj, '_compiled_call_impl', None) is not None
+                or getattr(obj, '_forward_hooks', None) or getattr(obj, '_forward_pre_hooks', None)):
+            raise RuntimeError('V12 enhancer actual fusion/block forward path is unverified')
 
 
 @contextmanager

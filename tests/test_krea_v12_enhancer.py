@@ -205,6 +205,55 @@ class EnhancerV12Tests(unittest.TestCase):
             enhancer.apply_enhancer(self.model, True, 0.5)
         self.assertEqual(_signature(self.model.model_options), original)
 
+    def test_actual_block_instance_override_rejected_before_owned_hook(self):
+        class Block:
+            def forward(self, x): return x
+        class NativeFusion:
+            def __init__(self):
+                self.layerwise_blocks, self.refiner_blocks = [Block(), Block()], [Block(), Block()]
+            def forward(self, x): return x
+        dm = NS(txtfusion=NativeFusion())
+        verify = lambda: enhancer._verify_fusion_instances(dm, NativeFusion, Block, NativeFusion.forward, Block.forward)
+        verify()
+        block = dm.txtfusion.layerwise_blocks[0]
+        block.forward = lambda x: x + 1
+        with self.assertRaisesRegex(RuntimeError, 'actual fusion/block forward path'):
+            verify()
+        self.assertNotIn('forward', vars(dm.txtfusion))
+        del block.forward
+        verify()
+
+    def test_stale_block_class_and_compiled_call_rejected(self):
+        class Block:
+            def forward(self, x): return x
+        class NativeFusion:
+            def __init__(self):
+                self.layerwise_blocks, self.refiner_blocks = [Block(), Block()], [Block(), Block()]
+            def forward(self, x): return x
+        dm = NS(txtfusion=NativeFusion())
+        verify = lambda: enhancer._verify_fusion_instances(dm, NativeFusion, Block, NativeFusion.forward, Block.forward)
+        class Foreign(Block): pass
+        dm.txtfusion.refiner_blocks[0] = Foreign()
+        with self.assertRaisesRegex(RuntimeError, 'actual fusion/block forward path'):
+            verify()
+        dm.txtfusion.refiner_blocks[0] = Block()
+        dm.txtfusion.refiner_blocks[0]._compiled_call_impl = lambda x: x + 1
+        with self.assertRaisesRegex(RuntimeError, 'actual fusion/block forward path'):
+            verify()
+
+    def test_changed_class_forward_after_admission_rejects(self):
+        class Block:
+            def forward(self, x): return x
+        class NativeFusion:
+            def __init__(self):
+                self.layerwise_blocks, self.refiner_blocks = [Block(), Block()], [Block(), Block()]
+            def forward(self, x): return x
+        dm = NS(txtfusion=NativeFusion())
+        admitted = Block.forward
+        Block.forward = lambda self, x: x + 1
+        with self.assertRaisesRegex(RuntimeError, 'actual fusion/block forward path'):
+            enhancer._verify_fusion_instances(dm, NativeFusion, Block, NativeFusion.forward, admitted)
+
 
 if __name__ == '__main__':
     unittest.main()

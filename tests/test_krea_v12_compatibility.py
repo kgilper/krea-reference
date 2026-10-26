@@ -54,16 +54,37 @@ class CompatibilityTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, 'loaded function differs'):
             compatibility.verify_loaded_functions(module, source.encode(), ('Guider.sample',))
 
-    def test_standard_decorator_unwrap_matches_original_loaded_body(self):
+    def test_wraps_numeric_change_on_undecorated_source_is_rejected(self):
         source = 'def step(x):\n    return x * 2\n'
         module = ModuleType('decorated_source_fixture')
         exec(compile(source, '<loaded>', 'exec', dont_inherit=True), module.__dict__)
         original = module.step
         @functools.wraps(original)
         def wrapper(*args, **kwargs):
+            return original(*args, **kwargs) + 1
+        module.step = wrapper
+        self.assertEqual(module.step(3), 7)
+        with self.assertRaisesRegex(RuntimeError, 'loaded function differs'):
+            compatibility.verify_loaded_functions(module, source.encode(), ('step',))
+
+    def test_even_transparent_unknown_wrapper_is_not_admitted(self):
+        source = 'def step(x):\n    return x * 2\n'
+        module = ModuleType('transparent_fixture')
+        exec(compile(source, '<loaded>', 'exec', dont_inherit=True), module.__dict__)
+        original = module.step
+        @functools.wraps(original)
+        def wrapper(*args, **kwargs):
             return original(*args, **kwargs)
         module.step = wrapper
-        compatibility.verify_loaded_functions(module, source.encode(), ('step',))
+        with self.assertRaisesRegex(RuntimeError, 'loaded function differs'):
+            compatibility.verify_loaded_functions(module, source.encode(), ('step',))
+
+    def test_source_declared_unknown_decorator_rejects_without_unwrapping(self):
+        source = '@unknown_decorator\ndef step(x):\n    return x\n'
+        module = ModuleType('unknown_decorator_fixture')
+        exec(compile('def step(x):\n    return x\n', '<loaded>', 'exec', dont_inherit=True), module.__dict__)
+        with self.assertRaisesRegex(RuntimeError, 'source decorator chain is unsupported'):
+            compatibility.verify_loaded_functions(module, source.encode(), ('step',))
 
     def test_source_compilation_never_executes_module_body(self):
         source = 'must_never_execute()\ndef step(x):\n    return x\n'

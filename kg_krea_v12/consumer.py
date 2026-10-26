@@ -76,7 +76,8 @@ def load_consumer_host():
     verify_loaded_functions(helpers, _source_bytes(helpers), ('convert_cond',))
     verify_loaded_functions(euler, _source_bytes(euler), (
         'sample_euler', 'sample_euler_ancestral', 'sample_euler_ancestral_RF',
-        'sample_er_sde', 'offset_first_sigma_for_snr', 'sigma_to_half_log_snr'))
+        'sample_er_sde', 'offset_first_sigma_for_snr', 'sigma_to_half_log_snr'),
+        allow_no_grad=('sample_euler', 'sample_euler_ancestral', 'sample_euler_ancestral_RF', 'sample_er_sde'))
     return samplers, euler, model_base
 
 

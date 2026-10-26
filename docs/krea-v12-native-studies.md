@@ -178,6 +178,11 @@ or preserved on conflict. Duplicate enhancers, changed wrapper order, unexpected
 tensor shapes or a sampling path that never invokes text fusion fail explicitly.
 No step/debug counters are stored in model options. This verifies invocation and
 cleanup; it does not promise improved prompt adherence or visual quality.
+Admission also checks the actual fusion instance and its two layerwise/two
+refiner block instances against the admitted native classes and captured bound
+forward methods. Instance forward/call overrides, stale classes, compiled call
+paths and local forward hooks reject before installing the owned fusion hook.
+This is a check of those invoked modules, not a general audit of model internals.
 
 ## Verification and remaining integration
 
@@ -248,13 +253,25 @@ do not establish their compatibility. Helper and numerical-sampling pins remain
 unchanged.
 
 At active binding, the consumer compiles the admitted source without executing
-its module body and compares the observed, unwrapped loaded call-path code with
+its module body and compares the observed loaded call-path code with
 it, including nested code and exception regions. It also checks loaded enhancer
 constants and native fusion methods. This detects stale or replaced function
 bodies despite matching files; it is not a whole-runtime or model-state proof.
 Device behavior, actual tokenizer/tensors, effect and task quality still require
 installed-host validation. Node labels, caller revisions and inference-handle
 limitations are unchanged.
+Source-undecorated functions must be plain, matching functions with no wrapper
+layer. The four admitted native sampling functions may have exactly the one
+`torch.no_grad()` layer declared by their source. Its actual outer wrapper code,
+closure target, bound clone factory and native context methods are checked
+against selected definitions from
+[PyTorch v2.9.0 contextlib](https://github.com/pytorch/pytorch/blob/v2.9.0/torch/utils/_contextlib.py)
+and [grad mode](https://github.com/pytorch/pytorch/blob/v2.9.0/torch/autograd/grad_mode.py).
+Identical selected definitions in another release satisfy the same function
+pins; unknown changes reject. `__wrapped__` metadata alone never grants admission.
+Extra transparent or numeric-changing wrappers, altered factories, multiple
+layers and compiled wrappers remain unsupported. No PyTorch runtime code is
+bundled by this integration.
 
 To roll back this source addition, retain the previous checkout/package; no old
 saved graph is rewritten and no model/recipe is migrated by these nodes.
