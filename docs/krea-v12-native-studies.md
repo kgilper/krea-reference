@@ -72,6 +72,13 @@ must also match the actual native positive conditioning. Thus extra masked pole
 positions are not passed to a consumer that ignores its conditioning mask.
 This projection still requires real-tokenizer/model validation.
 
+Each active phase composes the projected signed contrasts onto the adopted
+original native positive: `N + sum(weight * (plus - minus))`. The all-muted
+combined-row study still runs and is counted and validated, but does not replace
+the native anchor or its metadata. This avoids adding an all-muted-base offset
+shared by both signs. The existing low-load native/steered branch taper remains
+unchanged. This arithmetic correction does not establish visual calibration.
+
 One exclusive lease covers a study sequence, including CLIP clones sharing an
 inner encoder or transformer. Missing hooks, existing instance hook overrides,
 changed layout or intervening foreign mutations fail. Cleanup removes only owned

@@ -183,7 +183,7 @@ def build_studies(context, cards, split=0.4, budget=2.0, max_passes=20, max_toke
             if not any(weights):
                 phases.append(context.native)
                 continue
-            steered = conditioning.compose(base, list(zip(axes, weights)))
+            steered = conditioning.compose(context.native['positive'], list(zip(axes, weights)))
             blended = conditioning.blend_native(context.native['positive'], steered, sum(abs(w) for w in weights))
             phases.append({**context.native, 'positive': blended})
     context.verify()
