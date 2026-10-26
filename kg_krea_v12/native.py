@@ -100,6 +100,10 @@ class NativeContext:
         if self.owned_recipe is not None:
             self.owned_recipe.verify()
         model = self.native['model']
+        target = self.native.get('target_latent')
+        if isinstance(target, dict) and 'kg_native_v12_target_preparation' in target:
+            from .latents import verify_prepared_target
+            verify_prepared_target(model, target)
         if getattr(model, 'patches_uuid', None) != self.model_revision:
             raise RuntimeError('V12 native model patch revision changed after preparation')
         if context_signature(self.clip, self.native, self.sources) != self.signature:

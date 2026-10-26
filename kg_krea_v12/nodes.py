@@ -204,3 +204,22 @@ class KGKrea2NativeEnhancerV12:
         from .enhancer import apply_enhancer
         return apply_enhancer(kwargs['Native MODEL before edit patch'],
                               enabled=kwargs['Enhancer enabled'], strength=kwargs['Enhancer strength'])
+
+
+class KGKrea2PrepareNativeTargetV12:
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {'required': {
+            'Native context': (CONTEXT_TYPE,),
+            'Native target preparation enabled': ('BOOLEAN', {'default': False}),
+        }}
+
+    RETURN_TYPES = (CONTEXT_TYPE, 'LATENT')
+    RETURN_NAMES = ('native_context', 'native_target_latent')
+    FUNCTION = 'execute'
+    CATEGORY = 'advanced/conditioning/native studies'
+
+    def execute(self, **kwargs):
+        from .latents import prepare_context_target
+        return prepare_context_target(kwargs['Native context'],
+                                      enabled=kwargs['Native target preparation enabled'])

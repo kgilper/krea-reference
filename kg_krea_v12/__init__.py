@@ -2,9 +2,9 @@
 from .nodes import (KGKrea2PrepareNativeContextV12, KGKrea2NativeAxisV12,
                     KGKrea2CombinedNativeStudiesV12, KGKrea2NativePhaseGuiderV12,
                     KGKrea2PrepareOwnedGroundedContextV12, KGKrea2RemoveOwnedReferenceV12,
-                    KGKrea2NativeEnhancerV12)
+                    KGKrea2NativeEnhancerV12, KGKrea2PrepareNativeTargetV12)
 
 __all__ = ['KGKrea2PrepareNativeContextV12', 'KGKrea2NativeAxisV12',
            'KGKrea2CombinedNativeStudiesV12', 'KGKrea2NativePhaseGuiderV12',
            'KGKrea2PrepareOwnedGroundedContextV12', 'KGKrea2RemoveOwnedReferenceV12',
-           'KGKrea2NativeEnhancerV12']
+           'KGKrea2NativeEnhancerV12', 'KGKrea2PrepareNativeTargetV12']

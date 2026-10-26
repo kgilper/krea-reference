@@ -24,6 +24,7 @@ or model asset to install for this interface.
 | `KGKrea2PrepareOwnedGroundedContextV12` | Original MODEL before edit patch, clean source/donor, source/target latents, VAE and exact native patch/preparation arguments | Context plus native MODEL, positive, negative, target latent |
 | `KGKrea2RemoveOwnedReferenceV12` | Owned grounded context, `native:donor` OFF | Rebuilt context plus its native MODEL, positive, negative, target latent |
 | `KGKrea2NativeEnhancerV12` | Native MODEL before edit patch, enabled (default OFF), strength0..2 | MODEL plus attachment report; OFF/strength0 returns original MODEL |
+| `KGKrea2PrepareNativeTargetV12` | Final native context and enabled (default OFF) | Prepared context plus its exact shared native target LATENT |
 
 Optional native positive and negative conditioning inputs must be connected
 together. They adopt the existing paired encodes without re-encoding. Otherwise,
@@ -221,6 +222,40 @@ same guider; paired negative, grounded MODEL wrapper and original CFG callbacks
 are retained. It adds no solver or model forward. Native latent samples and the
 latent noise mask must match the context by identity. That noise mask is separate
 from a conditioning-area mask, which is unsupported by this initial consumer.
+
+The native `SamplerCustomAdvanced` prepares latent channels, dimensions and empty
+latent resolution before it calls the guider. For the active consumer, place
+`KGKrea2PrepareNativeTargetV12` after the final native context (including any owned
+grounded rebuild or reference removal). Enable preparation, connect its context
+output0 to `KGKrea2CombinedNativeStudiesV12`, and connect its LATENT output1 to
+`SamplerCustomAdvanced.latent_image`. Both branches then share the exact prepared
+target; the original source latent, model, conditioning and mask remain bound.
+The original seven node interfaces are unchanged.
+
+This node delegates transformation to the installed
+[`fix_empty_latent_channels`](https://github.com/Comfy-Org/ComfyUI/blob/v0.41.0/comfy/sample.py).
+It consumes the raw spatial/temporal downscale markers so the sampler cannot
+resize the already prepared empty latent again. The reviewed Krea2 configuration
+uses [`Wan21`](https://github.com/Comfy-Org/ComfyUI/blob/v0.41.0/comfy/supported_models.py);
+that format inherits the identity `LatentFormat.fix_empty_latent` method from
+[`latent_formats.py`](https://github.com/Comfy-Org/ComfyUI/blob/v0.41.0/comfy/latent_formats.py).
+Selected helper/utility/format source, actual loaded functions, format class and
+normalization attributes must match before preparation. The prepared B1 image
+latent has sixteen channels and one temporal position; the sampler's second
+native preparation preserves its samples identity. Unsupported formats reject.
+For an owned grounded context, preparation must retain target spatial dimensions:
+its native edit wrapper has already primed the VAE cache for that size. A spatial
+resize at this stage rejects rather than causing a hidden VAE re-encode during
+sampling. Channel/dimension normalization at the same image size remains allowed.
+
+The output carries an in-process provenance receipt binding the original packet,
+prepared packet, exact model, format and helper functions. Context verification
+checks the receipt before consumption; same-valued replacement tensors, changed
+masks/packets/model revisions or replaced helpers reject. Ordinary tensor version
+counters are retained; inference tensors still require a fresh caller revision
+after in-place writes. No target values are compared as a substitute for identity.
+Disabled preparation returns the original context and target by identity before
+host reads or helper calls. Neutral routing can omit or disable this node.
 
 Initial consumption requires the exact pinned Krea2/CFGGuider/KSAMPLER classes,
 default Euler, Euler ancestral or ER-SDE options, B1 matching noise/latent shapes and a
