@@ -49,10 +49,18 @@ under one identity/revision reject the whole study request.
 ## Preparation and ownership
 
 Positive studies preserve one exact native image/template/prompt token row.
-Each literal pole is tokenized as text only; its nonempty payload is inserted
-with two explicitly owned Qwen newline tokens before the original user-content
-suffix. The original prompt is never retokenized with appended text: byte BPE
-can otherwise merge a final period with added newlines and change native tokens.
+Each literal pole is tokenized as text only; its nonempty payload and two owned
+trailing Qwen newline tokens are inserted after complete source/donor vision
+blocks and before original prompt content tokens, including separate leading whitespace.
+This makes the poles causally visible to the original prompt positions. The
+original prompt is never retokenized with added text: byte BPE can otherwise
+merge punctuation or whitespace and change native tokens. Verified user-opening
+newline carriers198/271/1406 stay whole before the poles, including any leading
+newlines carried by that token. No later whitespace is skipped. Native output
+stripping is tracked separately: Krea retains the user-opening tokens for merged
+carriers271/1406. Unknown carriers reject; original tokens are never split.
+Leading newlines after a complete image block remain prompt tokens. Incomplete image
+blocks, images outside the native prefix and unowned control/media tokens reject.
 All pole spans, including their delimiters, are owned before a combined encode.
 Deleting every owned span must recover the original token objects, weights,
 image handles/order and suffix exactly. Pole payloads containing special/control
@@ -65,7 +73,7 @@ through the internal hook interface, scale both initial image features and all
 three visual deepstack contributions.
 
 Before axis arithmetic, each study projects onto the original native output
-positions. All appended pole positions are removed through indexed selection
+positions. All owned pole positions are removed through indexed selection
 within that one study. The retained source/image/prompt and assistant-suffix
 tokens must exactly match the original native sequence. The projected extent
 must also match the actual native positive conditioning. Thus extra masked pole

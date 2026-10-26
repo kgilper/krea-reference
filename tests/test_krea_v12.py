@@ -136,7 +136,7 @@ class Clip:
         # images AND unmuted poles; it does not predict neural interpretation.
         context = sum(value * active for value, active in zip(embeds.values, mask.values))
         deepstack = sum(f.value for image in info for f in image['extra']['deepstack'])
-        strip, _ = ledger.content_bounds(tokens[ledger.TOKEN_KEY][0])
+        strip = ledger.native_output_start(tokens[ledger.TOKEN_KEY][0])
         values = [value + context + deepstack for value in embeds.values[strip:]]
         return [[Buffer(values, len(ledger.TAPS) * ledger.TAP_WIDTH),
                  {'attention_mask': Buffer(mask.values[strip:], mask=True), 'foreign': self}]]
@@ -241,7 +241,7 @@ class NativeV12Tests(unittest.TestCase):
         expanded = result.ledgers[0]
         self.assertEqual([owner for owner, _, _ in expanded.images], ['native:source', 'native:donor'])
         self.assertEqual([end - start for _, start, end in expanded.images], [3, 5])
-        self.assertGreater(expanded.poles[0][0], expanded.prompt[0])
+        self.assertLessEqual(expanded.poles[-1][1], expanded.prompt[0])
         self.assertEqual(expanded.strip, 9)
         self.assertEqual(expanded.output_span(expanded.poles[0])[0], expanded.poles[0][0] - 9)
         self.assert_clean()

@@ -11,6 +11,9 @@ TAP_WIDTH = 2560
 VISION_DEPTH = 3
 TOKEN_KEY = 'qwen3vl_4b'
 OWNER_KEY = 'kg_native_owner_v12'
+# Exact newline-only carriers in the reviewed native Qwen vocabulary. The
+# complete carrier stays in the opening; it is never split or skipped over.
+_USER_OPENING_CARRIERS = frozenset((198, 271, 1406))
 
 
 def element(item):
@@ -50,7 +53,9 @@ def content_bounds(row):
     if len(starts) != 3:
         raise RuntimeError('V12 requires system, user and assistant chat turns')
     start = starts[1]
-    if [element(v) for v in row[start + 1:start + 3]] != [872, 198]:
+    if (start + 3 > starts[2] or element(row[start + 1]) != 872
+            or not isinstance(element(row[start + 2]), Integral)
+            or element(row[start + 2]) not in _USER_OPENING_CARRIERS):
         raise RuntimeError('V12 cannot resolve the native user opening')
     start += 3
     ends = [i for i in range(start, starts[2])
@@ -58,6 +63,30 @@ def content_bounds(row):
     if len(ends) != 1:
         raise RuntimeError('V12 cannot resolve the native user content end')
     return start, ends[0]
+
+
+def native_output_start(row):
+    """Match native Krea stripping separately from the semantic content start."""
+    start, _ = content_bounds(row)
+    # The native encoder strips the opening only for the single-newline token.
+    # With a merged newline carrier it retains im_start/user/carrier in output.
+    return start if element(row[start - 1]) == 198 else start - 3
+
+
+def _native_prompt_start(row, owners, content_start, content_end):
+    """Consume complete native vision blocks; never skip prompt whitespace."""
+    cursor = content_start
+    for _ in owners:
+        if (cursor + 3 > content_end or element(row[cursor]) != 151652
+                or not isinstance(element(row[cursor + 1]), dict)
+                or element(row[cursor + 2]) != 151653):
+            raise RuntimeError('V12 requires complete native image blocks before the prompt')
+        cursor += 3
+    for item in row[cursor:content_end]:
+        value = element(item)
+        if isinstance(value, dict) or not 0 <= value < 151643:
+            raise RuntimeError('V12 native image/prompt layout is ambiguous or contains unowned control/media tokens')
+    return cursor
 
 
 @dataclass(frozen=True)
@@ -89,39 +118,42 @@ class TokenLedger:
     def assemble(cls, original_tokens, owners, pole_tokens):
         """Own added token spans without retokenizing any native prompt prefix.
 
-        Byte BPE may merge original punctuation with appended newlines. Retain
-        the original native row exactly and insert separately tokenized literal
-        payloads before its original suffix. Delimiters are explicitly owned
-        newline tokens, not a requirement that whole-text BPE preserve a prefix.
+        Retain the original native row exactly. After complete image blocks,
+        insert separately tokenized literal payloads before every prompt token.
+        Trailing delimiters are explicitly owned newline tokens, avoiding both
+        native BPE boundary merges and causal isolation behind the prompt.
         This assembles tokens before encoding, never completed conditionings.
         """
         original = cls.build(original_tokens, owners)
         if not isinstance(pole_tokens, (list, tuple)) or not 1 <= len(pole_tokens) <= 16:
             raise ValueError('V12 requires one through sixteen native pole payload rows')
-        _, content_end = content_bounds(original.row)
+        content_start, content_end = content_bounds(original.row)
+        insertion = original.prompt[0]
         additions, spans = [], []
         for tokens in pole_tokens:
             row = single_row(tokens)
             start, end = content_bounds(row)
             payload = row[start:end]
-            if (not payload or any(isinstance(element(item), dict) for item in row)
+            if (element(row[start - 1]) != 198 or not payload
+                    or any(isinstance(element(item), dict) for item in row)
                     or any(not 0 <= element(item) < 151643 for item in payload)):
                 raise RuntimeError('V12 pole payload must be nonempty plain text without native control/media tokens')
-            begin = content_end + len(additions)
+            begin = insertion + len(additions)
             # Qwen newline198 is also verified in the native user-opening row.
             # Both separators and payload are owned/muted/projected as one span.
-            additions.extend(((198, 1.0), (198, 1.0)))
             additions.extend(payload)
-            spans.append((begin, content_end + len(additions)))
-        row = original.row[:content_end] + tuple(additions) + original.row[content_end:]
-        if content_bounds(row) != (original.strip, content_end + len(additions)):
+            additions.extend(((198, 1.0), (198, 1.0)))
+            spans.append((begin, insertion + len(additions)))
+        row = original.row[:insertion] + tuple(additions) + original.row[insertion:]
+        if content_bounds(row) != (content_start, content_end + len(additions)):
             raise RuntimeError('V12 pole assembly changed native template ownership')
         retained = tuple(item for index, item in enumerate(row)
                          if not any(start <= index < end for start, end in spans))
         if (len(retained) != len(original.row)
                 or any(item is not native_item for item, native_item in zip(retained, original.row))):
             raise RuntimeError('V12 removing owned pole spans did not recover the exact native row')
-        return cls(row, original.owners, original.prompt, tuple(spans), original.strip)
+        prompt = (insertion + len(additions), original.prompt[1] + len(additions))
+        return cls(row, original.owners, prompt, tuple(spans), original.strip)
 
     @classmethod
     def build(cls, tokens, owners, ladder=()):
@@ -132,9 +164,7 @@ class TokenLedger:
             raise RuntimeError('V12 requires a unique owner for every image')
         if any(not content_start <= i < content_end for i in image_positions):
             raise RuntimeError('V12 images must follow the stripped user opening')
-        prompt_start = image_positions[-1] + 1 if image_positions else content_start
-        while prompt_start < content_end and element(row[prompt_start]) in (151653, 198, 271):
-            prompt_start += 1
+        prompt_start = _native_prompt_start(row, owners, content_start, content_end)
         boundaries = []
         for prefix_tokens in ladder:
             prefix = single_row(prefix_tokens)
@@ -150,7 +180,7 @@ class TokenLedger:
         prompt_end = boundaries[0] if boundaries else content_end
         if prompt_end < prompt_start:
             raise RuntimeError('V12 pole boundary overlaps a native image')
-        return cls(tuple(row), tuple(owners), (prompt_start, prompt_end), poles, content_start)
+        return cls(tuple(row), tuple(owners), (prompt_start, prompt_end), poles, native_output_start(row))
 
     def tagged_tokens(self):
         row = []
@@ -167,7 +197,7 @@ class TokenLedger:
     def native_output_positions(self, original_tokens, expanded):
         """Project one study's output onto its original owned native positions.
 
-        Only the appended pole interval is removed. The original token sequence,
+        Only the contiguous owned pole interval is removed. The original sequence,
         including image identity/order and assistant suffix, must match exactly.
         This never joins independently encoded sequences or invents padding.
         """
