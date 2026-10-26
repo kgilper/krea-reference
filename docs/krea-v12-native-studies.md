@@ -277,6 +277,13 @@ against selected definitions from
 and [grad mode](https://github.com/pytorch/pytorch/blob/v2.9.0/torch/autograd/grad_mode.py).
 Identical selected definitions in another release satisfy the same function
 pins; unknown changes reject. `__wrapped__` metadata alone never grants admission.
+The source fingerprint uses a versioned explicit node/field/value representation,
+not `ast.dump` display formatting, which differs between Python3.11 and3.13.
+Empty semantic fields are retained. Nongeneric definitions on older Python get
+the same empty `type_params` field as newer Python; nonempty generic parameters,
+body, defaults, annotations and decorators all remain binding. This changes the
+fingerprint representation of the same reviewed definitions, not the admitted
+Torch semantics. Loaded-code, closure and context-factory checks still apply.
 Extra transparent or numeric-changing wrappers, altered factories, multiple
 layers and compiled wrappers remain unsupported. No PyTorch runtime code is
 bundled by this integration.

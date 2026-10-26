@@ -7,20 +7,46 @@ verification. No upstream implementation is copied or executed by compilation.
 import ast
 import hashlib
 import inspect
+import json
 from pathlib import Path
 import types
 
 _TORCH_CONTEXT_AST = {
-    'context_decorator': '967c7c22412aef1d6b4b82c59bb2485ecff8bdafe845adf4edb294141b61f752',
-    '_DecoratorContextManager.__call__': '3dced21e5ccb84912cca3b933c2144d2e0e2432f2c68d9e03a0ad28873de3719',
-    '_DecoratorContextManager.clone': '1b8edbd9e45faf2702a9a40c4003b10dd58a1ea9992681cef9ef8282a7ca8323',
-    '_NoParamDecoratorContextManager.__new__': 'c4a90e1fd69958e3e3d629a76bad5970a2411d90ac1d5528c3a395de27986a6b',
+    'context_decorator': 'ab88233fefe874378a063c5ba94e83e3c367c3d0f3a10b2285c36d20ee26b517',
+    '_DecoratorContextManager.__call__': 'fd1b4f0e58ad7340d39e20dd2ffc37c887588baf07ae7b6f5ab4ac47b191d666',
+    '_DecoratorContextManager.clone': 'df22dd330c061c2e3abb49ba6f554bc082f35cde53bc098d268d73f35a8c234a',
+    '_NoParamDecoratorContextManager.__new__': '65c0570159bd596a54a15b9797c4465a2e093a3f0eb5f5bd80c3d9ba87f1023b',
 }
 _TORCH_GRAD_AST = {
-    'no_grad.__init__': 'c1ec080424ff4617104126eebbf0b1333cc16a59c4dafbc408135e634103617e',
-    'no_grad.__enter__': '3b78db38d86b55bd581f39994a9ae49a5d617039e4c2b754860421a25837161f',
-    'no_grad.__exit__': '2a3cf08e8b1266c73995b8ffa1469a43b3fb34c54e770165b64c73b7dfd70ceb',
+    'no_grad.__init__': '895fe28d68080b651f4918f4540adf6c15a9a98c28f39724468cb57749333c0b',
+    'no_grad.__enter__': '6da10b3038d3031ca8b09fa5b72844b9cd271b9174e13731b3fb8b65779e7122',
+    'no_grad.__exit__': 'cdb682833c9504854cd368e7fc3a29d7c46164136d4af9c84492aed1bc87846d',
 }
+
+
+def _ast_structure(value):
+    """Keep semantic fields explicit; avoid version-dependent ast.dump formatting."""
+    if isinstance(value, ast.AST):
+        fields = dict(ast.iter_fields(value))
+        if isinstance(value, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            # Python3.11 lacks this field. It means no generic parameters, just
+            # like an empty list in3.12+. Nonempty parameters remain binding.
+            fields.setdefault('type_params', getattr(value, 'type_params', []))
+        return [type(value).__name__, [[name, _ast_structure(fields[name])] for name in sorted(fields)]]
+    if isinstance(value, list):
+        return [_ast_structure(item) for item in value]
+    if isinstance(value, bytes):
+        return ['bytes', value.hex()]
+    if isinstance(value, complex):
+        return ['complex', value.real, value.imag]
+    if value is Ellipsis:
+        return ['ellipsis']
+    return value
+
+
+def _ast_fingerprint(node):
+    data = json.dumps(_ast_structure(node), ensure_ascii=True, separators=(',', ':')).encode('ascii')
+    return hashlib.sha256(b'v12-ast-fields-v1\0' + data).hexdigest()
 
 
 def _constant(value):
@@ -81,7 +107,7 @@ def _torch_source(module, pins):
     codes, definitions = _source_maps(source)
     for name, expected_hash in pins.items():
         node = definitions.get(name)
-        if node is None or hashlib.sha256(ast.dump(node, include_attributes=False).encode()).hexdigest() != expected_hash:
+        if node is None or _ast_fingerprint(node) != expected_hash:
             raise RuntimeError('V12 native no_grad dependency source is unverified: ' + name)
         function = _lookup(module, name)
         _plain_code(function, codes.get(name), name)
