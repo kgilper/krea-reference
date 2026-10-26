@@ -275,8 +275,15 @@ closure target, bound clone factory and native context methods are checked
 against selected definitions from
 [PyTorch v2.9.0 contextlib](https://github.com/pytorch/pytorch/blob/v2.9.0/torch/utils/_contextlib.py)
 and [grad mode](https://github.com/pytorch/pytorch/blob/v2.9.0/torch/autograd/grad_mode.py).
-Identical selected definitions in another release satisfy the same function
-pins; unknown changes reject. `__wrapped__` metadata alone never grants admission.
+An additional complete tuple is reviewed from PyTorch v2.11.0
+([context managers](https://github.com/pytorch/pytorch/blob/v2.11.0/torch/utils/_contextlib.py),
+[grad mode](https://github.com/pytorch/pytorch/blob/v2.11.0/torch/autograd/grad_mode.py)).
+It changes an assertion to an explicit error check and adds constructor type
+annotations; the ordinary native decorator, clone and no-grad behavior remain
+the same. All seven selected definitions must match one complete reviewed tuple;
+mixed or unknown changes reject. Version strings alone never grant admission.
+Identical complete tuples in another release satisfy the same source checks.
+`__wrapped__` metadata alone never grants admission.
 The source fingerprint uses a versioned explicit node/field/value representation,
 not `ast.dump` display formatting, which differs between Python3.11 and3.13.
 Empty semantic fields are retained. Nongeneric definitions on older Python get

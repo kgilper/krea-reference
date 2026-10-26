@@ -22,6 +22,14 @@ _TORCH_GRAD_AST = {
     'no_grad.__enter__': '6da10b3038d3031ca8b09fa5b72844b9cd271b9174e13731b3fb8b65779e7122',
     'no_grad.__exit__': 'cdb682833c9504854cd368e7fc3a29d7c46164136d4af9c84492aed1bc87846d',
 }
+_TORCH_SOURCE_PROFILES = {
+    'pytorch-v2.9.0': (_TORCH_CONTEXT_AST, _TORCH_GRAD_AST),
+    'pytorch-v2.11.0': ({
+        **_TORCH_CONTEXT_AST,
+        'context_decorator': 'b5d20df9dc4e4cd8bbceff641350775692cf811675cbb53aec317aa72559dc4a',
+        '_NoParamDecoratorContextManager.__new__': 'e65a23d888c9d851e436f099f6952983f823f5f090713c8ad4f2781d8d4e9b67',
+    }, _TORCH_GRAD_AST),
+}
 
 
 def _ast_structure(value):
@@ -102,9 +110,10 @@ def _plain_code(value, expected, label):
         raise RuntimeError('V12 loaded function differs from admitted source: ' + label)
 
 
-def _torch_source(module, pins):
-    source = Path(inspect.getfile(module)).read_bytes()
-    codes, definitions = _source_maps(source)
+def _torch_source(module, pins, *, source_maps=None):
+    if source_maps is None:
+        source_maps = _source_maps(Path(inspect.getfile(module)).read_bytes())
+    codes, definitions = source_maps
     for name, expected_hash in pins.items():
         node = definitions.get(name)
         if node is None or _ast_fingerprint(node) != expected_hash:
@@ -116,18 +125,38 @@ def _torch_source(module, pins):
     return codes
 
 
+def _torch_source_profile(context_pins, grad_pins):
+    # Admit the complete reviewed tuple, never independent per-function hashes.
+    for profile in _TORCH_SOURCE_PROFILES.values():
+        if (context_pins, grad_pins) == profile:
+            return profile
+    raise RuntimeError('V12 native no_grad dependency source tuple is unverified')
+
+
+def _torch_source_pair(context_module, grad_module):
+    context_maps = _source_maps(Path(inspect.getfile(context_module)).read_bytes())
+    grad_maps = _source_maps(Path(inspect.getfile(grad_module)).read_bytes())
+    def fingerprints(definitions, names):
+        return {name: _ast_fingerprint(definitions[name]) if name in definitions else None for name in names}
+    context_pins, grad_pins = _torch_source_profile(
+        fingerprints(context_maps[1], _TORCH_CONTEXT_AST),
+        fingerprints(grad_maps[1], _TORCH_GRAD_AST))
+    codes = _torch_source(context_module, context_pins, source_maps=context_maps)
+    _torch_source(grad_module, grad_pins, source_maps=grad_maps)
+    return codes
+
+
 def _verified_no_grad_inner(value):
     """Admit one actual native no_grad layer, never arbitrary __wrapped__ links.
 
-    Selected PyTorch function ASTs are pinned to the authoritative v2.9.0 code;
-    identical definitions in other releases need no whole-module version guess.
+    Selected PyTorch function AST tuples bind reviewed v2.9.0/v2.11.0 code;
+    identical complete tuples need no whole-module version guess.
     Both actual wrapper code and its bound context factory/target are verified.
     """
     import torch
     import torch.autograd.grad_mode as grad_mode
     import torch.utils._contextlib as contextlib
-    codes = _torch_source(contextlib, _TORCH_CONTEXT_AST)
-    _torch_source(grad_mode, _TORCH_GRAD_AST)
+    codes = _torch_source_pair(contextlib, grad_mode)
     if (torch.no_grad is not grad_mode.no_grad
             or grad_mode.no_grad.clone is not contextlib._DecoratorContextManager.clone
             or grad_mode.no_grad.__call__ is not contextlib._DecoratorContextManager.__call__

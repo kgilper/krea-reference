@@ -16,6 +16,32 @@ from compatibility_v12_tests import compatibility, consumer, enhancer
 
 
 class CompatibilityTests(unittest.TestCase):
+    def test_complete_reviewed_torch_profiles_are_admitted(self):
+        self.assertEqual(set(compatibility._TORCH_SOURCE_PROFILES), {'pytorch-v2.9.0', 'pytorch-v2.11.0'})
+        for context, grad in compatibility._TORCH_SOURCE_PROFILES.values():
+            self.assertEqual(len(context) + len(grad), 7)
+            self.assertEqual(compatibility._torch_source_profile(dict(context), dict(grad)), (context, grad))
+
+    def test_mixed_torch_context_definitions_reject(self):
+        old_context, grad = compatibility._TORCH_SOURCE_PROFILES['pytorch-v2.9.0']
+        new_context, _ = compatibility._TORCH_SOURCE_PROFILES['pytorch-v2.11.0']
+        changed = [name for name in old_context if old_context[name] != new_context[name]]
+        self.assertEqual(set(changed), {'context_decorator', '_NoParamDecoratorContextManager.__new__'})
+        for name in changed:
+            mixed = {**old_context, name: new_context[name]}
+            with self.subTest(name=name), self.assertRaisesRegex(RuntimeError, 'source tuple is unverified'):
+                compatibility._torch_source_profile(mixed, grad)
+
+    def test_unknown_or_missing_torch_definition_rejects_for_both_profiles(self):
+        for context, grad in compatibility._TORCH_SOURCE_PROFILES.values():
+            for name in context:
+                for value in (None, 'unknown'):
+                    with self.subTest(name=name, value=value), self.assertRaisesRegex(RuntimeError, 'source tuple is unverified'):
+                        compatibility._torch_source_profile({**context, name: value}, grad)
+            for name in grad:
+                with self.subTest(name=name), self.assertRaisesRegex(RuntimeError, 'source tuple is unverified'):
+                    compatibility._torch_source_profile(context, {**grad, name: 'unknown'})
+
     def test_exact_core_pairs_admit_but_cross_pairs_and_unknown_reject(self):
         pairs = list(consumer.CONSUMER_SOURCE_PROFILES)
         self.assertEqual(len(pairs), 2)
