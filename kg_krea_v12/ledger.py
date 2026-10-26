@@ -86,6 +86,44 @@ class TokenLedger:
     strip: int
 
     @classmethod
+    def assemble(cls, original_tokens, owners, pole_tokens):
+        """Own added token spans without retokenizing any native prompt prefix.
+
+        Byte BPE may merge original punctuation with appended newlines. Retain
+        the original native row exactly and insert separately tokenized literal
+        payloads before its original suffix. Delimiters are explicitly owned
+        newline tokens, not a requirement that whole-text BPE preserve a prefix.
+        This assembles tokens before encoding, never completed conditionings.
+        """
+        original = cls.build(original_tokens, owners)
+        if not isinstance(pole_tokens, (list, tuple)) or not 1 <= len(pole_tokens) <= 16:
+            raise ValueError('V12 requires one through sixteen native pole payload rows')
+        _, content_end = content_bounds(original.row)
+        additions, spans = [], []
+        for tokens in pole_tokens:
+            row = single_row(tokens)
+            start, end = content_bounds(row)
+            payload = row[start:end]
+            if (not payload or any(isinstance(element(item), dict) for item in row)
+                    or any(not 0 <= element(item) < 151643 for item in payload)):
+                raise RuntimeError('V12 pole payload must be nonempty plain text without native control/media tokens')
+            begin = content_end + len(additions)
+            # Qwen newline198 is also verified in the native user-opening row.
+            # Both separators and payload are owned/muted/projected as one span.
+            additions.extend(((198, 1.0), (198, 1.0)))
+            additions.extend(payload)
+            spans.append((begin, content_end + len(additions)))
+        row = original.row[:content_end] + tuple(additions) + original.row[content_end:]
+        if content_bounds(row) != (original.strip, content_end + len(additions)):
+            raise RuntimeError('V12 pole assembly changed native template ownership')
+        retained = tuple(item for index, item in enumerate(row)
+                         if not any(start <= index < end for start, end in spans))
+        if (len(retained) != len(original.row)
+                or any(item is not native_item for item, native_item in zip(retained, original.row))):
+            raise RuntimeError('V12 removing owned pole spans did not recover the exact native row')
+        return cls(row, original.owners, original.prompt, tuple(spans), original.strip)
+
+    @classmethod
     def build(cls, tokens, owners, ladder=()):
         row = single_row(tokens)
         content_start, content_end = content_bounds(row)

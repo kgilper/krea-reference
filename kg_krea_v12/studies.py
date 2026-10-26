@@ -139,12 +139,13 @@ def build_studies(context, cards, split=0.4, budget=2.0, max_passes=20, max_toke
             pixels += shape[1] * shape[2]
         if pixels > max_image_pixels:
             raise RuntimeError('V12 prepared-image pixel budget exceeded before vision encoding')
-        texts = [context.prompt]
-        for group in groups:
-            for pole in (group['plus'], group['minus']):
-                texts.append(texts[-1] + '\n\n' + pole)
-        rows = [prepared.tokenize(context.clip, text) for text in texts]
-        ledger = TokenLedger.build(rows[-1], prepared.owners, rows[:-1])
+        original_tokens = prepared.tokenize(context.clip, context.prompt)
+        # Keep the native image/template/prompt row authoritative. Tokenize only
+        # each literal text payload with the native text tokenizer; do not
+        # retokenize an ever-growing prompt or prepare its images repeatedly.
+        pole_tokens = [context.clip.tokenize(pole) for group in groups
+                       for pole in (group['plus'], group['minus'])]
+        ledger = TokenLedger.assemble(original_tokens, prepared.owners, pole_tokens)
         if len(ledger.row) > max_tokens:
             raise RuntimeError('V12 token-row budget exceeded before encoding')
         tokens = ledger.tagged_tokens()
@@ -159,7 +160,7 @@ def build_studies(context, cards, split=0.4, budget=2.0, max_passes=20, max_toke
             _validate_output(result, expanded)
             if observed and expanded != observed[0]:
                 raise RuntimeError('V12 native preparation ledger changed between studies')
-            positions = ledger.native_output_positions(rows[0], expanded)
+            positions = ledger.native_output_positions(original_tokens, expanded)
             if retained_positions and positions != retained_positions[0]:
                 raise RuntimeError('V12 native output projection changed between studies')
             retained_positions.append(positions)

@@ -47,8 +47,16 @@ under one identity/revision reject the whole study request.
 
 ## Preparation and ownership
 
-Positive studies append literal pole text before tokenization and use one native
-image/template sequence. The implementation resolves token coordinates,
+Positive studies preserve one exact native image/template/prompt token row.
+Each literal pole is tokenized as text only; its nonempty payload is inserted
+with two explicitly owned Qwen newline tokens before the original user-content
+suffix. The original prompt is never retokenized with appended text: byte BPE
+can otherwise merge a final period with added newlines and change native tokens.
+All pole spans, including their delimiters, are owned before a combined encode.
+Deleting every owned span must recover the original token objects, weights,
+image handles/order and suffix exactly. Pole payloads containing special/control
+or media tokens reject. This is token-level assembly before encoding, not a join
+of finished encodes. The implementation resolves token coordinates,
 expanded input coordinates and coordinates after native template stripping.
 Image indices and extents must match the host's reported preparation. Every
 encode verifies output shape and attention-mask extent. Image gains, when used
