@@ -648,6 +648,96 @@ class NativeV12Tests(unittest.TestCase):
         self.assertEqual(self.clip.encodes, before)
         self.assertFalse(consumer._busy)
 
+    def test_inference_handle_avoids_throwing_version_and_marks_unversioned_identity(self):
+        class InferenceImage(Image):
+            def is_inference(self):
+                return True
+
+            @property
+            def _version(self):
+                raise RuntimeError('Inference tensors do not track version counter.')
+
+        self.source = InferenceImage(7, 3)
+        context = self.prepare()
+        self.assertEqual(native._signature(self.source),
+                         ('handle', id(self.source), ('unversioned-inference',)))
+        context.verify()
+        self.assertIs(studies.build_studies(context, [card(0)]).sampler_conditioning(), context.native)
+        context.native['source_latent'] = InferenceImage(7, 3)
+        with self.assertRaisesRegex(RuntimeError, 'identity changed'):
+            context.verify()
+
+    def test_throwing_unknown_version_fails_and_encoder_lease_is_released(self):
+        class BrokenVersion:
+            @property
+            def _version(self):
+                raise RuntimeError('unknown version getter failure')
+
+        with self.assertRaisesRegex(RuntimeError, 'unknown version getter failure'):
+            with hooks.encoder_lease(self.clip):
+                native._signature({'foreign': BrokenVersion()})
+        with hooks.encoder_lease(self.clip):
+            pass
+        self.assertFalse(hooks._busy)
+        self.assertFalse(hooks._owner_threads)
+
+    def test_throwing_owned_recipe_signature_releases_model_preparation_lease(self):
+        from native_v12_tests import consumer
+        context = self.owned(NativePatch())
+
+        class BrokenVersion:
+            @property
+            def _version(self):
+                raise RuntimeError('owned signature getter failure')
+
+        context.owned_recipe.patch_args['foreign'] = BrokenVersion()
+        with self.assertRaisesRegex(RuntimeError, 'owned signature getter failure'):
+            context.owned_recipe.build()
+        self.assertFalse(consumer._busy)
+        with consumer.native_model_preparation_lease(context.owned_recipe.original_model):
+            pass
+
+    def test_regular_handle_version_change_still_rejects(self):
+        value = SimpleNamespace(_version=1)
+        before = native._signature(value)
+        value._version = 2
+        self.assertNotEqual(native._signature(value), before)
+
+    def test_adopting_paired_ports_retains_target_noise_mask_without_duplicate_port(self):
+        original = self.prepare()
+        target = {'samples': self.target, 'noise_mask': self.mask}
+        context, = NODES.KGKrea2PrepareNativeContextV12().execute(**{
+            'Krea CLIP': self.clip, 'Native MODEL': self.model,
+            'Final image prompt': 'plain', 'Negative prompt': '',
+            'Native context revision': 'adopted-mask-v1', 'Grounding pixels': 768,
+            'Grounding system prompt': '', 'Native target latent': target,
+            'Native positive conditioning': original.native['positive'],
+            'Native negative conditioning': original.native['negative'],
+        })
+        self.assertIs(context.native['target_latent'], target)
+        self.assertIs(context.native['noise_mask'], self.mask)
+
+    def test_er_sde_acceptance_delegates_native_sigma_offset_without_changing_input(self):
+        from native_v12_tests import consumer
+        raw = [1.0, 0.5, 0.0]
+        model_sampling = object()
+        calls = []
+        def offset(sigmas, sampling):
+            self.assertIs(sigmas, raw)
+            self.assertIs(sampling, model_sampling)
+            calls.append('native-offset')
+            return [0.9999, *sigmas[1:]]
+        er_sde = lambda: None
+        host = SimpleNamespace(sample_er_sde=er_sde, offset_first_sigma_for_snr=offset)
+        guider = SimpleNamespace(model_patcher=SimpleNamespace(get_model_object=lambda name: model_sampling))
+        schedule = consumer._accepted_schedule(guider, SimpleNamespace(sampler_function=er_sde), raw, host)
+        self.assertEqual(schedule, (0.9999, 0.5, 0.0))
+        self.assertEqual(raw, [1.0, 0.5, 0.0])
+        self.assertEqual(calls, ['native-offset'])
+        calls.clear()
+        self.assertEqual(consumer._accepted_schedule(guider, SimpleNamespace(sampler_function=lambda: None), raw, host), tuple(raw))
+        self.assertEqual(calls, [])
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -2,7 +2,7 @@
 
 V12 adds an experimental developer interface for studying semantic poles in the
 same source/donor context as a native Krea encode. A thin developer consumer
-delegates to pinned native Comfy Euler sampling; **this is not a model-validated
+delegates to pinned native Comfy Euler, Euler ancestral or ER-SDE sampling; **this is not a model-validated
 or supported combined generation/edit workflow.** V11
 remains the supported starting point. Existing nodes and recipe tables retain
 their behavior.
@@ -23,6 +23,7 @@ or model asset to install for this interface.
 | `KGKrea2NativePhaseGuiderV12` | Actual studies and their original native `CFGGuider` | Native `GUIDER` protocol proxy; neutral returns original guider |
 | `KGKrea2PrepareOwnedGroundedContextV12` | Original MODEL before edit patch, clean source/donor, source/target latents, VAE and exact native patch/preparation arguments | Context plus native MODEL, positive, negative, target latent |
 | `KGKrea2RemoveOwnedReferenceV12` | Owned grounded context, `native:donor` OFF | Rebuilt context plus its native MODEL, positive, negative, target latent |
+| `KGKrea2NativeEnhancerV12` | Native MODEL before edit patch, enabled (default OFF), strength0..2 | MODEL plus attachment report; OFF/strength0 returns original MODEL |
 
 Optional native positive and negative conditioning inputs must be connected
 together. They adopt the existing paired encodes without re-encoding. Otherwise,
@@ -94,6 +95,11 @@ foreign metadata handles are retained. Mutation checks cover patch revisions,
 wrapper metadata, callback identity and available handle version counters. They
 are not image-content checksums; in-place changes without version counters
 require a new caller revision.
+Inference-mode tensors explicitly carry an unversioned-inference marker: their
+throwing version property is not read. Identity and the caller's revision remain
+binding, but in-place writes to these tensors cannot be detected. A changed input
+requires new preparation and a new revision. Unknown version-getter failures
+still reject; they are never treated as evidence of immutability.
 
 Zero, exact cancellation, budget0 and empty timing windows do not tokenize poles,
 prepare images or run extra encodes. The entire adopted native bundle is returned
@@ -130,6 +136,44 @@ extended-layout conditioning are carried as separate weighted branches to taper
 layout activation. No finished encodes are padded or concatenated. This is source
 mechanics, not evidence of perceptual continuity or cross-model calibration.
 
+## Optional pinned native enhancer
+
+`KGKrea2NativeEnhancerV12` calls the original installed Krea2T numeric helper.
+It adds no weights and changes neither the prompt, task LoRA nor sigma schedule.
+The default is OFF. OFF or strength0 returns the exact input MODEL without
+loading the optional package or reading its source. Active strength is0..2.
+
+The supported source reference is the surviving
+[Krea2T fork at e1f60f79](https://github.com/Ezgons123/ComfyUI-Krea2T-Enhancer/tree/e1f60f79e168c62b1cb1cf773dfb3ae4ee2292e2).
+The original repository URL currently returns404. The integration verifies the
+installed `ComfyUI-Krea2T-Enhancer` class source Git blob
+`c46e1c3ed244caaef231c580bb601ea935b3d1c7` and the pinned native text-fusion source
+before attachment. It delegates the original helper's two text-fusion paths and
+bounded token delta; no upstream numeric implementation is bundled here. The
+separate package retains its own MIT notice. Model and task-weight terms remain
+separate from plugin code; this source compatibility check makes no commercial
+model-use assertion.
+
+Connect the task-selected MODEL after ordinary LoRA loading to this node, then
+send its MODEL to owned grounded preparation. For text generation, send it to
+the native context, guider and scheduler. The enhancer wrapper must precede
+`krea2_edit`: that edit wrapper calls its own forward and bypasses inner wrappers.
+Applying enhancement after an edit patch rejects. Optional donor OFF rebuilds
+from the same enhanced original MODEL, preserving task routing.
+
+Only the enhancer helper is used. The package's phrase encoder, Turbo sigma
+scheduler, character loader and advanced text-scale utility are independent
+features. Raw removal retains its Raw checkpoint, task LoRA, CFG and schedule;
+it does not inherit the Turbo scheduler. Both Raw and Turbo use the native
+12x2560 fusion interface, but each task still needs installed-model effect tests.
+
+Active calls take an exclusive shared-fusion lease, install one temporary forward
+hook and remove only that hook on success or error. Foreign hooks are rejected
+or preserved on conflict. Duplicate enhancers, changed wrapper order, unexpected
+tensor shapes or a sampling path that never invokes text fusion fail explicitly.
+No step/debug counters are stored in model options. This verifies invocation and
+cleanup; it does not promise improved prompt adherence or visual quality.
+
 ## Verification and remaining integration
 
 Run the focused synthetic checks with:
@@ -148,7 +192,7 @@ Raw active `sampler_conditioning()` export raises an error. The current grounded
 edit consumer discards the conditioning attention mask. Owned output projection
 addresses the extra pole positions in source; a complete consumer must verify
 the projected native layout through the actual text-fusion path. Turbo/Raw task
-coverage, optional enhancement compatibility, real-tokenizer/tensor checks,
+coverage, installed enhancement compatibility, real-tokenizer/tensor checks,
 near-zero behavior and visual strength calibration remain unverified. A source
 study product must not advertise these capabilities as supported.
 
@@ -161,11 +205,16 @@ latent noise mask must match the context by identity. That noise mask is separat
 from a conditioning-area mask, which is unsupported by this initial consumer.
 
 Initial consumption requires the exact pinned Krea2/CFGGuider/KSAMPLER classes,
-default Euler or Euler ancestral options, B1 matching noise/latent shapes and a
+default Euler, Euler ancestral or ER-SDE options, B1 matching noise/latent shapes and a
 strictly decreasing bounded accepted sigma schedule. Each evaluation must match
 its next actual schedule sigma; each native callback must confirm the accepted
 step. Duplicate, drifting or unknown evaluations fail. Shortened schedules use
 their actual active count. No generic inclusive timestep window is installed.
+For ER-SDE, the expected schedule uses the original host's
+`offset_first_sigma_for_snr` with the actual model sampling object, matching its
+first-sigma adjustment for CONST models. The input sigmas and original solver
+remain unchanged. Source math probes confirm one evaluation/callback per step;
+real-host/model acceptance remains separate.
 Grounded consumption also requires the original single `krea2_edit` wrapper.
 Actual converted guider entries must match native conversion, including empty
 initial `model_conds` and generated UUIDs. Added controls, conditional hooks,

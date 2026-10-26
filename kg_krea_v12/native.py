@@ -9,6 +9,16 @@ from .hooks import encoder_lease
 GROUNDING_BLOB = 'e924efbd930e03e3b00cb040d177992a08b462b4'
 
 
+def _version_state(value):
+    # Inference tensors have no version counter. Their identity and caller
+    # revision remain binding; in-place writes require a new caller revision.
+    # Unknown getter failures still propagate, rather than appearing immutable.
+    is_inference = getattr(value, 'is_inference', None)
+    if callable(is_inference) and is_inference():
+        return ('unversioned-inference',)
+    return getattr(value, '_version', None)
+
+
 def _signature(value, seen=None):
     """Bind mutable native metadata, callbacks and versioned handles, no reuse cache.
 
@@ -26,7 +36,7 @@ def _signature(value, seen=None):
             return ('dict', tuple((key, _signature(item, seen)) for key, item in value.items()))
         if isinstance(value, (list, tuple)):
             return (type(value).__name__, tuple(_signature(item, seen) for item in value))
-        return ('handle', id(value), getattr(value, '_version', None))
+        return ('handle', id(value), _version_state(value))
     finally:
         seen.remove(id(value))
 

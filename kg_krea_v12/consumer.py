@@ -1,4 +1,4 @@
-"""Thin, versioned consumer over the original Comfy guider and Euler sampler.
+"""Thin, versioned consumer over the original Comfy guider and native samplers.
 
 No solver, CFG implementation, model forward or inpaint path is copied here.
 Source compatibility is checked before active native evaluation is permitted.
@@ -65,6 +65,16 @@ def _schedule(sigmas):
     if values[-1] < 0 or any(a <= b for a, b in zip(values, values[1:])):
         raise RuntimeError('V12 native schedule must be strictly decreasing and nonnegative')
     return values
+
+
+def _accepted_schedule(guider, sampler, sigmas, native_sampling):
+    # ER-SDE makes one prediction per step but offsets a CONST schedule's first
+    # sigma before evaluating logSNR. Verify the exact same host transformation;
+    # never edit the sampler input or recreate its solver/noise path here.
+    if sampler.sampler_function is getattr(native_sampling, 'sample_er_sde', None):
+        sampling = guider.model_patcher.get_model_object('model_sampling')
+        return _schedule(native_sampling.offset_first_sigma_for_snr(sigmas, sampling))
+    return _schedule(sigmas)
 
 
 def _validate_native_pair(guider, studies):
@@ -157,11 +167,13 @@ class NativePhaseGuider:
         samplers, euler, model_base = self.host
         if type(guider) is not samplers.CFGGuider or type(guider.model_patcher.model) is not model_base.Krea2:
             raise RuntimeError('V12 consumer requires the pinned native Krea2 CFGGuider')
+        allowed_samplers = (euler.sample_euler, euler.sample_euler_ancestral,
+                            getattr(euler, 'sample_er_sde', None))
         if (type(sampler) is not samplers.KSAMPLER
-                or sampler.sampler_function not in (euler.sample_euler, euler.sample_euler_ancestral)
+                or sampler.sampler_function not in allowed_samplers or sampler.sampler_function is None
                 or sampler.extra_options or any(k != 'random' or v is not False for k, v in sampler.inpaint_options.items())):
-            raise RuntimeError('V12 consumer supports only unchanged native Euler/ancestral defaults')
-        schedule = _schedule(sigmas)
+            raise RuntimeError('V12 consumer supports only unchanged native Euler/ancestral/ER-SDE defaults')
+        schedule = _accepted_schedule(guider, sampler, sigmas, euler)
         native_target = studies.context.native['target_latent']
         if not isinstance(native_target, dict) or latent_image is not native_target.get('samples'):
             raise RuntimeError('V12 consumer requires the original native target latent samples')

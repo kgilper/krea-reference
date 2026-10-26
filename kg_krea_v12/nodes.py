@@ -43,10 +43,13 @@ class KGKrea2PrepareNativeContextV12:
             raise ValueError('V12 must adopt native positive and negative together')
         bundle = None
         if positive is not None:
+            target = kwargs.get('Native target latent')
+            mask = kwargs.get('Native noise mask')
+            if mask is None and isinstance(target, dict):
+                mask = target.get('noise_mask')
             bundle = dict(model=kwargs['Native MODEL'], positive=positive, negative=negative,
                           source_latent=kwargs.get('Native source latent'),
-                          target_latent=kwargs.get('Native target latent'),
-                          noise_mask=kwargs.get('Native noise mask'))
+                          target_latent=target, noise_mask=mask)
         return (prepare_context(
             kwargs['Krea CLIP'], kwargs['Native MODEL'], kwargs['Final image prompt'],
             negative_prompt=kwargs['Negative prompt'],
@@ -181,3 +184,23 @@ class KGKrea2RemoveOwnedReferenceV12:
     def execute(self, **kwargs):
         context = kwargs['Native context'].remove_reference(kwargs['Owned reference OFF'])
         return KGKrea2PrepareOwnedGroundedContextV12._outputs(context)
+
+
+class KGKrea2NativeEnhancerV12:
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {'required': {
+            'Native MODEL before edit patch': ('MODEL',),
+            'Enhancer enabled': ('BOOLEAN', {'default': False}),
+            'Enhancer strength': ('FLOAT', {'default': 1.0, 'min': 0.0, 'max': 2.0, 'step': 0.05}),
+        }}
+
+    RETURN_TYPES = ('MODEL', 'STRING')
+    RETURN_NAMES = ('native_model', 'enhancer_report')
+    FUNCTION = 'execute'
+    CATEGORY = 'advanced/conditioning/native studies'
+
+    def execute(self, **kwargs):
+        from .enhancer import apply_enhancer
+        return apply_enhancer(kwargs['Native MODEL before edit patch'],
+                              enabled=kwargs['Enhancer enabled'], strength=kwargs['Enhancer strength'])

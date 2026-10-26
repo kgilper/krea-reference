@@ -56,6 +56,7 @@ Restart ComfyUI and refresh the browser. Select installed Krea 2 diffusion, Krea
 - [Custom recipe kit](custom_recipes/README.md) and Recipe Builder in `web/recipe-builder.html`.
 - [V11 technical notes](docs/krea-v11-technical-notes.md), [node index](docs/nodes/README.md) and [testing](docs/testing.md).
 - [Experimental V12 native context and consumer API](docs/krea-v12-native-studies.md) for developers; source-only checks do not establish model support.
+- V12 also offers an optional pinned Krea2T enhancer integration, default OFF, with exact MODEL bypass and owned temporary-hook cleanup. Its model/task effects remain unvalidated.
 - [Prior-version guides](docs/previous-versions/README.md): V10, V9 and Concept Slider V1, with their historical examples and technical papers.
 
 Older nodes, assets and native workflows retain their original paths. Old guide URLs forward to their archive; no saved workflow is migrated automatically.

@@ -48,6 +48,7 @@ NODE_DISPLAY_NAME_MAPPINGS.update({
 from .kg_krea_v12 import (
     KGKrea2PrepareNativeContextV12, KGKrea2NativeAxisV12, KGKrea2CombinedNativeStudiesV12,
     KGKrea2NativePhaseGuiderV12, KGKrea2PrepareOwnedGroundedContextV12, KGKrea2RemoveOwnedReferenceV12,
+    KGKrea2NativeEnhancerV12,
 )
 
 NODE_CLASS_MAPPINGS.update({
@@ -57,6 +58,7 @@ NODE_CLASS_MAPPINGS.update({
     "KGKrea2NativePhaseGuiderV12": KGKrea2NativePhaseGuiderV12,
     "KGKrea2PrepareOwnedGroundedContextV12": KGKrea2PrepareOwnedGroundedContextV12,
     "KGKrea2RemoveOwnedReferenceV12": KGKrea2RemoveOwnedReferenceV12,
+    "KGKrea2NativeEnhancerV12": KGKrea2NativeEnhancerV12,
 })
 NODE_DISPLAY_NAME_MAPPINGS.update({
     "KGKrea2PrepareNativeContextV12": "KG Krea 2 Prepare Native Context V12",
@@ -65,4 +67,5 @@ NODE_DISPLAY_NAME_MAPPINGS.update({
     "KGKrea2NativePhaseGuiderV12": "KG Krea 2 Native Phase Guider V12",
     "KGKrea2PrepareOwnedGroundedContextV12": "KG Krea 2 Prepare Owned Grounded Context V12",
     "KGKrea2RemoveOwnedReferenceV12": "KG Krea 2 Remove Owned Reference V12",
+    "KGKrea2NativeEnhancerV12": "KG Krea 2 Native Enhancer V12",
 })
