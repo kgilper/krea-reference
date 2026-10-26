@@ -60,7 +60,7 @@ class EnhancerV12Tests(unittest.TestCase):
             self.calls.append((fusion, x, kwargs))
             return NS(shape=(1, 2, 2560), value='delegated-helper'), None
 
-        host_patch = patch.object(enhancer, 'load_enhancer_host', return_value=(helper, lambda dm: True))
+        host_patch = patch.object(enhancer, 'load_enhancer_host', return_value=(helper, lambda dm: True, enhancer.ENHANCER_BLOB))
         host_patch.start()
         self.addCleanup(host_patch.stop)
         self.addCleanup(self.assertFalse, enhancer._busy)
@@ -175,7 +175,7 @@ class EnhancerV12Tests(unittest.TestCase):
         self.assertEqual(self.calls, [])
         def helper(*args, **kwargs):
             return NS(shape=(1, 3, 2560)), None
-        with patch.object(enhancer, 'load_enhancer_host', return_value=(helper, lambda dm: True)):
+        with patch.object(enhancer, 'load_enhancer_host', return_value=(helper, lambda dm: True, enhancer.ENHANCER_BLOB)):
             _, malformed_options, malformed_wrapper = self.attached()
             with self.assertRaisesRegex(RuntimeError, 'helper returned'):
                 malformed_wrapper(Executor(dm), transformer_options=malformed_options)

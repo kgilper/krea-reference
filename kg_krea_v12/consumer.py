@@ -14,11 +14,20 @@ import uuid
 
 from .native import GROUNDING_BLOB, _signature
 from .studies import NativeStudies
+from .compatibility import verify_loaded_functions
 
 SAMPLERS_BLOB = 'a7cc3419e325e7d55aac8c7d5ce6d65f620fc511'
 EULER_SHA256 = 'cfc4221ed0bc1f84a6f5689d3ec440cad3008c2541ab8f5e2599d1a73fac74ce'
 HELPERS_SHA256 = '53c82235bfea0c4edf3cd5219f080c44c45ac1c9a6c3171f2aae151e18b56b91'
 MODEL_BASE_SHA256 = 'e7d08a4450287c76994b109437fbd03d721cf373fc8214bb9c30c478db060ffe'
+# Exact paired API profiles. The second omits writable_models around sampling;
+# Krea's inherited writable-model request in the first is a no-op. Other model
+# families and arbitrary cross-pairs are outside this native Krea boundary.
+CONSUMER_SOURCE_PROFILES = {
+    (SAMPLERS_BLOB, MODEL_BASE_SHA256): 'native-krea-writable-scope-v1',
+    ('17f7bb8babdeec605586cc08df2ab1c4f1c92fd4',
+     '5722b46418c6b7475041733d659bbd71f11f1dacb4d0aaff2b21aeb2c82d5542'): 'native-krea-pre-writable-scope-v1',
+}
 _lock = threading.Lock()
 _busy = set()
 _MISSING = object()
@@ -32,6 +41,13 @@ def _source_bytes(obj):
     return Path(inspect.getfile(obj)).read_bytes().replace(b'\r\n', b'\n')
 
 
+def _consumer_source_profile(samplers_blob, model_base_sha256):
+    profile = CONSUMER_SOURCE_PROFILES.get((samplers_blob, model_base_sha256))
+    if profile is None:
+        raise RuntimeError('V12 native guider/model source pair is unverified')
+    return profile
+
+
 def load_consumer_host():
     import comfy.samplers as samplers
     import comfy.sampler_helpers as helpers
@@ -39,12 +55,38 @@ def load_consumer_host():
     import comfy.k_diffusion.sampling as euler
     data = _source_bytes(samplers)
     blob = hashlib.sha1(b'blob ' + str(len(data)).encode() + b'\0' + data).hexdigest()
-    if blob != SAMPLERS_BLOB:
-        raise RuntimeError('V12 native guider/sampler source revision is unverified')
-    for module, expected in ((euler, EULER_SHA256), (helpers, HELPERS_SHA256), (model_base, MODEL_BASE_SHA256)):
+    model_data = _source_bytes(model_base)
+    profile = _consumer_source_profile(blob, hashlib.sha256(model_data).hexdigest())
+    for module, expected in ((euler, EULER_SHA256), (helpers, HELPERS_SHA256)):
         if hashlib.sha256(_source_bytes(module)).hexdigest() != expected:
             raise RuntimeError('V12 native evaluation dependency source revision is unverified')
+    verify_loaded_functions(samplers, data, (
+        'CFGGuider.sample', 'CFGGuider.outer_sample', 'CFGGuider.inner_sample',
+        'CFGGuider.predict_noise', 'CFGGuider.inner_set_conds', 'CFGGuider.set_conds',
+        'KSAMPLER.sample', 'KSamplerX0Inpaint.__call__', 'process_conds',
+        'calc_cond_batch', '_calc_cond_batch', 'sampling_function', 'cfg_function'))
+    verify_loaded_functions(model_base, model_data, (
+        'Krea2.__init__', 'Krea2.extra_conds', 'BaseModel.apply_model',
+        'BaseModel._apply_model', 'BaseModel.extra_conds',
+        'BaseModel.process_latent_in', 'BaseModel.process_latent_out'))
+    if profile == 'native-krea-writable-scope-v1':
+        verify_loaded_functions(model_base, model_data, ('BaseModel.get_writable_model',))
+    elif hasattr(model_base.BaseModel, 'get_writable_model'):
+        raise RuntimeError('V12 loaded model has an unverified writable-model hook')
+    verify_loaded_functions(helpers, _source_bytes(helpers), ('convert_cond',))
+    verify_loaded_functions(euler, _source_bytes(euler), (
+        'sample_euler', 'sample_euler_ancestral', 'sample_euler_ancestral_RF',
+        'sample_er_sde', 'offset_first_sigma_for_snr', 'sigma_to_half_log_snr'))
     return samplers, euler, model_base
+
+
+def _validate_writable_scope(patcher):
+    # Both admitted source pairs have the same Krea path only when the primary
+    # class has no instance writable-model override and no additional GPU model
+    # can enter the newer writable-model scope. Do not infer other model support.
+    if ('get_writable_model' in vars(patcher.model)
+            or patcher.get_additional_models_with_key('multigpu')):
+        raise RuntimeError('V12 native source profiles do not support extra writable/multigpu models')
 
 
 def _scalar(value):
@@ -167,6 +209,7 @@ class NativePhaseGuider:
         samplers, euler, model_base = self.host
         if type(guider) is not samplers.CFGGuider or type(guider.model_patcher.model) is not model_base.Krea2:
             raise RuntimeError('V12 consumer requires the pinned native Krea2 CFGGuider')
+        _validate_writable_scope(guider.model_patcher)
         allowed_samplers = (euler.sample_euler, euler.sample_euler_ancestral,
                             getattr(euler, 'sample_er_sde', None))
         if (type(sampler) is not samplers.KSAMPLER

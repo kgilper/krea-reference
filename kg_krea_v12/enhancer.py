@@ -14,8 +14,13 @@ import threading
 
 from .ledger import TAP_WIDTH, TAPS
 from .native import _signature
+from .compatibility import verify_loaded_functions
 
 ENHANCER_BLOB = 'c46e1c3ed244caaef231c580bb601ea935b3d1c7'
+ENHANCER_SOURCE_PROFILES = {
+    ENHANCER_BLOB: 'krea2t-basic-math-v1',
+    '31e24388a8d495a524f46371659d3087e2302664': 'krea2t-basic-math-extra-registrations-v1',
+}
 CORE_FUSION_BLOB = 'a904e05e0053d38bda0fdbd70625cd8c5e9b70a2'
 WRAPPER_KEY = 'kg_native_enhancer_v12'
 _OTHER_KEYS = ('krea2t_prompt_adherence_enhancer', 'krea2t_prompt_adherence_enhancer_advanced')
@@ -31,8 +36,9 @@ def load_enhancer_host():
         raise RuntimeError('V12 enhancer requires the pinned original Krea2T enhancer package')
     data = Path(inspect.getfile(cls)).read_bytes().replace(b'\r\n', b'\n')
     blob = hashlib.sha1(b'blob ' + str(len(data)).encode() + b'\0' + data).hexdigest()
-    if blob != ENHANCER_BLOB:
+    if blob not in ENHANCER_SOURCE_PROFILES:
         raise RuntimeError('V12 enhancer source revision is unverified')
+    enhancer_blob = blob
     module = sys.modules[cls.__module__]
     helper = getattr(module, '_enhanced_txtfusion_forward', None)
     compatible = getattr(module, '_is_krea2_dm', None)
@@ -40,12 +46,23 @@ def load_enhancer_host():
             or inspect.getfile(helper) != inspect.getfile(cls)
             or inspect.getfile(compatible) != inspect.getfile(cls)):
         raise RuntimeError('V12 enhancer helper does not belong to the pinned source')
+    verify_loaded_functions(module, data, (
+        '_is_krea2_dm', '_chunk_gains', '_run_refiners',
+        '_run_txtfusion_parts', '_enhanced_txtfusion_forward'))
+    profile = (1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 2.5, 5.0, 1.1, 4.0, 1.0)
+    expected_constants = {'KREA2_TAP_LAYERS': TAPS, 'KREA2_TAP_DIM': TAP_WIDTH,
+                          'KREA2_CHUNK_COUNT': 24, 'KREA2_CHUNK_DIM': 1280,
+                          'ENHANCER_PROFILE_12': profile, 'ENHANCER_CHUNK_PROFILE': profile + profile,
+                          'ENHANCER_GLOBAL_MULTIPLIER': 15.0, 'TXTFUSION_TOKEN_REL_CAP': 0.75}
+    if any(getattr(module, name, None) != value for name, value in expected_constants.items()):
+        raise RuntimeError('V12 loaded enhancer constants differ from admitted source')
     import comfy.ldm.krea2.model as core
     data = Path(inspect.getfile(core.TextFusionTransformer)).read_bytes().replace(b'\r\n', b'\n')
     blob = hashlib.sha1(b'blob ' + str(len(data)).encode() + b'\0' + data).hexdigest()
     if blob != CORE_FUSION_BLOB:
         raise RuntimeError('V12 enhancer native text-fusion source revision is unverified')
-    return helper, compatible
+    verify_loaded_functions(core, data, ('TextFusionTransformer.forward', 'TextFusionBlock.forward'))
+    return helper, compatible, enhancer_blob
 
 
 @contextmanager
@@ -81,7 +98,7 @@ def apply_enhancer(model, enabled=False, strength=1.0):
         raise ValueError('V12 enhancer strength must be finite within [0, 2]')
     if not enabled or strength == 0:
         return model, 'Krea native enhancer V12: OFF; original MODEL retained.'
-    helper, compatible = load_enhancer_host()
+    helper, compatible, enhancer_blob = load_enhancer_host()
     dm = model.model.diffusion_model
     _check_architecture(dm, compatible)
     original_options_signature = _signature(model.model_options)
@@ -90,7 +107,7 @@ def apply_enhancer(model, enabled=False, strength=1.0):
         raise RuntimeError('V12 enhancer refuses an already enhanced MODEL')
     if 'krea2_edit' in original_wrappers:
         raise RuntimeError('V12 enhancer must precede the native edit patch, which bypasses inner wrappers')
-    config = {'enabled': True, 'strength': float(strength), 'source_blob': ENHANCER_BLOB}
+    config = {'enabled': True, 'strength': float(strength), 'source_blob': enhancer_blob}
 
     def wrapper(executor, *args, **kwargs):
         options = kwargs.get('transformer_options')

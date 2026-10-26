@@ -148,7 +148,12 @@ The supported source reference is the surviving
 The original repository URL currently returns404. The integration verifies the
 installed `ComfyUI-Krea2T-Enhancer` class source Git blob
 `c46e1c3ed244caaef231c580bb601ea935b3d1c7` and the pinned native text-fusion source
-before attachment. It delegates the original helper's two text-fusion paths and
+before attachment. The separately reviewed source blob
+`31e24388a8d495a524f46371659d3087e2302664` is also admitted: its basic enhancer
+functions, class and numeric constants are identical, with only additional
+imports/registrations for independent utilities. Loaded helper code and constants
+must match the admitted source; a matching file alone is insufficient.
+It delegates the original helper's two text-fusion paths and
 bounded token delta; no upstream numeric implementation is bundled here. The
 separate package retains its own MIT notice. Model and task-weight terms remain
 separate from plugin code; this source compatibility check makes no commercial
@@ -228,6 +233,28 @@ reject active consumption. Scalar source probes exercise the actual pinned
 guider, evaluation, batch and grounded-wrapper control flow with loading/device
 boundaries and neural/VAE work explicitly substituted. Failure/short-schedule
 cleanup evidence is source evidence, not installed-runtime or model acceptance.
+
+Two exact native source pairs are admitted. The original pair binds sampler blob
+`a7cc3419e325e7d55aac8c7d5ce6d65f620fc511` to model-base SHA256
+`e7d08a4450287c76994b109437fbd03d721cf373fc8214bb9c30c478db060ffe`.
+The reviewed earlier API pair binds sampler blob
+`17f7bb8babdeec605586cc08df2ab1c4f1c92fd4` to model-base SHA256
+`5722b46418c6b7475041733d659bbd71f11f1dacb4d0aaff2b21aeb2c82d5542`.
+Mixed pairs reject. The earlier sampler omits the writable-model scope; Krea's
+inherited writable-model request in the newer source returns None. The consumer
+rejects instance writable-model overrides and additional multigpu models, keeping
+this equivalence limited to the exact Krea path. Changes to other model families
+do not establish their compatibility. Helper and numerical-sampling pins remain
+unchanged.
+
+At active binding, the consumer compiles the admitted source without executing
+its module body and compares the observed, unwrapped loaded call-path code with
+it, including nested code and exception regions. It also checks loaded enhancer
+constants and native fusion methods. This detects stale or replaced function
+bodies despite matching files; it is not a whole-runtime or model-state proof.
+Device behavior, actual tokenizer/tensors, effect and task quality still require
+installed-host validation. Node labels, caller revisions and inference-handle
+limitations are unchanged.
 
 To roll back this source addition, retain the previous checkout/package; no old
 saved graph is rewritten and no model/recipe is migrated by these nodes.
