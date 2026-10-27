@@ -347,3 +347,35 @@ bundled by this integration.
 
 To roll back this source addition, retain the previous checkout/package; no old
 saved graph is rewritten and no model/recipe is migrated by these nodes.
+
+## Explicit bounded scalar diagnostic
+
+`KGKrea2BoundedNativeDiagnosticV12` is an alternative study builder for the
+versioned illumination axis at +1 Throughout. Connect an owned, single-source,
+full-frame context and its exact context revision. It executes the same three
+study encodes and collects scalar measurements of the vision/deepstack inputs,
+projected contrast, tap/region energy and composition rounding. Existing study
+nodes and their ports are unchanged; ordinary workflows create no session.
+
+The resulting studies use the existing native phase guider. Diagnostic sampling
+accepts only eight native Euler steps, CFG1, handoff0.4, unattenuated phase
+weights, enhancerON/strength1, no noise mask or donor, and a single native image
+target no larger than1024x1024. Additional model callbacks, transformer patches
+and wrappers reject. At steps0 and4 it makes one extra native-positive prediction
+at the same latent and sigma, measuring actual text-fusion input/output and
+prediction differences. Those neutral predictions never advance the sampler.
+The ceiling is ten native predictions, conservatively twenty nominal CFG branch
+evaluations, with no extra study/VAE pass introduced by the observer.
+
+Connect `KGKrea2NativeDiagnosticReceiptV12` to these studies and the sampler's
+completed samples to return a scalar JSON receipt in the output node's UI data.
+The dependency must use the same sampler in the reviewed graph. A session is
+single-use and a receipt requires successful completion. The receipt is bounded
+to64KiB; no embeddings or tensor arrays are serialized. Source/context admission
+remains unchanged. Temporary pairs, RNG state and owned conditioning branches
+are restored or released on success, failure and cancellation, while detected
+foreign state is preserved. There is no execution endpoint or persistent hook.
+
+This diagnostic measures numerical transfer. Synthetic source tests do not
+establish native neural behavior or useful lighting, and a nonzero measured
+prediction difference does not by itself establish a calibrated semantic axis.

@@ -16,6 +16,7 @@ import types
 from .ledger import TAP_WIDTH, TAPS
 from .native import _signature
 from .compatibility import verify_loaded_functions
+from .diagnostics import current as current_diagnostic
 
 ENHANCER_BLOB = 'c46e1c3ed244caaef231c580bb601ea935b3d1c7'
 ENHANCER_SOURCE_PROFILES = {
@@ -172,6 +173,9 @@ def apply_enhancer(model, enabled=False, strength=1.0):
                                    strength=float(strength), collect_debug=False)
                 if tuple(getattr(result, 'shape', ())) != (*shape[:2], TAP_WIDTH):
                     raise RuntimeError('V12 enhancer helper returned an unexpected native text-fusion tensor')
+                diagnostic = current_diagnostic()
+                if diagnostic is not None:
+                    diagnostic.fusion(dm, x, result)
                 return result
 
             try:

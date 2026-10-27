@@ -3,7 +3,7 @@
 No solver, CFG implementation, model forward or inpaint path is copied here.
 Source compatibility is checked before active native evaluation is permitted.
 """
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext
 import hashlib
 import inspect
 import math
@@ -15,6 +15,7 @@ import uuid
 from .native import GROUNDING_BLOB, _signature
 from .studies import NativeStudies
 from .compatibility import verify_loaded_functions
+from .diagnostics import BASELINE_KEY
 
 SAMPLERS_BLOB = 'a7cc3419e325e7d55aac8c7d5ce6d65f620fc511'
 EULER_SHA256 = 'cfc4221ed0bc1f84a6f5689d3ec440cad3008c2541ab8f5e2599d1a73fac74ce'
@@ -228,7 +229,10 @@ class NativePhaseGuider:
             raise RuntimeError('V12 initial native consumer requires one matching latent/noise batch')
         if 'predict_noise' in vars(guider):
             raise RuntimeError('V12 native guider already has an instance prediction hook')
-        with _guider_lease(guider):
+        diagnostic = studies.diagnostic
+        if diagnostic is not None:
+            diagnostic.validate(studies, guider, sampler, schedule, euler)
+        with _guider_lease(guider), (diagnostic.scope('sampling') if diagnostic is not None else nullcontext()):
             original_conds = guider.original_conds
             original_predict = guider.predict_noise
             state = {'next': 0, 'callbacks': 0, 'predicting': False, 'processed': {}}
@@ -247,7 +251,7 @@ class NativePhaseGuider:
                     raise RuntimeError('V12 detected foreign native conditioning mutation')
                 bundle = studies.for_step(self.model_patcher, index, len(schedule) - 1)
                 if not state['processed']:
-                    state['processed'] = {key: guider.conds[key] for key in _PHASE_KEYS if key in guider.conds}
+                    state['processed'] = {key: guider.conds[key] for key in owned_phase_entries if key in guider.conds}
                 previous = guider.conds['positive']
                 selected = previous
                 state['predicting'] = True
@@ -256,7 +260,11 @@ class NativePhaseGuider:
                         phase = 0 if index / (len(schedule) - 1) < studies.phases[0] else 1
                         selected = guider.conds[_PHASE_KEYS[phase]]
                         guider.conds['positive'] = selected
-                    result = original_predict(x, timestep, model_options=model_options, seed=seed)
+                    if diagnostic is None:
+                        result = original_predict(x, timestep, model_options=model_options, seed=seed)
+                    else:
+                        result = diagnostic.predict(original_predict, guider, guider.conds[BASELINE_KEY],
+                                                    x, timestep, model_options, seed, index, phase)
                     state['next'] += 1
                     return result
                 finally:
@@ -280,6 +288,9 @@ class NativePhaseGuider:
                     if phase is not studies.context.native:
                         guider.inner_set_conds({key: phase['positive']})
                         owned_phase_entries[key] = guider.original_conds[key]
+                if diagnostic is not None:
+                    guider.inner_set_conds({BASELINE_KEY: studies.context.native['positive']})
+                    owned_phase_entries[BASELINE_KEY] = guider.original_conds[BASELINE_KEY]
                 phase_signature = _signature(guider.original_conds)
                 guider.predict_noise = predict
                 output = guider.sample(noise, latent_image, sampler, sigmas, denoise_mask=denoise_mask,

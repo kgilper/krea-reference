@@ -49,6 +49,7 @@ from .kg_krea_v12 import (
     KGKrea2PrepareNativeContextV12, KGKrea2NativeAxisV12, KGKrea2CombinedNativeStudiesV12,
     KGKrea2NativePhaseGuiderV12, KGKrea2PrepareOwnedGroundedContextV12, KGKrea2RemoveOwnedReferenceV12,
     KGKrea2NativeEnhancerV12, KGKrea2PrepareNativeTargetV12,
+    KGKrea2BoundedNativeDiagnosticV12, KGKrea2NativeDiagnosticReceiptV12,
 )
 
 NODE_CLASS_MAPPINGS.update({
@@ -60,6 +61,8 @@ NODE_CLASS_MAPPINGS.update({
     "KGKrea2RemoveOwnedReferenceV12": KGKrea2RemoveOwnedReferenceV12,
     "KGKrea2NativeEnhancerV12": KGKrea2NativeEnhancerV12,
     "KGKrea2PrepareNativeTargetV12": KGKrea2PrepareNativeTargetV12,
+    "KGKrea2BoundedNativeDiagnosticV12": KGKrea2BoundedNativeDiagnosticV12,
+    "KGKrea2NativeDiagnosticReceiptV12": KGKrea2NativeDiagnosticReceiptV12,
 })
 NODE_DISPLAY_NAME_MAPPINGS.update({
     "KGKrea2PrepareNativeContextV12": "KG Krea 2 Prepare Native Context V12",
@@ -70,4 +73,6 @@ NODE_DISPLAY_NAME_MAPPINGS.update({
     "KGKrea2RemoveOwnedReferenceV12": "KG Krea 2 Remove Owned Reference V12",
     "KGKrea2NativeEnhancerV12": "KG Krea 2 Native Enhancer V12",
     "KGKrea2PrepareNativeTargetV12": "KG Krea 2 Prepare Native Target V12",
+    "KGKrea2BoundedNativeDiagnosticV12": "KG Krea 2 Bounded Native Diagnostic V12",
+    "KGKrea2NativeDiagnosticReceiptV12": "KG Krea 2 Native Diagnostic Receipt V12",
 })

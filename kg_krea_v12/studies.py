@@ -10,6 +10,7 @@ import math
 from .hooks import controlled_encode, encoder_lease
 from .ledger import TAP_WIDTH, TAPS, TokenLedger
 from .native import NativeContext
+from .diagnostics import current as current_diagnostic
 
 TIMINGS = ('throughout', 'early-layout', 'final-details')
 
@@ -81,6 +82,7 @@ class NativeStudies:
     budget_scales: tuple
     active: bool
     retained_output_positions: tuple = ()
+    diagnostic: object = None
 
     def for_step(self, model, step_index, active_steps):
         """Research join seam: select exactly one phase at an actual active step.
@@ -169,6 +171,9 @@ def build_studies(context, cards, split=0.4, budget=2.0, max_passes=20, max_toke
             if (len(native_positive) != 1 or projected[0][0].shape != native_positive[0][0].shape):
                 raise RuntimeError('V12 projected study extent differs from the actual native positive')
             observed.append(expanded)
+            diagnostic = current_diagnostic()
+            if diagnostic is not None:
+                diagnostic.encoded(projected[0][0], expanded, positions)
             return projected
         all_poles = tuple(range(len(ledger.poles)))
         base = encode(all_poles)
@@ -184,6 +189,9 @@ def build_studies(context, cards, split=0.4, budget=2.0, max_passes=20, max_toke
                 phases.append(context.native)
                 continue
             steered = conditioning.compose(context.native['positive'], list(zip(axes, weights)))
+            diagnostic = current_diagnostic()
+            if diagnostic is not None:
+                diagnostic.composition(context.native['positive'][0][0], axes[0][0], steered[0][0], phase)
             blended = conditioning.blend_native(context.native['positive'], steered, sum(abs(w) for w in weights))
             phases.append({**context.native, 'positive': blended})
     context.verify()

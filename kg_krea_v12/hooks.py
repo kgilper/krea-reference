@@ -4,6 +4,7 @@ import math
 import threading
 
 from .ledger import OWNER_KEY, TAPS, VISION_DEPTH
+from .diagnostics import current as current_diagnostic
 
 _guard = threading.Lock()
 _busy = set()
@@ -87,6 +88,9 @@ def controlled_encode(model, transformer, ledger, muted_poles=(), image_scales=N
                 or len(extra['deepstack']) != VISION_DEPTH):
             raise RuntimeError('V12 missing native image/deepstack preparation')
         gain = scales.get(owner, 1.0)
+        diagnostic = current_diagnostic()
+        if diagnostic is not None:
+            diagnostic.image(owner, emb, extra)
         if gain != 1.0:
             emb = emb * gain
             extra = {**extra, 'deepstack': [feature * gain for feature in extra['deepstack']]}

@@ -223,3 +223,40 @@ class KGKrea2PrepareNativeTargetV12:
         from .latents import prepare_context_target
         return prepare_context_target(kwargs['Native context'],
                                       enabled=kwargs['Native target preparation enabled'])
+
+
+class KGKrea2BoundedNativeDiagnosticV12:
+    """Explicit alternative study builder; existing node contracts are unchanged."""
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {'required': {'Native context': (CONTEXT_TYPE,), 'Native axis': (AXIS_TYPE,),
+                             'Diagnostic context revision': ('STRING', {'default': ''})}}
+
+    RETURN_TYPES = (STUDIES_TYPE,)
+    RETURN_NAMES = ('native_studies',)
+    FUNCTION = 'execute'
+    CATEGORY = 'advanced/conditioning/native diagnostics'
+
+    def execute(self, **kwargs):
+        from .diagnostics import build_diagnostic
+        return (build_diagnostic(kwargs['Native context'], kwargs['Native axis'],
+                                 kwargs['Diagnostic context revision']),)
+
+
+class KGKrea2NativeDiagnosticReceiptV12:
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {'required': {'Native studies': (STUDIES_TYPE,), 'Completed samples': ('LATENT',)}}
+
+    RETURN_TYPES = ('STRING',)
+    RETURN_NAMES = ('scalar_receipt',)
+    FUNCTION = 'execute'
+    CATEGORY = 'advanced/conditioning/native diagnostics'
+    OUTPUT_NODE = True
+
+    def execute(self, **kwargs):
+        session = kwargs['Native studies'].diagnostic
+        if session is None:
+            raise RuntimeError('V12 receipt requires explicit bounded diagnostic studies')
+        text = session.receipt()
+        return {'ui': {'text': [text]}, 'result': (text,)}
