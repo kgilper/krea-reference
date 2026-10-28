@@ -261,6 +261,10 @@ class CarrierTests(unittest.TestCase):
                 projected = [[original + 2, native[0][1].copy()]]
                 base = [[full, {"attention_mask": mask}]]
                 plus, minus = full[:, 3:6] + 8, full[:, 6:9] - 4
+                # Unit selection must copy actual states rather than incur
+                # cancellation in B+(P-B) when native encodes differ greatly.
+                full[:, 3:6] = 100000000
+                plus[:] = 1.125
                 poles = [((3, 6), (6, 9), plus, minus)]
                 for weight in (1, -1, 0.5):
                     actual, keep = construct(
@@ -276,8 +280,11 @@ class CarrierTests(unittest.TestCase):
                     )
                     span, selected = ((3, 6), plus) if weight > 0 else ((6, 9), minus)
                     indexes = list(range(*span))
-                    expected = full[:, indexes] + (selected - full[:, indexes]) * abs(
-                        weight
+                    expected = (
+                        selected
+                        if abs(weight) == 1
+                        else full[:, indexes]
+                        + (selected - full[:, indexes]) * abs(weight)
                     )
                     torch.testing.assert_close(
                         value[:, [positions[i] for i in indexes]],

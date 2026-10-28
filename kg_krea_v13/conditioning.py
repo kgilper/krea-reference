@@ -63,7 +63,7 @@ def construct(native, projected, full_base, retained_positions, poles, weights):
     for (start, end), cells, w in selected:
         positions = list(range(start, end))
         value[:, [mapping[i] for i in positions]] = (
-            b[:, positions] + (cells - b[:, positions]) * w
+            cells if w == 1 else b[:, positions] + (cells - b[:, positions]) * w
         )
     metadata = nmeta.copy()
     if bmeta.get("attention_mask") is not None:
