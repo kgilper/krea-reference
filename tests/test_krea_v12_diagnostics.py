@@ -285,7 +285,7 @@ class DiagnosticTests(unittest.TestCase):
         self.assertEqual(s.state,'failed')
 
     def test_wrong_step_count_sampler_cfg_callbacks_and_extra_wrappers_reject(self):
-        for change in ('steps','sampler','cfg','callback','wrapper','transformer','target'):
+        for change in ('steps','sampler','cfg','callback','wrapper','transformer','target','pendingWrapper','pendingCallback'):
             bundle=self.prepared();s,study,g,host,sampler=bundle
             schedule=[8,7,6,5,4,3,2,1,0]
             if change=='steps':schedule=[2,1,0]
@@ -294,6 +294,8 @@ class DiagnosticTests(unittest.TestCase):
             elif change=='callback':g.model_patcher.model_options['sampler_post_cfg_function']=[lambda:None]
             elif change=='wrapper':g.model_patcher.model_options['transformer_options']['wrappers']['predict_noise']={}
             elif change=='transformer':g.model_patcher.model_options['transformer_options']['patches']={}
+            elif change=='pendingWrapper':g.model_patcher.wrappers={'diffusion_model':{'foreign':[lambda *a:None]}}
+            elif change=='pendingCallback':g.model_patcher.callbacks={'on_load_after':{'foreign':[lambda *a:None]}}
             else:study.context.native['target_latent']['samples']=Array(np.zeros((1,16,1,129,1)))
             with self.subTest(change=change),self.assertRaises(RuntimeError):
                 s.validate(study,g,sampler,schedule,host[1])

@@ -209,6 +209,9 @@ class BoundedDiagnostic:
         if len(shape) != 5 or shape[:3] != (1, 16, 1) or not all(1 <= size <= 128 for size in shape[-2:]):
             raise RuntimeError('V12 diagnostic target exceeds its single-image spatial bound')
         options = guider.model_patcher.model_options
+        if (getattr(guider.model_patcher, 'wrappers', {})
+                or getattr(guider.model_patcher, 'callbacks', {})):
+            raise RuntimeError('V12 diagnostic refuses unmerged MODEL wrappers/callbacks')
         if set(options) - {'transformer_options'}:
             raise RuntimeError('V12 diagnostic refuses extra MODEL options/callbacks')
         wrappers = options.get('transformer_options', {}).get('wrappers', {})

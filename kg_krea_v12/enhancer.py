@@ -133,9 +133,11 @@ def apply_enhancer(model, enabled=False, strength=1.0):
     _check_architecture(dm, compatible)
     original_options_signature = _signature(model.model_options)
     original_wrappers = _wrappers(model.model_options)
-    if any(key in original_wrappers for key in (WRAPPER_KEY, *_OTHER_KEYS)):
+    pending_wrappers = getattr(model, 'wrappers', {}).get('diffusion_model', {})
+    if any(key in registry for registry in (original_wrappers, pending_wrappers)
+           for key in (WRAPPER_KEY, *_OTHER_KEYS)):
         raise RuntimeError('V12 enhancer refuses an already enhanced MODEL')
-    if 'krea2_edit' in original_wrappers:
+    if any('krea2_edit' in registry for registry in (original_wrappers, pending_wrappers)):
         raise RuntimeError('V12 enhancer must precede the native edit patch, which bypasses inner wrappers')
     config = {'enabled': True, 'strength': float(strength), 'source_blob': enhancer_blob}
 
@@ -195,7 +197,10 @@ def apply_enhancer(model, enabled=False, strength=1.0):
         raise RuntimeError('V12 enhancer requires an independent native MODEL clone')
     to = patched.model_options.setdefault('transformer_options', {})
     to[WRAPPER_KEY] = config.copy()
-    patched.add_wrapper_with_key('diffusion_model', WRAPPER_KEY, wrapper)
+    # Native edit registers in this options map and bypasses its inner executor.
+    # ModelPatcher.wrappers is merged later, after options-level registrations;
+    # putting the enhancer there would let native edit bypass it entirely.
+    to.setdefault('wrappers', {}).setdefault('diffusion_model', {}).setdefault(WRAPPER_KEY, []).append(wrapper)
     if _signature(model.model_options) != original_options_signature:
         raise RuntimeError('V12 enhancer clone changed original MODEL wrapper ownership')
     return patched, ('Krea native enhancer V12: pinned text-fusion helper attached; '

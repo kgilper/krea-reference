@@ -28,15 +28,20 @@ class Fusion:
 
 
 class Model:
-    def __init__(self, dm=None, options=None):
+    def __init__(self, dm=None, options=None, wrappers=None):
         self.model = NS(diffusion_model=dm or NS(txtfusion=Fusion(), txtlayers=12, txtdim=2560))
         self.model_options = {} if options is None else options
+        self.wrappers = {} if wrappers is None else wrappers
+        self.callbacks = {}
 
     def clone(self):
-        return Model(self.model.diffusion_model, copy.deepcopy(self.model_options))
+        cloned = Model(self.model.diffusion_model, copy.deepcopy(self.model_options), copy.deepcopy(self.wrappers))
+        cloned.callbacks = copy.deepcopy(self.callbacks)
+        return cloned
 
     def add_wrapper_with_key(self, kind, key, wrapper):
-        self.model_options.setdefault('transformer_options', {}).setdefault('wrappers', {}).setdefault(kind, {}).setdefault(key, []).append(wrapper)
+        # Native ModelPatcher API stores these separately until sampling prep.
+        self.wrappers.setdefault(kind, {}).setdefault(key, []).append(wrapper)
 
 
 class Executor:
@@ -78,6 +83,57 @@ class EnhancerV12Tests(unittest.TestCase):
                 result, _ = enhancer.apply_enhancer(self.model, enabled, strength)
                 self.assertIs(result, self.model)
         self.assertEqual(self.model.model_options, {})
+
+    def test_options_registration_precedes_native_edit_after_pending_merge(self):
+        foreign = lambda executor, *args, **kwargs: executor(*args, **kwargs)
+        self.model.add_wrapper_with_key('diffusion_model', 'foreign', foreign)
+        self.model.callbacks={'on_load_after':{'foreign':[foreign]}}
+        enhanced, options, wrapper = self.attached()
+        self.assertEqual(list(enhanced.wrappers['diffusion_model']), ['foreign'])
+        self.assertEqual(list(options['wrappers']['diffusion_model']), [enhancer.WRAPPER_KEY])
+        self.assertEqual(self.model.model_options, {})
+        self.assertEqual(enhanced.callbacks,self.model.callbacks)
+        self.assertIsNot(enhanced.callbacks,self.model.callbacks)
+        observed=[]
+        dm=self.model.model.diffusion_model
+        def native_edit(executor, **kwargs):
+            observed.append('native-edit-bypasses-inner')
+            return dm.txtfusion.forward(NS(shape=(1,2,12,2560)),
+                                        transformer_options=kwargs['transformer_options'])
+        options['wrappers']['diffusion_model']['krea2_edit']=[native_edit]
+        # Ordinary native preparation preserves options keys, then appends the
+        # separately registered ModelPatcher wrappers. No source/body emulation.
+        for kind, entries in enhanced.wrappers.items():
+            for key, functions in entries.items():
+                options['wrappers'].setdefault(kind,{}).setdefault(key,[]).extend(functions)
+        chain=[fn for group in options['wrappers']['diffusion_model'].values() for fn in group]
+        class Chain:
+            class_obj=dm
+            def __init__(self,index=0):self.index=index
+            def __call__(self,*args,**kwargs):
+                return chain[self.index](Chain(self.index+1),*args,**kwargs)
+        result=Chain()(transformer_options=options)
+        self.assertEqual(result.value,'delegated-helper')
+        self.assertEqual(observed,['native-edit-bypasses-inner'])
+        self.assertEqual(len(self.calls),1)
+        self.assertEqual(list(options['wrappers']['diffusion_model']),
+                         [enhancer.WRAPPER_KEY,'krea2_edit','foreign'])
+        self.assertEqual(list(self.model.wrappers['diffusion_model']),['foreign'])
+
+    def test_pending_duplicate_enhancer_and_edit_rejected_before_clone(self):
+        for key in (enhancer.WRAPPER_KEY,*enhancer._OTHER_KEYS,'krea2_edit'):
+            with self.subTest(key=key):
+                model=Model()
+                model.add_wrapper_with_key('diffusion_model',key,lambda *a:None)
+                with patch.object(model,'clone',side_effect=AssertionError('must reject first')):
+                    with self.assertRaises(RuntimeError):enhancer.apply_enhancer(model,True,1)
+
+    def test_options_duplicate_enhancer_and_edit_rejected_before_clone(self):
+        for key in (enhancer.WRAPPER_KEY,*enhancer._OTHER_KEYS,'krea2_edit'):
+            with self.subTest(key=key):
+                model=Model(options={'transformer_options':{'wrappers':{'diffusion_model':{key:[lambda *a:None]}}}})
+                with patch.object(model,'clone',side_effect=AssertionError('must reject first')):
+                    with self.assertRaises(RuntimeError):enhancer.apply_enhancer(model,True,1)
 
     def test_active_invokes_pinned_helper_and_preserves_model_options_and_forward(self):
         foreign = lambda *args: None

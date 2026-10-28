@@ -379,3 +379,13 @@ foreign state is preserved. There is no execution endpoint or persistent hook.
 This diagnostic measures numerical transfer. Synthetic source tests do not
 establish native neural behavior or useful lighting, and a nonzero measured
 prediction difference does not by itself establish a calibrated semantic axis.
+
+The enhancer registers in the cloned MODEL's transformer-options wrapper map,
+before the native edit wrapper. Comfy also has a separate ModelPatcher wrapper
+registry that is merged later during sampling preparation. Registering the
+enhancer only there puts it after native edit, whose forward bypasses its inner
+executor. Options-level registration preserves the intended enhancer-before-edit
+execution order. Duplicate enhancer/edit attachments are rejected in either
+registry. The bounded diagnostic additionally rejects unmerged ModelPatcher
+wrappers/callbacks, so a later native merge cannot silently add unreviewed calls.
+EnhancerOFF/strength0 retains original MODEL identity and performs no registration.
