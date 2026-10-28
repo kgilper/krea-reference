@@ -2,10 +2,13 @@
 
 V12 adds an experimental developer interface for studying semantic poles in the
 same source/donor context as a native Krea encode. A thin developer consumer
-delegates to pinned native Comfy Euler, Euler ancestral or ER-SDE sampling; **this is not a model-validated
-or supported combined generation/edit workflow.** V11
-remains the supported starting point. Existing nodes and recipe tables retain
-their behavior.
+delegates to pinned native Comfy Euler, Euler ancestral or ER-SDE sampling. The
+original projection-only slider has not established useful general calibration.
+The opt-in [V13 carrier construction](krea-v13-native-carriers.md) uses this native
+context, enhancer and consumer and now has one verified full-frame synthetic
+illumination comparison. That narrow result does not establish broader combined
+generation/edit support. V11 remains the supported starting point. Existing nodes
+and recipe tables retain their behavior.
 
 The implementation is original integration code that calls host interfaces. It
 does not bundle model weights or upstream encoder/edit runtime implementations.
