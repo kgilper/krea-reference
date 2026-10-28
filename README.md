@@ -8,6 +8,11 @@ V11 subject-plus-style guidance, using synthetic product and graphic references.
 
 ## Start with V11
 
+Developers testing native combined conditioning can opt into the
+[experimental V13 carrier studies](docs/krea-v13-native-carriers.md). This is a
+separate research interface with explicit native coefficients and CFG1, pending
+model validation; it does not change the V11 workflows below.
+
 | What you want | Open |
 |---|---|
 | Guide an image with reference cards | [Native V11 Reference starter](example_workflows/krea-v11-reference-stack-workflow.json) |

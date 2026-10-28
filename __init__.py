@@ -76,3 +76,14 @@ NODE_DISPLAY_NAME_MAPPINGS.update({
     "KGKrea2BoundedNativeDiagnosticV12": "KG Krea 2 Bounded Native Diagnostic V12",
     "KGKrea2NativeDiagnosticReceiptV12": "KG Krea 2 Native Diagnostic Receipt V12",
 })
+
+from .kg_krea_v13 import KGKrea2NativeCarrierStudiesV13, KGKrea2NativeCarrierPhaseGuiderV13
+
+NODE_CLASS_MAPPINGS.update({
+    "KGKrea2NativeCarrierStudiesV13": KGKrea2NativeCarrierStudiesV13,
+    "KGKrea2NativeCarrierPhaseGuiderV13": KGKrea2NativeCarrierPhaseGuiderV13,
+})
+NODE_DISPLAY_NAME_MAPPINGS.update({
+    "KGKrea2NativeCarrierStudiesV13": "KG Krea 2 Native Carrier Studies V13 (Experimental)",
+    "KGKrea2NativeCarrierPhaseGuiderV13": "KG Krea 2 Native Carrier Phase Guider V13 (Experimental)",
+})
