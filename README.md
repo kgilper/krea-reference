@@ -1,6 +1,16 @@
-# ComfyUI Krea Reference — V11
+# ComfyUI Krea Reference
 
 Guide Krea 2 with reference images and training-free concept sliders. **V11 is the current version to start with**, available in package 0.5.0 or newer. Existing V9/V10/Slider V1 workflows keep their original behavior.
+
+| Choose a path | Start here |
+|---|---|
+| Reference cards or text-defined sliders in a portable ComfyUI workflow | [V11 user guide](docs/krea-v11-user-guide.md) |
+| Experimental native image editing with the verified illumination example | [V13 setup and wiring](docs/krea-v13-native-carriers.md#setup-and-first-comparison) |
+| Exact classes, ports and compatibility requirements | [Complete node index](docs/nodes/README.md) |
+
+V12/V13 require current GitHub source and specific native host dependencies;
+registry package 0.5.0 does not include them. V13's demonstrated illumination
+effect is separate from V11's conditioning-based sliders.
 
 ![V11 reference-guided teapot example](docs/assets/krea-v11/reference-style.png)
 
@@ -70,6 +80,12 @@ git clone https://github.com/kgilper/krea-reference.git
 ```
 
 Restart ComfyUI and refresh the browser. Select installed Krea 2 diffusion, Krea Qwen3-VL encoder and Qwen image VAE files. This repo does not ship model weights. See the [V11 guide](docs/krea-v11-user-guide.md) for exact node class names and host requirements.
+
+For an existing Git installation, run `git pull --ff-only` inside its package
+folder, then restart ComfyUI and refresh the browser. Install only one copy of
+the package. Native V12/V13 users should check the [additional host requirements](docs/krea-v13-native-carriers.md#requirements)
+before updating: active native consumption checks exact dependency source
+revisions and rejects unsupported combinations.
 
 ## Recipes, implementation and prior versions
 

@@ -4,13 +4,16 @@ Use this guide to validate changes with portable paths and test images created f
 
 ## Local Contract Tests
 
-These tests stub the small parts of ComfyUI needed by the V9 and V10 math and label contracts:
+Run the complete source suite from the repository root:
 
 ```bash
 python -m unittest discover -s tests -p "test_*.py" -v
 ```
 
-They verify:
+The suite covers the preserved V9/V10 contracts, Slider V1/V11 behavior and
+the additive V12/V13 native interfaces. Lightweight host doubles keep most
+checks independent of a running ComfyUI server; tensor checks use the available
+PyTorch runtime. Read the test output for any skipped checks. Key coverage:
 
 - V9 widget labels remain stable for saved workflow compatibility, and V10 labels are the V9 labels plus appended rows only.
 - Guide packets stay compatible in both directions: V9 cards work in the V10 stack and V10 cards work in the V9 stack.
@@ -22,11 +25,18 @@ They verify:
 - Custom recipe files validate against the schema: valid YAML/JSON recipes appear after the built-in dropdown choices and resolve on the card (including guard clamping and direction/timing composition), invalid files are skipped with named reasons, labels cannot shadow built-ins in either direction, and removed-recipe workflows fall back to `balanced`.
 - Layer-target fallback warns when conditioning cannot split into the expected bands.
 - Strength curves and timestep ranges behave predictably.
+- V11 automatic/manual slider budgets, cancellation, timing and saved-widget compatibility.
+- V12 native ownership, target preparation, source compatibility, optional enhancer ordering/cleanup and bounded diagnostics.
+- V13 literal carrier selection, exact unit-weight copies, cancellation/zero identity, CFG1 admission and native guider delegation.
+
+Passing these checks establishes source contracts. It does not establish useful
+semantic effects on an installed model. The [V13 illumination comparison](krea-v13-native-carriers.md#verified-signed-illumination-comparison)
+is separate live evidence with a specific recipe and scope.
 
 ## Syntax Check
 
 ```bash
-python -m compileall -q kg_krea_v9 kg_krea_v10 __init__.py
+python -m compileall -q kg_krea_v9 kg_krea_v10 kg_krea_slider kg_krea_v11 kg_krea_v12 kg_krea_v13 __init__.py
 ```
 
 ## Real ComfyUI Smoke Test
@@ -38,7 +48,30 @@ KGKrea2ImageGuideCardV9
 KGTextEncodeKreaImageReferencesV9
 KGKrea2ImageGuideCardV10
 KGTextEncodeKreaImageReferencesV10
+KGKrea2ConceptSliderCardV1
+KGKrea2ConceptSliderStackV1
+KGKrea2ImageGuideCardV11
+KGTextEncodeKreaImageReferencesV11
+KGKrea2ConceptSliderCardV11
+KGKrea2ConceptSliderStackV11
 ```
+
+Current GitHub source also registers ten V12 and two V13 native classes; see
+the [complete node index](nodes/README.md). Confirm both V13 nodes have the
+expected typed ports and inspect startup errors. Node presence alone does not
+verify native dependency compatibility or loaded model behavior.
+
+For a native V13 smoke, first check the documented host/source profiles and
+follow [setup and wiring](krea-v13-native-carriers.md#setup-and-first-comparison).
+Keep synthetic source, prompt, seed and recipe fixed for the zero/minus/plus
+comparison. Confirm completion, actual outputs and absence of errors, then
+inspect scene preservation and the intended visible change. Retain actual
+parameters and original outputs privately. Use ordinary studies; diagnostic
+nodes add predictions and require a separate bounded test plan.
+
+On a shared server, coordinate an idle installation/restart window. If installed
+runtime bytes already match the reviewed source, verify identity and usability
+without restarting solely for documentation changes.
 
 Then load the example workflows and replace placeholder Load Image filenames with test images created for that run. For the V10 workflows, additionally confirm:
 

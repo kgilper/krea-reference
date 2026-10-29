@@ -43,13 +43,12 @@ The landing math per tap: effective scale =
 `clamp(strength x phase x shape x layers[i], -6, +6)`, compose weight =
 `scale - 1`. Gains act on the **token channel only**; the pooled/global
 channel (`global`) is independent. Derivation for authoring:
-[`custom_recipes/README.md`](../../custom_recipes/README.md#deriving-the-layers-array).
+[`custom_recipes/README.md`](../../custom_recipes/README.md#derivation-procedure).
 
 ## 2. Where the specific numbers came from (traced, not guessed)
 
-The provenance was reconstructed from the node's development history (Kevin's
-OpenAI Codex sessions, 2026-06-30 to 07-01; internal record in
-`local_records/2026-07-03-deepstack-layer-determination/`). The honest story:
+The provenance was reconstructed from the node's development history. The
+shipped tables were adopted and then evaluated through rendered comparisons:
 
 1. **Early versions (v1-v5)** applied a single uniform scalar across the whole
    tap stack - no per-tap tables. "Roles" were prose appended to the prompt.
@@ -212,9 +211,8 @@ optimal cannot be answered at the conditioning level at all.
 
 **The load-bearing lesson:** conditioning-level selectivity misleads on its own,
 because tap magnitude and the nonlinear diffusion path dominate the actual
-effect. **The layers can only be derived reliably from renders.** Full arc, raw
-signatures, and the validation images:
-`local_records/2026-07-03-deepstack-layer-determination/stage1-measurement/`.
+effect. **The layers can only be derived reliably from renders.** The stages
+below describe the render validation and its limits.
 
 ### Stage 2 - metric-scored render validation (moderate) - PROVEN OUT, formalize next
 
@@ -245,8 +243,8 @@ dominate - which the shipped tables already emphasize.
 
 To go further (more roles, references, a real CMA-ES/Bayesian optimizer with
 CLIP style/identity metrics), the harness and objective are in place; this run
-is the demonstration. Full result + images:
-`local_records/.../stage1-measurement/stage3-derivation/`.
+is the demonstration. This does not establish optimal tables for other roles
+or references.
 
 ### Bottom line
 
@@ -283,4 +281,4 @@ levels for the variance decomposition.
 
 - [V9 technical paper 5.2](../previous-versions/v9/krea-v9-technical-paper.md#52-per-layer-gains-steering-inside-the-token-channel) - the channel math (inherits the "deepstack" naming corrected here).
 - [V9 technical paper 16.4](../previous-versions/v9/krea-v9-technical-paper.md#164-re-tune-layer-gains-for-a-new-checkpoint) - the render-sweep methodology.
-- [custom_recipes/README.md](../../custom_recipes/README.md#deriving-the-layers-array) - authoring a `layers` array from this structure.
+- [custom_recipes/README.md](../../custom_recipes/README.md#derivation-procedure) - authoring a `layers` array from this structure.
