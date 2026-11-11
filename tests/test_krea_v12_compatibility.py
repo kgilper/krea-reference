@@ -43,13 +43,112 @@ class CompatibilityTests(unittest.TestCase):
                     compatibility._torch_source_profile(context, {**grad, name: 'unknown'})
 
     def test_exact_core_pairs_admit_but_cross_pairs_and_unknown_reject(self):
-        pairs = list(consumer.CONSUMER_SOURCE_PROFILES)
-        self.assertEqual(len(pairs), 2)
-        for pair in pairs:
-            self.assertTrue(consumer._consumer_source_profile(*pair))
-        for pair in ((pairs[0][0], pairs[1][1]), (pairs[1][0], pairs[0][1]), ('unknown', pairs[0][1])):
-            with self.assertRaisesRegex(RuntimeError, 'source pair is unverified'):
-                consumer._consumer_source_profile(*pair)
+        expected = {
+            (consumer.SAMPLERS_BLOB, consumer.MODEL_BASE_SHA256): 'native-krea-writable-scope-v1',
+            (consumer.SAMPLERS_BLOB, consumer.MODEL_BASE_V2_SHA256): 'native-krea-writable-scope-v2',
+            ('17f7bb8babdeec605586cc08df2ab1c4f1c92fd4',
+             '5722b46418c6b7475041733d659bbd71f11f1dacb4d0aaff2b21aeb2c82d5542'): 'native-krea-pre-writable-scope-v1',
+        }
+        self.assertEqual(consumer.CONSUMER_SOURCE_PROFILES, expected)
+        self.assertEqual(consumer._WRITABLE_SCOPE_PROFILES,
+                         frozenset(('native-krea-writable-scope-v1', 'native-krea-writable-scope-v2')))
+        for pair, profile in expected.items():
+            self.assertEqual(consumer._consumer_source_profile(*pair), profile)
+        samplers_blobs = {pair[0] for pair in expected} | {'unknown'}
+        model_hashes = {pair[1] for pair in expected} | {'unknown'}
+        for s_blob in samplers_blobs:
+            for m_hash in model_hashes:
+                if (s_blob, m_hash) in expected:
+                    continue
+                with self.subTest(samplers_blob=s_blob, model_base_sha256=m_hash):
+                    with self.assertRaisesRegex(RuntimeError, 'source pair is unverified'):
+                        consumer._consumer_source_profile(s_blob, m_hash)
+
+    def test_load_consumer_host_enforces_writable_hook_for_both_writable_profiles(self):
+        from unittest.mock import patch
+        samplers_src = (
+            'class CFGGuider:\n'
+            '    def sample(self): return 1\n'
+            '    def outer_sample(self): return 1\n'
+            '    def inner_sample(self): return 1\n'
+            '    def predict_noise(self): return 1\n'
+            '    def inner_set_conds(self): return 1\n'
+            '    def set_conds(self): return 1\n'
+            'class KSAMPLER:\n'
+            '    def sample(self): return 1\n'
+            'class KSamplerX0Inpaint:\n'
+            '    def __call__(self): return 1\n'
+            'def process_conds(): return 1\n'
+            'def calc_cond_batch(): return 1\n'
+            'def _calc_cond_batch(): return 1\n'
+            'def sampling_function(): return 1\n'
+            'def cfg_function(): return 1\n'
+        ).encode()
+        writable_model_src = (
+            'class BaseModel:\n'
+            '    def apply_model(self): return 1\n'
+            '    def _apply_model(self): return 1\n'
+            '    def extra_conds(self): return 1\n'
+            '    def process_latent_in(self): return 1\n'
+            '    def process_latent_out(self): return 1\n'
+            '    def get_writable_model(self): return None\n'
+            'class Krea2(BaseModel):\n'
+            '    def __init__(self): pass\n'
+            '    def extra_conds(self): return 1\n'
+        ).encode()
+        pre_writable_model_src = writable_model_src.replace(b'    def get_writable_model(self): return None\n', b'')
+        helpers_src = b'def convert_cond(): return 1\n'
+        euler_src = (
+            'def sample_euler(): return 1\n'
+            'def sample_euler_ancestral(): return 1\n'
+            'def sample_euler_ancestral_RF(): return 1\n'
+            'def sample_er_sde(): return 1\n'
+            'def offset_first_sigma_for_snr(): return 1\n'
+            'def sigma_to_half_log_snr(): return 1\n'
+        ).encode()
+
+        def build_modules(model_src):
+            comfy = ModuleType('comfy')
+            k_diff = ModuleType('comfy.k_diffusion')
+            mods = {}
+            for name, src in (('comfy.samplers', samplers_src), ('comfy.model_base', model_src),
+                              ('comfy.sampler_helpers', helpers_src), ('comfy.k_diffusion.sampling', euler_src)):
+                mod = ModuleType(name)
+                exec(compile(src, f'<{name}>', 'exec', dont_inherit=True), mod.__dict__)
+                mods[name] = (mod, src)
+            comfy.samplers = mods['comfy.samplers'][0]
+            comfy.model_base = mods['comfy.model_base'][0]
+            comfy.sampler_helpers = mods['comfy.sampler_helpers'][0]
+            k_diff.sampling = mods['comfy.k_diffusion.sampling'][0]
+            comfy.k_diffusion = k_diff
+            sys_map = {'comfy': comfy, 'comfy.k_diffusion': k_diff, **{k: v[0] for k, v in mods.items()}}
+            byte_map = {id(v[0]): v[1] for v in mods.values()}
+            return sys_map, byte_map
+
+        for profile in ('native-krea-writable-scope-v1', 'native-krea-writable-scope-v2'):
+            with self.subTest(profile=profile):
+                sys_map, byte_map = build_modules(writable_model_src)
+                with patch.dict(sys.modules, sys_map), \
+                     patch.object(consumer, '_source_bytes', side_effect=lambda m: byte_map[id(m)]), \
+                     patch.object(consumer, '_consumer_source_profile', return_value=profile), \
+                     patch.object(consumer, 'EULER_SHA256', consumer.hashlib.sha256(euler_src).hexdigest()), \
+                     patch.object(consumer, 'HELPERS_SHA256', consumer.hashlib.sha256(helpers_src).hexdigest()):
+                    s, e, mb = consumer.load_consumer_host()
+                    self.assertIs(mb, sys_map['comfy.model_base'])
+                    mb.BaseModel.get_writable_model = lambda self: object()
+                    with self.assertRaisesRegex(RuntimeError, 'loaded function differs'):
+                        consumer.load_consumer_host()
+
+        sys_map, byte_map = build_modules(pre_writable_model_src)
+        with patch.dict(sys.modules, sys_map), \
+             patch.object(consumer, '_source_bytes', side_effect=lambda m: byte_map[id(m)]), \
+             patch.object(consumer, '_consumer_source_profile', return_value='native-krea-pre-writable-scope-v1'), \
+             patch.object(consumer, 'EULER_SHA256', consumer.hashlib.sha256(euler_src).hexdigest()), \
+             patch.object(consumer, 'HELPERS_SHA256', consumer.hashlib.sha256(helpers_src).hexdigest()):
+            consumer.load_consumer_host()
+            sys_map['comfy.model_base'].BaseModel.get_writable_model = lambda self: None
+            with self.assertRaisesRegex(RuntimeError, 'unverified writable-model hook'):
+                consumer.load_consumer_host()
 
     def test_loaded_body_changed_after_disk_read_rejects(self):
         source = 'def predict(x):\n    return x + 1\n'

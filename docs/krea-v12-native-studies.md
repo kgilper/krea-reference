@@ -300,18 +300,22 @@ guider, evaluation, batch and grounded-wrapper control flow with loading/device
 boundaries and neural/VAE work explicitly substituted. Failure/short-schedule
 cleanup evidence is source evidence, not installed-runtime or model acceptance.
 
-Two exact native source pairs are admitted. The original pair binds sampler blob
-`a7cc3419e325e7d55aac8c7d5ce6d65f620fc511` to model-base SHA256
-`e7d08a4450287c76994b109437fbd03d721cf373fc8214bb9c30c478db060ffe`.
+Three exact native source pairs are admitted. The original writable-scope pair
+binds sampler blob `a7cc3419e325e7d55aac8c7d5ce6d65f620fc511` to model-base
+SHA256 `e7d08a4450287c76994b109437fbd03d721cf373fc8214bb9c30c478db060ffe`.
+The reviewed Comfy 0.44.0 writable-scope pair binds the same sampler blob to
+model-base SHA256 `d9ed7041337112e108027abf87ba907f4d9222611ce965af4ff632bd5a3890d5`
+(commit `2f8943324e1eae89a5ee6c7db93602299246b5f1`, where unrelated video/context-window
+model additions leave `Krea2` and `BaseModel` Krea call paths unchanged).
 The reviewed earlier API pair binds sampler blob
 `17f7bb8babdeec605586cc08df2ab1c4f1c92fd4` to model-base SHA256
 `5722b46418c6b7475041733d659bbd71f11f1dacb4d0aaff2b21aeb2c82d5542`.
-Mixed pairs reject. The earlier sampler omits the writable-model scope; Krea's
-inherited writable-model request in the newer source returns None. The consumer
-rejects instance writable-model overrides and additional multigpu models, keeping
-this equivalence limited to the exact Krea path. Changes to other model families
-do not establish their compatibility. Helper and numerical-sampling pins remain
-unchanged.
+Unverified cross-pairs reject. The earlier sampler omits the writable-model
+scope; Krea's inherited writable-model request in the newer sources returns None.
+The consumer rejects instance writable-model overrides and additional multigpu
+models, keeping this equivalence limited to the exact Krea path. Changes to other
+model families do not establish their compatibility. Helper and numerical-sampling
+pins remain unchanged.
 
 At active binding, the consumer compiles the admitted source without executing
 its module body and compares the observed loaded call-path code with

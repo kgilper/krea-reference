@@ -21,14 +21,20 @@ SAMPLERS_BLOB = 'a7cc3419e325e7d55aac8c7d5ce6d65f620fc511'
 EULER_SHA256 = 'cfc4221ed0bc1f84a6f5689d3ec440cad3008c2541ab8f5e2599d1a73fac74ce'
 HELPERS_SHA256 = '53c82235bfea0c4edf3cd5219f080c44c45ac1c9a6c3171f2aae151e18b56b91'
 MODEL_BASE_SHA256 = 'e7d08a4450287c76994b109437fbd03d721cf373fc8214bb9c30c478db060ffe'
-# Exact paired API profiles. The second omits writable_models around sampling;
-# Krea's inherited writable-model request in the first is a no-op. Other model
-# families and arbitrary cross-pairs are outside this native Krea boundary.
+MODEL_BASE_V2_SHA256 = 'd9ed7041337112e108027abf87ba907f4d9222611ce965af4ff632bd5a3890d5'
+# Exact paired API profiles. The writable-scope pairs retain Krea's inherited
+# no-op writable-model hook; the earlier pair omits writable_models around
+# sampling. Other model families and cross-pairs remain outside this boundary.
 CONSUMER_SOURCE_PROFILES = {
     (SAMPLERS_BLOB, MODEL_BASE_SHA256): 'native-krea-writable-scope-v1',
+    (SAMPLERS_BLOB, MODEL_BASE_V2_SHA256): 'native-krea-writable-scope-v2',
     ('17f7bb8babdeec605586cc08df2ab1c4f1c92fd4',
      '5722b46418c6b7475041733d659bbd71f11f1dacb4d0aaff2b21aeb2c82d5542'): 'native-krea-pre-writable-scope-v1',
 }
+_WRITABLE_SCOPE_PROFILES = frozenset((
+    'native-krea-writable-scope-v1',
+    'native-krea-writable-scope-v2',
+))
 _lock = threading.Lock()
 _busy = set()
 _MISSING = object()
@@ -70,7 +76,7 @@ def load_consumer_host():
         'Krea2.__init__', 'Krea2.extra_conds', 'BaseModel.apply_model',
         'BaseModel._apply_model', 'BaseModel.extra_conds',
         'BaseModel.process_latent_in', 'BaseModel.process_latent_out'))
-    if profile == 'native-krea-writable-scope-v1':
+    if profile in _WRITABLE_SCOPE_PROFILES:
         verify_loaded_functions(model_base, model_data, ('BaseModel.get_writable_model',))
     elif hasattr(model_base.BaseModel, 'get_writable_model'):
         raise RuntimeError('V12 loaded model has an unverified writable-model hook')
@@ -83,7 +89,7 @@ def load_consumer_host():
 
 
 def _validate_writable_scope(patcher):
-    # Both admitted source pairs have the same Krea path only when the primary
+    # Admitted source profiles have the same Krea path only when the primary
     # class has no instance writable-model override and no additional GPU model
     # can enter the newer writable-model scope. Do not infer other model support.
     if ('get_writable_model' in vars(patcher.model)
