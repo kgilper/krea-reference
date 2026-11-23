@@ -21,8 +21,9 @@ start with the [V11 guide](krea-v11-user-guide.md).
   The demonstrated recipe also uses the General Edit V2 task LoRA.
 - Grounded editing requires the original `Krea2EditGroundedEncode` implementation.
   Active consumption verifies [specific edit and Comfy sampler source revisions](krea-v12-native-studies.md),
-  including the paired guider/model profile. A newer host is not automatically
-  compatible; unsupported revisions fail before active sampling.
+  including the paired guider/model profile (ComfyUI 0.44.0 `model_base` source pair
+  admitted alongside the original pinned Comfy profile). A newer host is not
+  automatically compatible; unsupported revisions fail before active sampling.
 - To reproduce the enhancer-ON example, install a compatible
   [Krea2T enhancer](krea-v12-native-studies.md#optional-pinned-native-enhancer).
   It is optional when disabled. There is no additional pip dependency.
@@ -107,15 +108,15 @@ not regenerated, retouched, brightness-adjusted or replacement illustrations.
 | Setting | Value |
 |---|---|
 | Diffusion model | Krea2 Turbo INT8 ConvRot |
-| Task LoRA | General Edit V2, strength1 |
+| Task LoRA | General Edit V2, strength 1 |
 | Text encoder / VAE | Qwen3-VL 4B FP8 scaled / Qwen image VAE |
 | Seed | 581102 |
-| Sampling | Euler, simple scheduler, eight steps, CFG1, denoise1 |
-| Grounding / reference | 768 grounding pixels; reference boost4; fit, aligned |
-| Enhancer | ON, strength1; registered before native edit |
+| Sampling | Euler, simple scheduler, eight steps, CFG 1, denoise 1 |
+| Grounding / reference | 768 grounding pixels; reference boost 4; fit, aligned |
+| Enhancer | ON, strength 1; registered before native edit |
 | Native axis | `illumination`, revision `krea-illumination-instruction-v2:1` |
-| Coefficients / budget / timing | −1, 0, +1; budget2; Throughout; handoff0.4 |
-| Image size | Raw1024×1024; restored1000×1000 |
+| Coefficients / budget / timing | −1, 0, +1; budget 2; Throughout; handoff 0.4 |
+| Image size | Raw 1024×1024; restored 1000×1000 |
 | Scope | One source, full frame, no donor or selection mask |
 
 The image prompt stays identical in all three cases:
@@ -135,8 +136,8 @@ prompt. Changing only the pole wording in the older projection-only construction
 remained visually neutral. The carrier construction at the same coefficient and
 budget produced the visible pair shown here.
 
-Mean encoded-sRGB709 brightness is56.59 /153.59 /175.99 for dim/neutral/bright;
-this is an image statistic on0..255, not photometric luminance. Raw outputs have
+Mean encoded-sRGB709 brightness is 56.59 / 153.59 / 175.99 for dim/neutral/bright;
+this is an image statistic on 0..255, not photometric luminance. Raw outputs have
 the same ordering, so aspect restoration retains the effect. This establishes
 one visible synthetic illumination case. It does not establish a general
 −100..100 calibration, monotonic intermediate amounts, other concepts, mixed

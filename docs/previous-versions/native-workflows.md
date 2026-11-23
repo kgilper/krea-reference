@@ -69,7 +69,7 @@ Plus the two feedback wires: `stack_report -> Preview Any` and `prepared_referen
 
 File: [krea-v10-starter-recipe-workflow.json](../../example_workflows/krea-v10-starter-recipe-workflow.json)
 
-One card running `cinematic color grade` - one of the three custom recipes
+One card running `cinematic color grade` - one of the five custom recipes
 that ship enabled in [custom_recipes/starter-pack.yaml](../../custom_recipes/starter-pack.yaml)
 (no extra install needed):
 

@@ -28,9 +28,9 @@ private PNG workflow metadata removed and the image pixels preserved exactly.
 |---|---|---|
 | ![V13 dim illumination](docs/assets/krea-v13/illumination-minus.png) | ![Native neutral illumination](docs/assets/krea-v13/illumination-neutral.png) | ![V13 bright illumination](docs/assets/krea-v13/illumination-plus.png) |
 
-Same source, preservation prompt and seed581102; Krea2 Turbo INT8 ConvRot with
-General Edit V2 strength1, reference boost4, enhancerON/strength1, eight Euler
-steps, simple schedule and CFG1. The effect is present before and after aspect
+Same source, preservation prompt and seed 581102; Krea2 Turbo INT8 ConvRot with
+General Edit V2 strength 1, reference boost 4, enhancer ON / strength 1, eight Euler
+steps, simple schedule and CFG 1. The effect is present before and after aspect
 restoration. [Settings, literal poles and validation scope](docs/krea-v13-native-carriers.md#verified-signed-illumination-comparison)
 document this one full-frame case. Other concepts, intermediate amounts and
 combined axes are not generally calibrated. V13 is available from current GitHub
@@ -66,7 +66,7 @@ Concept Slider Card V11 → Concept Slider Stack V11 → sampler
 
 | Plain prompt | V11 tiny adjustment | V11 working-range adjustment |
 |---|---|---|
-| ![Plain prompt baseline](docs/assets/krea-v11/slider-neutral.png) | ![Brightness plus0.05 in V11](docs/assets/krea-v11/slider-tiny-positive.png) | ![Brightness plus3 in V11](docs/assets/krea-v11/slider-brightness-positive.png) |
+| ![Plain prompt baseline](docs/assets/krea-v11/slider-neutral.png) | ![Brightness plus 0.05 in V11](docs/assets/krea-v11/slider-tiny-positive.png) | ![Brightness plus 3 in V11](docs/assets/krea-v11/slider-brightness-positive.png) |
 
 Same prompt and seed; brightness values 0, +0.05, +3. Tiny values stay closer to neutral, but stronger values can change shape and framing. Reference borders, fine-texture transfer and entangled attributes remain limitations. These are creative controls, not calibrated physical measurements. Supported V11 reference and slider workflows use separate encoders. The native V13 illumination comparison above has its own specific validation scope.
 
@@ -85,7 +85,8 @@ For an existing Git installation, run `git pull --ff-only` inside its package
 folder, then restart ComfyUI and refresh the browser. Install only one copy of
 the package. Native V12/V13 users should check the [additional host requirements](docs/krea-v13-native-carriers.md#requirements)
 before updating: active native consumption checks exact dependency source
-revisions and rejects unsupported combinations.
+revisions (including ComfyUI 0.44.0 `model_base` support in the V12 consumer)
+and rejects unsupported combinations.
 
 ## Recipes, implementation and prior versions
 

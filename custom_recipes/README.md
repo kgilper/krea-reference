@@ -1,7 +1,7 @@
 # Custom Recipes - the Recipe Kit
 
 Drop `.yaml`, `.yml`, or `.json` files into this folder and they become
-first-class choices in the V10 guide card's `Use image for` dropdown -
+first-class choices in the V10 and V11 guide cards' `Use image for` dropdown -
 indistinguishable from the built-in recipes. No code required.
 
 This folder is the complete kit for creating recipes:
@@ -39,7 +39,7 @@ for a git-clone install).
    new name without the leading underscore, e.g. `my-style.yaml`.
 2. Edit the `label` (the dropdown text) and the fields you care about.
 3. In ComfyUI, refresh node definitions (or restart). Your label now appears
-   in `Use image for` on the V10 guide card.
+   in `Use image for` on the V10 and V11 guide cards.
 
 A minimal recipe is two lines - everything else defaults from the role's
 tuning tables:

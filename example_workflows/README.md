@@ -21,6 +21,10 @@ Every Krea guide card, reference stack, concept card and concept stack in these 
 See the [V11 guide](../docs/krea-v11-user-guide.md). Existing example files remain available unchanged.
 
 
+## Experimental V12/V13 native workflows
+
+No V12 or V13 canvas workflow JSON is bundled in this directory. To wire those experimental native study and carrier nodes from current GitHub source, follow [V13 setup and wiring](../docs/krea-v13-native-carriers.md#wiring-the-grounded-image-edit-path) and check the [V12 host compatibility requirements](../docs/krea-v12-native-studies.md).
+
 ## Prior-version examples
 
 Older V9/V10/Slider V1 graphs retain their filenames for saved links. Their [workflow descriptions](../docs/previous-versions/native-workflows.md) and [versioned documentation](../docs/previous-versions/README.md) are archived separately.

@@ -26,7 +26,7 @@ PyTorch runtime. Read the test output for any skipped checks. Key coverage:
 - Layer-target fallback warns when conditioning cannot split into the expected bands.
 - Strength curves and timestep ranges behave predictably.
 - V11 automatic/manual slider budgets, cancellation, timing and saved-widget compatibility.
-- V12 native ownership, target preparation, source compatibility, optional enhancer ordering/cleanup and bounded diagnostics.
+- V12 native ownership, target preparation, source compatibility (including ComfyUI 0.44.0 `model_base` admission and PyTorch AST fingerprint checks across the split `test_krea_v12*.py` test modules), optional enhancer ordering/cleanup and bounded diagnostics.
 - V13 literal carrier selection, exact unit-weight copies, cancellation/zero identity, CFG1 admission and native guider delegation.
 
 Passing these checks establishes source contracts. It does not establish useful

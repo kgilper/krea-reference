@@ -26,8 +26,10 @@ or model asset to install for this interface.
 | `KGKrea2NativePhaseGuiderV12` | Actual studies and their original native `CFGGuider` | Native `GUIDER` protocol proxy; neutral returns original guider |
 | `KGKrea2PrepareOwnedGroundedContextV12` | Original MODEL before edit patch, clean source/donor, source/target latents, VAE and exact native patch/preparation arguments | Context plus native MODEL, positive, negative, target latent |
 | `KGKrea2RemoveOwnedReferenceV12` | Owned grounded context, `native:donor` OFF | Rebuilt context plus its native MODEL, positive, negative, target latent |
-| `KGKrea2NativeEnhancerV12` | Native MODEL before edit patch, enabled (default OFF), strength0..2 | MODEL plus attachment report; OFF/strength0 returns original MODEL |
+| `KGKrea2NativeEnhancerV12` | Native MODEL before edit patch, enabled (default OFF), strength 0..2 | MODEL plus attachment report; OFF/strength 0 returns original MODEL |
 | `KGKrea2PrepareNativeTargetV12` | Final native context and enabled (default OFF) | Prepared context plus its exact shared native target LATENT |
+| `KGKrea2BoundedNativeDiagnosticV12` | Owned single-source full-frame native context and exact revision | `KG_KREA_NATIVE_STUDIES_V12` diagnostic studies for bounded measurement |
+| `KGKrea2NativeDiagnosticReceiptV12` | Diagnostic studies and completed sampler output | Scalar JSON receipt (`ui.text`, capped at 64 KiB) |
 
 Optional native positive and negative conditioning inputs must be connected
 together. They adopt the existing paired encodes without re-encoding. Otherwise,
@@ -97,18 +99,18 @@ hooks and preserves foreign replacements. Other extensions must cooperate with
 resource ownership; this plugin cannot lock uncooperative external code.
 
 The source compatibility boundary is Krea's twelve Qwen3-VL-4B output taps
-`[2,5,8,11,14,17,20,23,26,29,32,35]`, each width2560. The vision tower's three
+`[2,5,8,11,14,17,20,23,26,29,32,35]`, each width 2560. The vision tower's three
 deepstack injections are a separate mechanism. Grounded delegation checks the
 edit node source at commit `13ef60f20828949becada815d3cbc371eb5ccaab`, Git blob
 `e924efbd930e03e3b00cb040d177992a08b462b4`, allowing CRLF normalization. A matching
 source file is a compatibility check; model/task support still requires tests.
 
-Initial scope is one unweighted `qwen3vl_4b` token row and image batch1, with at
+Initial scope is one unweighted `qwen3vl_4b` token row and image batch 1, with at
 most source plus donor. Reject token truncation, boundary merges into original
 content, unsupported embedding types and unexpected pooled output. Other image
 recipe cards are not supported by this study interface. No persistent study
-cache is used. Defaults bound study passes20, token/expanded extent8192 and total
-prepared RGB image pixels1,179,648. These are admission limits, not measured peak
+cache is used. Defaults bound study passes 20, token/expanded extent 8192 and total
+prepared RGB image pixels 1,179,648. These are admission limits, not measured peak
 memory guarantees. Image expansion is checked before text-transformer evaluation;
 vision preparation must first run to report its actual expanded extent.
 
@@ -216,7 +218,7 @@ This is a check of those invoked modules, not a general audit of model internals
 Run the focused synthetic checks with:
 
 ```bash
-python -m unittest discover -s tests -p test_krea_v12.py -v
+python -m unittest discover -s tests -p "test_krea_v12*.py" -v
 python -m compileall -q kg_krea_v12 __init__.py
 ```
 
@@ -228,10 +230,12 @@ model or image files and establish no neural or visual result.
 Raw active `sampler_conditioning()` export raises an error. The current grounded
 edit consumer discards the conditioning attention mask. Owned output projection
 addresses the extra pole positions in source; a complete consumer must verify
-the projected native layout through the actual text-fusion path. Turbo/Raw task
-coverage, installed enhancement compatibility, real-tokenizer/tensor checks,
-near-zero behavior and visual strength calibration remain unverified. A source
-study product must not advertise these capabilities as supported.
+the projected native layout through the actual text-fusion path. Beyond the
+single full-frame Krea2 Turbo INT8 + Qwen3-VL 4B illumination comparison exercised
+through [V13 carriers](krea-v13-native-carriers.md), broader Turbo/Raw task
+coverage, standalone enhancer effect, near-zero behavior, intermediate amounts,
+and multi-axis visual calibration remain unverified. A source study product must
+not advertise broader calibrated support.
 
 The V12 guider consumer delegates to the existing `CFGGuider.sample`, its native
 conditioning conversion/preparation, native `KSAMPLER.sample`, Euler evaluation,
@@ -248,7 +252,7 @@ grounded rebuild or reference removal). Enable preparation, connect its context
 output0 to `KGKrea2CombinedNativeStudiesV12`, and connect its LATENT output1 to
 `SamplerCustomAdvanced.latent_image`. Both branches then share the exact prepared
 target; the original source latent, model, conditioning and mask remain bound.
-The original seven node interfaces are unchanged.
+All ten registered V12 node interfaces (eight core preparation/study/guider/enhancer/target nodes plus the two bounded diagnostic nodes below) keep distinct compatible contracts.
 
 This node delegates transformation to the installed
 [`fix_empty_latent_channels`](https://github.com/Comfy-Org/ComfyUI/blob/v0.41.0/comfy/sample.py).
@@ -365,10 +369,10 @@ projected contrast, tap/region energy and composition rounding. Existing study
 nodes and their ports are unchanged; ordinary workflows create no session.
 
 The resulting studies use the existing native phase guider. Diagnostic sampling
-accepts only eight native Euler steps, CFG1, handoff0.4, unattenuated phase
-weights, enhancerON/strength1, no noise mask or donor, and a single native image
-target no larger than1024x1024. Additional model callbacks, transformer patches
-and wrappers reject. At steps0 and4 it makes one extra native-positive prediction
+accepts only eight native Euler steps, CFG 1, handoff 0.4, unattenuated phase
+weights, enhancer ON / strength 1, no noise mask or donor, and a single native image
+target no larger than 1024x1024. Additional model callbacks, transformer patches
+and wrappers reject. At steps 0 and 4 it makes one extra native-positive prediction
 at the same latent and sigma, measuring actual text-fusion input/output and
 prediction differences. Those neutral predictions never advance the sampler.
 The ceiling is ten native predictions, conservatively twenty nominal CFG branch
@@ -378,7 +382,7 @@ Connect `KGKrea2NativeDiagnosticReceiptV12` to these studies and the sampler's
 completed samples to return a scalar JSON receipt in the output node's UI data.
 The dependency must use the same sampler in the reviewed graph. A session is
 single-use and a receipt requires successful completion. The receipt is bounded
-to64KiB; no embeddings or tensor arrays are serialized. Source/context admission
+to 64 KiB; no embeddings or tensor arrays are serialized. Source/context admission
 remains unchanged. Temporary pairs, RNG state and owned conditioning branches
 are restored or released on success, failure and cancellation, while detected
 foreign state is preserved. There is no execution endpoint or persistent hook.
@@ -395,4 +399,4 @@ executor. Options-level registration preserves the intended enhancer-before-edit
 execution order. Duplicate enhancer/edit attachments are rejected in either
 registry. The bounded diagnostic additionally rejects unmerged ModelPatcher
 wrappers/callbacks, so a later native merge cannot silently add unreviewed calls.
-EnhancerOFF/strength0 retains original MODEL identity and performs no registration.
+Enhancer OFF / strength 0 retains original MODEL identity and performs no registration.

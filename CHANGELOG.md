@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Add `Slider scaling mode: automatic` to `KG Krea 2 Concept Slider Stack V11` to derive effective slider reach and budget from active cards (with manual mode preserved).
+- Add experimental V12 native preparation, study, phase guider, owned grounded context, optional donor removal, pinned Krea2T enhancer, native target preparation, AST/source fingerprint verification, and bounded scalar diagnostic nodes (`KGKrea2PrepareNativeContextV12`, `KGKrea2NativeAxisV12`, `KGKrea2CombinedNativeStudiesV12`, `KGKrea2NativePhaseGuiderV12`, `KGKrea2PrepareOwnedGroundedContextV12`, `KGKrea2RemoveOwnedReferenceV12`, `KGKrea2NativeEnhancerV12`, `KGKrea2PrepareNativeTargetV12`, `KGKrea2BoundedNativeDiagnosticV12`, `KGKrea2NativeDiagnosticReceiptV12`).
+- Add experimental V13 native carrier study and phase guider nodes (`KGKrea2NativeCarrierStudiesV13`, `KGKrea2NativeCarrierPhaseGuiderV13`) with a documented signed illumination comparison.
+- Admit the ComfyUI 0.44.0 `model_base` source pair in the V12 native consumer (`docs/krea-v12-native-studies.md`).
+
 ## 0.5.0 - Opt-in V11 Reference and Slider Controls
 
 - Add four separate V11 nodes, preserving existing V9/V10/V1 workflows and recipe defaults.

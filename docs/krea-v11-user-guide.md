@@ -74,7 +74,6 @@ Recipe selection supplies coordinated settings; manual controls are not universa
 | Image detail level | Study-size choices 256/384/512/768. Medium 384 is a practical starting point; higher can copy unwanted content. |
 | Image framing | Keep full shape, center crop square or stretch square. This prepares references, not the output canvas. |
 | When images guide | Smart per-card, whole-image or two-phase behavior. Use smart timing when exploring explicit card timing. |
-| Slider scaling mode | Choose automatic to calculate reach/budget from active cards. Manual preserves existing saved behavior. The native showcase selects automatic. |
 | Early-to-final handoff | Phase boundary 0–1, default 0.4. |
 | Text/logo guard prompt handling | Full prompt rewrite or gentler preservation when using the guard behavior; inspect the report. |
 | Balance strong cards | Off by default; gentle budget 2.5 or strict budget 1.5. V11 scales signed layer targets toward zero. Smaller budget is stronger limiting, not necessarily better quality. |
@@ -132,7 +131,7 @@ Reference image preparation stays at the accepted V10 behavior until controlled 
 
 ## Validation and rollback
 
-The 111-test contract suite passes. Live synthetic comparisons verified exact neutral bypass for zero reach, zero budget and cancelled axes. At brightness +/-0.05 over ten seeds, V11 stayed closer to the zero image in all 20 comparisons; mean absolute RGB difference fell from 37.52 to 5.02 on a 0-255 scale. This is one prompt/model continuity benchmark, not a general image-quality score. The ordinary +3 brightness output matched Slider V1 in three same-seed comparisons, and the balanced reference recipe with balancing off matched V10 in three comparisons.
+The 250-test contract suite across 14 modules (including the 111 V9–V11 reference/slider contract tests) passes. Live synthetic comparisons verified exact neutral bypass for zero reach, zero budget and cancelled axes. At brightness +/-0.05 over ten seeds, V11 stayed closer to the zero image in all 20 comparisons; mean absolute RGB difference fell from 37.52 to 5.02 on a 0-255 scale. This is one prompt/model continuity benchmark, not a general image-quality score. The ordinary +3 brightness output matched Slider V1 in three same-seed comparisons, and the balanced reference recipe with balancing off matched V10 in three comparisons.
 
 Style-reference borders and weak fine-texture transfer remain possible. Person-height and plaza-crowd presets do not guarantee identity, framing, clothing, or anatomy preservation. Decreasing a crowd can still be weak. Reference preparation and recipe tables are unchanged.
 
