@@ -87,3 +87,12 @@ NODE_DISPLAY_NAME_MAPPINGS.update({
     "KGKrea2NativeCarrierStudiesV13": "KG Krea 2 Native Carrier Studies V13 (Experimental)",
     "KGKrea2NativeCarrierPhaseGuiderV13": "KG Krea 2 Native Carrier Phase Guider V13 (Experimental)",
 })
+
+from .kg_krea_edit_fast import KGKrea2FastEditModelPatch
+
+NODE_CLASS_MAPPINGS.update({
+    "KGKrea2FastEditModelPatch": KGKrea2FastEditModelPatch,
+})
+NODE_DISPLAY_NAME_MAPPINGS.update({
+    "KGKrea2FastEditModelPatch": "KG Krea 2 Edit Fast (Source Patch)",
+})
