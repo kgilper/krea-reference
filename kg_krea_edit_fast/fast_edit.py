@@ -610,8 +610,8 @@ def _place_refs(ref_ids, modes, h_: int, w_: int):
 
 
 def _context_cache_key(context) -> tuple[Any, ...]:
-    ver = getattr(context, "_version", None)
-    return (id(context), ver, tuple(context.shape), str(context.dtype), str(context.device))
+    ptr = context.data_ptr() if hasattr(context, "data_ptr") else None
+    return (id(context), ptr, tuple(context.shape), str(context.dtype), str(context.device))
 
 
 def krea2_fast_edit_forward(
@@ -662,8 +662,8 @@ def krea2_fast_edit_forward(
     if txt_cache is not None and not enhancer_hooked:
         tkey = _context_cache_key(context)
         cached_txt = txt_cache.get(tkey)
-        if cached_txt is not None:
-            txt_fused = cached_txt
+        if cached_txt is not None and cached_txt[0] is context:
+            txt_fused = cached_txt[1]
 
     if txt_fused is None:
         unpacked = m._unpack_context(context)
@@ -671,7 +671,7 @@ def krea2_fast_edit_forward(
         if txt_cache is not None and not enhancer_hooked:
             if len(txt_cache) >= 2:
                 txt_cache.clear()
-            txt_cache[_context_cache_key(context)] = txt_fused
+            txt_cache[_context_cache_key(context)] = (context, txt_fused)
 
     txtlen, tgtlen = txt_fused.shape[1], tgt_img.shape[1]
 
