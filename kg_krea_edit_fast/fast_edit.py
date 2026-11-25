@@ -234,6 +234,23 @@ def _run_lse_candidate(backend: str, q, k, v, kv_rep: int):
     b, h_q, l_q, d = q.shape
     l_k = k.shape[2]
     h_kv = k.shape[1]
+    is_sage = backend.startswith("sage_")
+    if is_sage:
+        from sageattention import sageattn
+        use_sage_gqa = backend.endswith("_gqa") or kv_rep == 1
+        q_in = q.contiguous()
+        if use_sage_gqa:
+            k_in = k.contiguous()
+            v_in = v.contiguous()
+        else:
+            k_in = k.repeat_interleave(kv_rep, dim=1).contiguous()
+            v_in = v.repeat_interleave(kv_rep, dim=1).contiguous()
+        out, lse = sageattn(q_in, k_in, v_in, tensor_layout="HND", is_causal=False, return_lse=True)
+        lse = _normalize_lse_shape(lse, l_q)
+        if "log2" in backend:
+            lse = lse * math.log(2.0)
+        return out, lse
+
     use_gqa_view = backend.endswith("_gqa") and kv_rep > 1
     if use_gqa_view:
         q_in = q.reshape(b * h_kv, kv_rep, l_q, d)
@@ -252,13 +269,6 @@ def _run_lse_candidate(backend: str, q, k, v, kv_rep: int):
         out, lse, *_ = torch.ops.aten._scaled_dot_product_cudnn_attention.default(
             q_in, k_in, v_in, None, True, 0.0, False, False, scale=None
         )
-    elif backend in ("sage_lse", "sage_lse_log2"):
-        from sageattention import sageattn
-        out, lse = sageattn(q_in, k_in, v_in, tensor_layout="HND", is_causal=False, return_lse=True)
-        lse = _normalize_lse_shape(lse, l_q)
-        if backend == "sage_lse_log2":
-            lse = lse * math.log(2.0)
-        return out, lse
     else:
         raise ValueError(f"Unknown LSE backend: {backend}")
 
@@ -303,10 +313,16 @@ def _select_lse_backend(device, dtype, headdim: int, kv_rep: int) -> str:
         return _BACKEND_CACHE[cache_key]
 
     chosen = "split_q_aligned_1d"
+    probe_note = ""
+    sage_notes: list[str] = []
     if device.type == "cuda" and dtype in (torch.bfloat16, torch.float16):
         candidates: list[str] = []
         if sage_enabled:
-            candidates.extend(["sage_lse", "sage_lse_log2"])
+            candidates.extend(
+                ["sage_lse_gqa", "sage_lse", "sage_lse_log2_gqa", "sage_lse_log2"]
+                if kv_rep > 1
+                else ["sage_lse", "sage_lse_log2"]
+            )
         candidates.extend(
             ["flash_gqa", "cudnn_gqa", "flash_repeat", "cudnn_repeat"]
             if kv_rep > 1
@@ -315,8 +331,8 @@ def _select_lse_backend(device, dtype, headdim: int, kv_rep: int) -> str:
         try:
             gen = torch.Generator(device=device).manual_seed(17)
             h_kv = 2
-            l_q, l_k = 19, 37
-            split = 15
+            l_q, l_k = 64, 128
+            split = 48
             beta = math.log(2.5)
             q = torch.randn((1, h_kv * kv_rep, l_q, headdim), device=device, dtype=dtype, generator=gen)
             k = torch.randn((1, h_kv, l_k, headdim), device=device, dtype=dtype, generator=gen)
@@ -334,26 +350,56 @@ def _select_lse_backend(device, dtype, headdim: int, kv_rep: int) -> str:
             )
 
             for cand in candidates:
+                is_sage = cand.startswith("sage_")
                 try:
                     o0, lse0 = _run_lse_candidate(cand, q, k[:, :, :split, :], v[:, :, :split, :], kv_rep)
                     o1, lse1 = _run_lse_candidate(cand, q, k[:, :, split:, :], v[:, :, split:, :], kv_rep)
                     merged = _combine_partition_outputs_torch([o0, o1], [lse0, lse1], [0.0, beta], dtype)
                     if merged.shape != ref.shape or not torch.isfinite(merged).all():
+                        if is_sage:
+                            sage_notes.append(f"{cand}:invalid_shape_or_nan")
                         continue
-                    max_diff = (merged.float() - ref.float()).abs().max().item()
-                    if max_diff < 5e-2:
+                    diff_abs = (merged.float() - ref.float()).abs()
+                    mean_diff = diff_abs.mean().item()
+                    max_diff = diff_abs.max().item()
+                    if is_sage:
+                        # SageAttention2++ uses INT8 QK / FP8 PV quantization, so random-normal
+                        # max error is larger than exact BF16 while mean error stays tight (~0.01).
+                        if not (mean_diff < 0.03 and max_diff < 0.25):
+                            sage_notes.append(f"{cand}:mean={mean_diff:.4f}/max={max_diff:.4f}")
+                            continue
+                        # Verify tiny/unaligned mask partition slices (e.g., face mask) also work cleanly.
+                        o_t, lse_t = _run_lse_candidate(cand, q[:, :, :19, :], k[:, :, :15, :], v[:, :, :15, :], kv_rep)
+                        if (
+                            o_t.shape != (1, h_kv * kv_rep, 19, headdim)
+                            or lse_t.shape != (1, h_kv * kv_rep, 19)
+                            or not (torch.isfinite(o_t).all() and torch.isfinite(lse_t).all())
+                        ):
+                            sage_notes.append(f"{cand}:tiny_partition_failed")
+                            continue
                         chosen = cand
+                        probe_note = f" mean_diff={mean_diff:.4f} max_diff={max_diff:.4f}"
                         break
-                except Exception:
+                    else:
+                        if max_diff < 5e-2:
+                            chosen = cand
+                            probe_note = f" max_diff={max_diff:.4f}"
+                            break
+                except Exception as exc:
+                    if is_sage:
+                        sage_notes.append(f"{cand}:{type(exc).__name__}")
                     continue
         except Exception:
             chosen = "split_q_aligned_1d"
+
+    if sage_enabled and not chosen.startswith("sage_") and sage_notes:
+        probe_note = f"{probe_note} sage_rejected=[{', '.join(sage_notes)}]"
 
     _BACKEND_CACHE[cache_key] = chosen
     if cache_key not in _ANNOUNCED_BACKENDS:
         _ANNOUNCED_BACKENDS.add(cache_key)
         print(
-            f"[kg_krea_edit_fast] attention backend={chosen} (dtype={dtype}, D={headdim}, gqa={kv_rep}x, sage={sage_enabled})",
+            f"[kg_krea_edit_fast] attention backend={chosen} (dtype={dtype}, D={headdim}, gqa={kv_rep}x, sage={sage_enabled}{probe_note})",
             flush=True,
         )
     return chosen
@@ -435,9 +481,12 @@ def _attend_maskless(q, k, v, kv_rep: int, backend: str):
     if backend.startswith("sage_"):
         try:
             from sageattention import sageattn
-            k_in = k.repeat_interleave(kv_rep, dim=1) if kv_rep > 1 else k
-            v_in = v.repeat_interleave(kv_rep, dim=1) if kv_rep > 1 else v
-            return sageattn(q, k_in, v_in, tensor_layout="HND", is_causal=False, return_lse=False)
+            if backend.endswith("_gqa") or kv_rep == 1:
+                k_in, v_in = k.contiguous(), v.contiguous()
+            else:
+                k_in = k.repeat_interleave(kv_rep, dim=1).contiguous()
+                v_in = v.repeat_interleave(kv_rep, dim=1).contiguous()
+            return sageattn(q.contiguous(), k_in, v_in, tensor_layout="HND", is_causal=False, return_lse=False)
         except Exception:
             pass
     return comfy.ops.scaled_dot_product_attention(

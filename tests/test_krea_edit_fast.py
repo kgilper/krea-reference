@@ -229,6 +229,62 @@ class FastEditContractAndMathTests(unittest.TestCase):
                 else:
                     sys.modules.pop(k, None)
 
+    def test_sage_lse_gqa_passes_native_kv_heads_without_repetition(self):
+        fast_mod = FAST_PKG.fast_edit
+        calls = []
+
+        class FakeTensor:
+            def __init__(self, shape):
+                self.shape = tuple(shape)
+                self.ndim = len(self.shape)
+
+            def contiguous(self):
+                return self
+
+            def repeat_interleave(self, rep, dim=1):
+                raise AssertionError("sage_lse_gqa must not repeat KV heads")
+
+        def fake_sageattn(q, k, v, tensor_layout="HND", is_causal=False, return_lse=False):
+            calls.append((q.shape, k.shape, v.shape, tensor_layout, is_causal, return_lse))
+            lse = FakeTensor((q.shape[0], q.shape[1], q.shape[2]))
+            return (q, lse) if return_lse else q
+
+        fake_torch = types.ModuleType("torch")
+        fake_comfy = types.ModuleType("comfy")
+        fake_comfy_ops = types.ModuleType("comfy.ops")
+        fake_comfy.ops = fake_comfy_ops
+        fake_sage = types.ModuleType("sageattention")
+        fake_sage.sageattn = fake_sageattn
+
+        saved = {k: sys.modules.get(k) for k in ("torch", "comfy", "comfy.ops", "sageattention")}
+        sys.modules.update({
+            "torch": fake_torch,
+            "comfy": fake_comfy,
+            "comfy.ops": fake_comfy_ops,
+            "sageattention": fake_sage,
+        })
+        try:
+            q = FakeTensor((1, 8, 64, 128))
+            k = FakeTensor((1, 2, 48, 128))
+            v = FakeTensor((1, 2, 48, 128))
+            out, lse = fast_mod._run_lse_candidate("sage_lse_gqa", q, k, v, kv_rep=4)
+            self.assertEqual(out.shape, (1, 8, 64, 128))
+            self.assertEqual(lse.shape, (1, 8, 64))
+            fast_mod._attend_maskless(q, k, v, kv_rep=4, backend="sage_lse_gqa")
+            self.assertEqual(
+                calls,
+                [
+                    ((1, 8, 64, 128), (1, 2, 48, 128), (1, 2, 48, 128), "HND", False, True),
+                    ((1, 8, 64, 128), (1, 2, 48, 128), (1, 2, 48, 128), "HND", False, False),
+                ],
+            )
+        finally:
+            for k, orig in saved.items():
+                if orig is not None:
+                    sys.modules[k] = orig
+                else:
+                    sys.modules.pop(k, None)
+
     def test_patch_validates_missing_source_and_registers_distinct_wrapper_key(self):
         patcher = KGKrea2FastEditModelPatch()
 
