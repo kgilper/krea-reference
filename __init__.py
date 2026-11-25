@@ -90,6 +90,12 @@ NODE_DISPLAY_NAME_MAPPINGS.update({
 
 from .kg_krea_edit_fast import KGKrea2FastEditModelPatch
 
+try:
+    from .kg_krea_core_fast import install_krea2_core_fast
+    install_krea2_core_fast()
+except Exception as _kg_core_fast_exc:
+    print(f"[kg_krea_core_fast] skipped cleanly: {_kg_core_fast_exc}", flush=True)
+
 NODE_CLASS_MAPPINGS.update({
     "KGKrea2FastEditModelPatch": KGKrea2FastEditModelPatch,
 })

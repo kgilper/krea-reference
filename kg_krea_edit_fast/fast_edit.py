@@ -206,16 +206,20 @@ def _sage_attention_requested() -> bool:
         return False
 
 
-def _fast_rms_norm(norm_mod, x):
-    """Fused dtype-native RMSNorm avoiding 112x/step full-FP32 activation copies when unpatched."""
-    if not (hasattr(norm_mod, "scale") and hasattr(norm_mod, "eps") and "forward" not in vars(norm_mod)):
-        return norm_mod(x)
-    import torch
-    import torch.nn.functional as F
-    import comfy.model_management as mm
-
-    w = (mm.cast_to(norm_mod.scale, dtype=torch.float32, device=x.device) + 1.0).to(x.dtype)
-    return F.rms_norm(x, (x.shape[-1],), weight=w, eps=norm_mod.eps)
+try:
+    from ..kg_krea_core_fast.core_fast import (  # noqa: E402
+        _mlp_step as _core_mlp_step,
+        fused_rms_adaln as _core_fused_rms_adaln,
+        fused_rms_norm as _fast_rms_norm,
+        should_use_epilogue_residual as _core_should_epi,
+    )
+except ImportError:
+    from kg_krea_core_fast.core_fast import (  # noqa: E402
+        _mlp_step as _core_mlp_step,
+        fused_rms_adaln as _core_fused_rms_adaln,
+        fused_rms_norm as _fast_rms_norm,
+        should_use_epilogue_residual as _core_should_epi,
+    )
 
 
 def _apply_qknorm(qknorm_mod, q, k):
@@ -226,6 +230,24 @@ def _apply_qknorm(qknorm_mod, q, k):
     ):
         return _fast_rms_norm(qknorm_mod.qnorm, q), _fast_rms_norm(qknorm_mod.knorm, k)
     return qknorm_mod(q, k)
+
+
+def _fast_proj_qkvg(attn, pre, target_only: bool, rows0: int):
+    combined_lin = getattr(attn, "combined_qkvg", None)
+    dim = attn.heads * attn.headdim
+    kv_dim = attn.kvheads * attn.headdim
+    if combined_lin is not None:
+        packed = combined_lin.forward(pre)
+        if packed is not NotImplemented:
+            q_f, k_f, v_f, g_f = packed.split((dim, kv_dim, kv_dim, dim), dim=-1)
+            if target_only:
+                q_f = q_f[:, rows0:]
+                g_f = g_f[:, rows0:]
+            return q_f, k_f, v_f, g_f
+    if target_only:
+        pre_tgt = pre[:, rows0:]
+        return attn.wq(pre_tgt), attn.wk(pre), attn.wv(pre), attn.gate(pre_tgt)
+    return attn.wq(pre), attn.wk(pre), attn.wv(pre), attn.gate(pre)
 
 
 def _run_lse_candidate(backend: str, q, k, v, kv_rep: int):
@@ -557,6 +579,7 @@ def _maybe_output_patch(out, transformer_options: dict[str, Any]):
 def _fast_block(block, x, tvec, freqs, freqs_tgt, runtime_boost, backend, target_only: bool, transformer_options):
     import torch
     import torch.nn.functional as F
+    import comfy.ops
 
     patches = transformer_options.get("patches", {})
     has_block_attrs = all(hasattr(block, k) for k in ("mod", "prenorm", "postnorm", "attn", "mlp"))
@@ -578,54 +601,60 @@ def _fast_block(block, x, tvec, freqs, freqs_tgt, runtime_boost, backend, target
 
     bs = x.shape[0]
     prescale, preshift, pregate, postscale, postshift, postgate = block.mod(tvec)
-    pre = _fast_rms_norm(block.prenorm, x)
-    pre = pre.mul(1 + prescale).add_(preshift) if pre is x else pre.mul_(1 + prescale).add_(preshift)
+    pre = _core_fused_rms_adaln(x, block.prenorm, prescale, preshift)
 
     attn = block.attn
     heads = attn.heads
     kvheads = attn.kvheads
     headdim = attn.headdim
     seq_len = pre.shape[1]
+    rows0 = runtime_boost["rows0"]
+    tgt_len = seq_len - rows0 if target_only else seq_len
 
-    if target_only:
-        rows0 = runtime_boost["rows0"]
-        tgt_len = seq_len - rows0
-        pre_tgt = pre[:, rows0:, :]
-        q = attn.wq(pre_tgt).view(bs, tgt_len, heads, headdim).transpose(1, 2)
-        k = attn.wk(pre).view(bs, seq_len, kvheads, headdim).transpose(1, 2)
-        v = attn.wv(pre).view(bs, seq_len, kvheads, headdim).transpose(1, 2)
-        gate = attn.gate(pre_tgt)
-        del pre, pre_tgt
-        q, k = _apply_qknorm(attn.qknorm, q, k)
-        attn_out = _fast_attention(
-            attn, q, k, v, freqs_tgt, freqs, runtime_boost, backend, True, transformer_options
-        )
-        del q, k, v
-        tgt = x[:, rows0:, :] + pregate * attn.wo(attn_out * F.sigmoid(gate))
-        del attn_out, gate
-        post = _fast_rms_norm(block.postnorm, tgt)
-        post = post.mul(1 + postscale).add_(postshift) if post is tgt else post.mul_(1 + postscale).add_(postshift)
-        mlp_out = block.mlp(post)
-        del post
-        return tgt + postgate * mlp_out
-
-    q = attn.wq(pre).view(bs, seq_len, heads, headdim).transpose(1, 2)
-    k = attn.wk(pre).view(bs, seq_len, kvheads, headdim).transpose(1, 2)
-    v = attn.wv(pre).view(bs, seq_len, kvheads, headdim).transpose(1, 2)
-    gate = attn.gate(pre)
+    q_f, k_f, v_f, g_f = _fast_proj_qkvg(attn, pre, target_only=target_only, rows0=rows0)
     del pre
+
+    q = q_f.view(bs, tgt_len, heads, headdim).transpose(1, 2)
+    k = k_f.view(bs, seq_len, kvheads, headdim).transpose(1, 2)
+    v = v_f.view(bs, seq_len, kvheads, headdim).transpose(1, 2)
     q, k = _apply_qknorm(attn.qknorm, q, k)
     attn_out = _fast_attention(
-        attn, q, k, v, freqs, freqs, runtime_boost, backend, False, transformer_options
+        attn,
+        q,
+        k,
+        v,
+        freqs_tgt if target_only else freqs,
+        freqs,
+        runtime_boost,
+        backend,
+        target_only,
+        transformer_options,
     )
     del q, k, v
-    x = x + pregate * attn.wo(attn_out * F.sigmoid(gate))
-    del attn_out, gate
-    post = _fast_rms_norm(block.postnorm, x)
-    post = post.mul(1 + postscale).add_(postshift) if post is x else post.mul_(1 + postscale).add_(postshift)
-    mlp_out = block.mlp(post)
+
+    attn_gated = attn_out * F.sigmoid(g_f)
+    del attn_out, g_f
+
+    x_work = x[:, rows0:, :].contiguous() if target_only else x
+    if _core_should_epi(bs, x_work, pregate):
+        try:
+            x_work = comfy.ops.linear_input_act(
+                attn.wo, attn_gated, None, residual=x_work, residual_scale=pregate.reshape(-1)
+            )
+        except Exception:
+            x_work = x_work.addcmul_(attn.wo(attn_gated), pregate)
+    else:
+        x_work = x_work.addcmul_(attn.wo(attn_gated), pregate)
+    del attn_gated
+
+    post = _core_fused_rms_adaln(x_work, block.postnorm, postscale, postshift)
+    if _core_should_epi(bs, x_work, postgate):
+        res = _core_mlp_step(block.mlp, post, residual=x_work, residual_scale=postgate.reshape(-1))
+    else:
+        mlp_out = _core_mlp_step(block.mlp, post)
+        res = x_work.addcmul_(mlp_out, postgate)
     del post
-    return x + postgate * mlp_out
+    return res
 
 
 def _to_4d(v):
@@ -918,20 +947,31 @@ def krea2_fast_edit_forward(
     transformer_options["block_type"] = "single"
     transformer_options["img_slice"] = [txtlen, total_len]
 
-    for i, block in enumerate(m.blocks):
-        transformer_options["block_index"] = i
-        is_last = i == n_blocks - 1
-        combined = _fast_block(
-            block,
-            combined,
-            tvec,
-            freqs,
-            freqs_tgt,
-            runtime_boost,
-            backend,
-            target_only=is_last,
-            transformer_options=transformer_options,
-        )
+    import comfy.model_prefetch
+
+    prefetch_queue = comfy.model_prefetch.make_prefetch_queue(list(m.blocks), combined.device, transformer_options)
+    comfy.model_prefetch.malloc_graph_begin(combined.device)
+    try:
+        for i, block in enumerate(m.blocks):
+            comfy.model_prefetch.prefetch_queue_pop(prefetch_queue, combined.device, block, combined.dtype, malloc_scope="block")
+            transformer_options["block_index"] = i
+            is_last = i == n_blocks - 1
+            combined = _fast_block(
+                block,
+                combined,
+                tvec,
+                freqs,
+                freqs_tgt,
+                runtime_boost,
+                backend,
+                target_only=is_last,
+                transformer_options=transformer_options,
+            )
+        comfy.model_prefetch.prefetch_queue_pop(prefetch_queue, combined.device, None, malloc_scope="block")
+        comfy.model_prefetch.malloc_graph_end()
+    except Exception:
+        comfy.model_prefetch.cleanup_malloc_graph()
+        raise
 
     final = m.last(combined, t)
     del combined
