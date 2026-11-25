@@ -180,6 +180,55 @@ class FastEditContractAndMathTests(unittest.TestCase):
         max_err = max(abs(a - b) for a, b in zip(actual, expected))
         self.assertLess(max_err, 1e-12)
 
+        # Log2 LSE conversion (as returned by some SageAttention kernels -> natural log)
+        lses_from_log2 = [(l / math.log(2.0)) * math.log(2.0) for l in lses]
+        actual_log2 = combine_partition_outputs_pure(outs, lses_from_log2, betas)
+        max_err_log2 = max(abs(a - b) for a, b in zip(actual_log2, expected))
+        self.assertLess(max_err_log2, 1e-12)
+
+    def test_fast_rms_norm_falls_back_when_forward_patched_or_scale_missing(self):
+        fast_mod = FAST_PKG.fast_edit
+        calls = []
+
+        class PatchedNorm:
+            def __init__(self):
+                self.scale = "dummy"
+                self.eps = 1e-5
+                self.forward = lambda x: (calls.append(("patched", x)), ("out", x))[1]
+
+            def __call__(self, x):
+                return self.forward(x)
+
+        class MissingScaleNorm:
+            def __call__(self, x):
+                calls.append(("missing_scale", x))
+                return ("no_scale_out", x)
+
+        fake_torch = types.ModuleType("torch")
+        fake_torch.float32 = "fp32"
+        fake_f = types.ModuleType("torch.nn.functional")
+        fake_comfy = types.ModuleType("comfy")
+        fake_mm = types.ModuleType("comfy.model_management")
+        fake_comfy.model_management = fake_mm
+
+        saved = {k: sys.modules.get(k) for k in ("torch", "torch.nn.functional", "comfy", "comfy.model_management")}
+        sys.modules.update({
+            "torch": fake_torch,
+            "torch.nn.functional": fake_f,
+            "comfy": fake_comfy,
+            "comfy.model_management": fake_mm,
+        })
+        try:
+            self.assertEqual(fast_mod._fast_rms_norm(PatchedNorm(), "x1"), ("out", "x1"))
+            self.assertEqual(fast_mod._fast_rms_norm(MissingScaleNorm(), "x2"), ("no_scale_out", "x2"))
+            self.assertEqual(calls, [("patched", "x1"), ("missing_scale", "x2")])
+        finally:
+            for k, orig in saved.items():
+                if orig is not None:
+                    sys.modules[k] = orig
+                else:
+                    sys.modules.pop(k, None)
+
     def test_patch_validates_missing_source_and_registers_distinct_wrapper_key(self):
         patcher = KGKrea2FastEditModelPatch()
 

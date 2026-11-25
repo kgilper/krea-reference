@@ -198,6 +198,36 @@ def _normalize_lse_shape(lse, target_len: int):
     return lse
 
 
+def _sage_attention_requested() -> bool:
+    try:
+        import comfy.model_management as mm
+        return bool(mm.sage_attention_enabled())
+    except Exception:
+        return False
+
+
+def _fast_rms_norm(norm_mod, x):
+    """Fused dtype-native RMSNorm avoiding 112x/step full-FP32 activation copies when unpatched."""
+    if not (hasattr(norm_mod, "scale") and hasattr(norm_mod, "eps") and "forward" not in vars(norm_mod)):
+        return norm_mod(x)
+    import torch
+    import torch.nn.functional as F
+    import comfy.model_management as mm
+
+    w = (mm.cast_to(norm_mod.scale, dtype=torch.float32, device=x.device) + 1.0).to(x.dtype)
+    return F.rms_norm(x, (x.shape[-1],), weight=w, eps=norm_mod.eps)
+
+
+def _apply_qknorm(qknorm_mod, q, k):
+    if (
+        hasattr(qknorm_mod, "qnorm")
+        and hasattr(qknorm_mod, "knorm")
+        and "forward" not in vars(qknorm_mod)
+    ):
+        return _fast_rms_norm(qknorm_mod.qnorm, q), _fast_rms_norm(qknorm_mod.knorm, k)
+    return qknorm_mod(q, k)
+
+
 def _run_lse_candidate(backend: str, q, k, v, kv_rep: int):
     import torch
 
@@ -222,6 +252,13 @@ def _run_lse_candidate(backend: str, q, k, v, kv_rep: int):
         out, lse, *_ = torch.ops.aten._scaled_dot_product_cudnn_attention.default(
             q_in, k_in, v_in, None, True, 0.0, False, False, scale=None
         )
+    elif backend in ("sage_lse", "sage_lse_log2"):
+        from sageattention import sageattn
+        out, lse = sageattn(q_in, k_in, v_in, tensor_layout="HND", is_causal=False, return_lse=True)
+        lse = _normalize_lse_shape(lse, l_q)
+        if backend == "sage_lse_log2":
+            lse = lse * math.log(2.0)
+        return out, lse
     else:
         raise ValueError(f"Unknown LSE backend: {backend}")
 
@@ -249,17 +286,28 @@ def _combine_partition_outputs_torch(outs: list[Any], lses: list[Any], betas: li
 
 
 def _select_lse_backend(device, dtype, headdim: int, kv_rep: int) -> str:
-    """Self-verify CUDA Flash/cuDNN LSE kernels against SDPA; cache result per device/dtype/dim."""
+    """Self-verify CUDA Flash/cuDNN/Sage LSE kernels against SDPA; cache result per device/dtype/dim."""
     import torch
     import torch.nn.functional as F
 
-    cache_key = (device.type, getattr(device, "index", None), str(dtype), int(headdim), int(kv_rep))
+    sage_enabled = _sage_attention_requested()
+    cache_key = (
+        device.type,
+        getattr(device, "index", None),
+        str(dtype),
+        int(headdim),
+        int(kv_rep),
+        sage_enabled,
+    )
     if cache_key in _BACKEND_CACHE:
         return _BACKEND_CACHE[cache_key]
 
     chosen = "split_q_aligned_1d"
     if device.type == "cuda" and dtype in (torch.bfloat16, torch.float16):
-        candidates = (
+        candidates: list[str] = []
+        if sage_enabled:
+            candidates.extend(["sage_lse", "sage_lse_log2"])
+        candidates.extend(
             ["flash_gqa", "cudnn_gqa", "flash_repeat", "cudnn_repeat"]
             if kv_rep > 1
             else ["flash_repeat", "cudnn_repeat"]
@@ -305,7 +353,7 @@ def _select_lse_backend(device, dtype, headdim: int, kv_rep: int) -> str:
     if cache_key not in _ANNOUNCED_BACKENDS:
         _ANNOUNCED_BACKENDS.add(cache_key)
         print(
-            f"[kg_krea_edit_fast] attention backend={chosen} (dtype={dtype}, D={headdim}, gqa={kv_rep}x)",
+            f"[kg_krea_edit_fast] attention backend={chosen} (dtype={dtype}, D={headdim}, gqa={kv_rep}x, sage={sage_enabled})",
             flush=True,
         )
     return chosen
@@ -381,6 +429,22 @@ def _attend_target_partitioned(q_tgt, k, v, kv_rep: int, runtime_boost: dict[str
     return _combine_partition_outputs_torch(outs, lses, betas, q_tgt.dtype)
 
 
+def _attend_maskless(q, k, v, kv_rep: int, backend: str):
+    import comfy.ops
+
+    if backend.startswith("sage_"):
+        try:
+            from sageattention import sageattn
+            k_in = k.repeat_interleave(kv_rep, dim=1) if kv_rep > 1 else k
+            v_in = v.repeat_interleave(kv_rep, dim=1) if kv_rep > 1 else v
+            return sageattn(q, k_in, v_in, tensor_layout="HND", is_causal=False, return_lse=False)
+        except Exception:
+            pass
+    return comfy.ops.scaled_dot_product_attention(
+        q, k, v, attn_mask=None, dropout_p=0.0, is_causal=False, enable_gqa=(kv_rep > 1)
+    )
+
+
 def _fast_attention(
     attn_mod,
     q,
@@ -393,15 +457,14 @@ def _fast_attention(
     target_only: bool,
     transformer_options: dict[str, Any],
 ):
-    from einops import rearrange
     import torch
-    import comfy.ops
     from comfy.ldm.flux.math import apply_rope, apply_rope1
 
     bs = q.shape[0]
     heads = attn_mod.heads
     kvheads = attn_mod.kvheads
     kv_rep = heads // kvheads
+    dim = heads * attn_mod.headdim
 
     if freqs_q is freqs_k:
         q, k = apply_rope(q, k, freqs_k)
@@ -414,28 +477,23 @@ def _fast_attention(
         if runtime_boost["active"]:
             out = _attend_target_partitioned(q, k, v, kv_rep, runtime_boost, backend)
         else:
-            out = comfy.ops.scaled_dot_product_attention(
-                q, k, v, attn_mask=None, dropout_p=0.0, is_causal=False, enable_gqa=(kv_rep > 1)
-            )
+            out = _attend_maskless(q, k, v, kv_rep, backend)
     elif runtime_boost["active"]:
+        total_len = q.shape[2]
+        tgtlen = total_len - rows0
         q_pre = q[:, :, :rows0, :]
         q_tgt = q[:, :, rows0:, :]
-        out_pre = comfy.ops.scaled_dot_product_attention(
-            q_pre, k, v, attn_mask=None, dropout_p=0.0, is_causal=False, enable_gqa=(kv_rep > 1)
-        )
+        out_pre = _attend_maskless(q_pre, k, v, kv_rep, backend)
         out_tgt = _attend_target_partitioned(q_tgt, k, v, kv_rep, runtime_boost, backend)
-        out = rearrange(
-            torch.cat([out_pre, out_tgt], dim=2),
-            "b h l d -> b l (h d)",
-        )
+        out = torch.empty((bs, total_len, dim), device=q.device, dtype=q.dtype)
+        out[:, :rows0, :] = out_pre.transpose(1, 2).reshape(bs, rows0, dim)
+        out[:, rows0:, :] = out_tgt.transpose(1, 2).reshape(bs, tgtlen, dim)
         del out_pre, out_tgt
         return _maybe_output_patch(out, transformer_options)
     else:
-        out = comfy.ops.scaled_dot_product_attention(
-            q, k, v, attn_mask=None, dropout_p=0.0, is_causal=False, enable_gqa=(kv_rep > 1)
-        )
+        out = _attend_maskless(q, k, v, kv_rep, backend)
 
-    out = out.transpose(1, 2).reshape(bs, q.shape[2], heads * attn_mod.headdim)
+    out = out.transpose(1, 2).reshape(bs, q.shape[2], dim)
     return _maybe_output_patch(out, transformer_options)
 
 
@@ -450,12 +508,16 @@ def _maybe_output_patch(out, transformer_options: dict[str, Any]):
 def _fast_block(block, x, tvec, freqs, freqs_tgt, runtime_boost, backend, target_only: bool, transformer_options):
     import torch
     import torch.nn.functional as F
-    from einops import rearrange
 
     patches = transformer_options.get("patches", {})
-    comfy_fn = getattr(getattr(block.attn, "comfy_attention", None), "function", None)
+    has_block_attrs = all(hasattr(block, k) for k in ("mod", "prenorm", "postnorm", "attn", "mlp"))
+    has_attn_attrs = has_block_attrs and all(
+        hasattr(block.attn, k) for k in ("wq", "wk", "wv", "gate", "qknorm", "wo", "heads", "kvheads", "headdim")
+    )
+    comfy_fn = getattr(getattr(getattr(block, "attn", None), "comfy_attention", None), "function", None)
     if (
-        "attn1_patch" in patches
+        not has_attn_attrs
+        or "attn1_patch" in patches
         or comfy_fn is not None
         or "optimized_attention_override" in transformer_options
     ):
@@ -465,46 +527,53 @@ def _fast_block(block, x, tvec, freqs, freqs_tgt, runtime_boost, backend, target
             return out[:, runtime_boost["rows0"]:, :]
         return out
 
+    bs = x.shape[0]
     prescale, preshift, pregate, postscale, postshift, postgate = block.mod(tvec)
-    pre = block.prenorm(x)
-    pre.mul_(1 + prescale).add_(preshift)
+    pre = _fast_rms_norm(block.prenorm, x)
+    pre = pre.mul(1 + prescale).add_(preshift) if pre is x else pre.mul_(1 + prescale).add_(preshift)
 
     attn = block.attn
+    heads = attn.heads
+    kvheads = attn.kvheads
+    headdim = attn.headdim
+    seq_len = pre.shape[1]
+
     if target_only:
         rows0 = runtime_boost["rows0"]
+        tgt_len = seq_len - rows0
         pre_tgt = pre[:, rows0:, :]
-        q = rearrange(attn.wq(pre_tgt), "B L (H D) -> B H L D", H=attn.heads)
-        k = rearrange(attn.wk(pre), "B L (H D) -> B H L D", H=attn.kvheads)
-        v = rearrange(attn.wv(pre), "B L (H D) -> B H L D", H=attn.kvheads)
+        q = attn.wq(pre_tgt).view(bs, tgt_len, heads, headdim).transpose(1, 2)
+        k = attn.wk(pre).view(bs, seq_len, kvheads, headdim).transpose(1, 2)
+        v = attn.wv(pre).view(bs, seq_len, kvheads, headdim).transpose(1, 2)
         gate = attn.gate(pre_tgt)
         del pre, pre_tgt
-        q, k = attn.qknorm(q, k)
+        q, k = _apply_qknorm(attn.qknorm, q, k)
         attn_out = _fast_attention(
             attn, q, k, v, freqs_tgt, freqs, runtime_boost, backend, True, transformer_options
         )
         del q, k, v
         tgt = x[:, rows0:, :] + pregate * attn.wo(attn_out * F.sigmoid(gate))
         del attn_out, gate
-        post = block.postnorm(tgt)
-        post.mul_(1 + postscale).add_(postshift)
+        post = _fast_rms_norm(block.postnorm, tgt)
+        post = post.mul(1 + postscale).add_(postshift) if post is tgt else post.mul_(1 + postscale).add_(postshift)
         mlp_out = block.mlp(post)
         del post
         return tgt + postgate * mlp_out
 
-    q = rearrange(attn.wq(pre), "B L (H D) -> B H L D", H=attn.heads)
-    k = rearrange(attn.wk(pre), "B L (H D) -> B H L D", H=attn.kvheads)
-    v = rearrange(attn.wv(pre), "B L (H D) -> B H L D", H=attn.kvheads)
+    q = attn.wq(pre).view(bs, seq_len, heads, headdim).transpose(1, 2)
+    k = attn.wk(pre).view(bs, seq_len, kvheads, headdim).transpose(1, 2)
+    v = attn.wv(pre).view(bs, seq_len, kvheads, headdim).transpose(1, 2)
     gate = attn.gate(pre)
     del pre
-    q, k = attn.qknorm(q, k)
+    q, k = _apply_qknorm(attn.qknorm, q, k)
     attn_out = _fast_attention(
         attn, q, k, v, freqs, freqs, runtime_boost, backend, False, transformer_options
     )
     del q, k, v
     x = x + pregate * attn.wo(attn_out * F.sigmoid(gate))
     del attn_out, gate
-    post = block.postnorm(x)
-    post.mul_(1 + postscale).add_(postshift)
+    post = _fast_rms_norm(block.postnorm, x)
+    post = post.mul(1 + postscale).add_(postshift) if post is x else post.mul_(1 + postscale).add_(postshift)
     mlp_out = block.mlp(post)
     del post
     return x + postgate * mlp_out
@@ -790,7 +859,7 @@ def krea2_fast_edit_forward(
     kv_rep = block0_attn.heads // block0_attn.kvheads
     backend = (
         _select_lse_backend(combined.device, combined.dtype, block0_attn.headdim, kv_rep)
-        if runtime_boost["active"]
+        if (runtime_boost["active"] or _sage_attention_requested())
         else "split_q_aligned_1d"
     )
 
