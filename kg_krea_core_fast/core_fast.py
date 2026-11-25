@@ -112,13 +112,15 @@ def fused_qk_rms_rope_bnhd(qknorm_mod, q_bnhd, k_bnhd, freqs_q_nhd, freqs_k_nhd=
 
         q_c = q_bnhd if q_bnhd.is_contiguous() else q_bnhd.contiguous()
         k_c = k_bnhd if k_bnhd.is_contiguous() else k_bnhd.contiguous()
+        fq_c = freqs_q_nhd if freqs_q_nhd.is_contiguous() else freqs_q_nhd.contiguous()
+        fk_c = fq_c if freqs_k_nhd is freqs_q_nhd else (freqs_k_nhd if freqs_k_nhd.is_contiguous() else freqs_k_nhd.contiguous())
         q_w = (mm.cast_to(qknorm_mod.qnorm.scale, dtype=torch.float32, device=q_c.device) + 1.0).to(q_c.dtype)
         k_w = (mm.cast_to(qknorm_mod.knorm.scale, dtype=torch.float32, device=k_c.device) + 1.0).to(k_c.dtype)
         try:
-            if freqs_q_nhd is freqs_k_nhd and q_c.shape == k_c.shape:
-                return comfy.quant_ops.ck.rms_rope(q_c, k_c, freqs_k_nhd, q_w, k_w, qknorm_mod.qnorm.eps)
-            q_out = comfy.quant_ops.ck.rms_rope1(q_c, freqs_q_nhd, q_w, qknorm_mod.qnorm.eps)
-            k_out = comfy.quant_ops.ck.rms_rope1(k_c, freqs_k_nhd, k_w, qknorm_mod.knorm.eps)
+            if fk_c is fq_c and q_c.shape == k_c.shape:
+                return comfy.quant_ops.ck.rms_rope(q_c, k_c, fk_c, q_w, k_w, qknorm_mod.qnorm.eps)
+            q_out = comfy.quant_ops.ck.rms_rope1(q_c, fq_c, q_w, qknorm_mod.qnorm.eps)
+            k_out = comfy.quant_ops.ck.rms_rope1(k_c, fk_c, k_w, qknorm_mod.knorm.eps)
             return q_out, k_out
         except Exception:
             pass
@@ -157,10 +159,10 @@ def select_nhd_attention_backend(device, dtype, headdim: int, kv_rep: int) -> st
             gen = torch.Generator(device=device).manual_seed(23)
             h_kv = 2
             l_q, l_k = 64, 128
-            q_nhd = torch.randn((1, l_q, h_kv * kv_rep, headdim), device=device, dtype=dtype, generator=gen)
-            k_nhd = torch.randn((1, l_k, h_kv, headdim), device=device, dtype=dtype, generator=gen)
-            v_nhd = torch.randn((1, l_k, h_kv, headdim), device=device, dtype=dtype, generator=gen)
-            out_nhd = sageattn(q_nhd, k_nhd, v_nhd, tensor_layout="NHD", is_causal=False, return_lse=False)
+            q_nhd = torch.randn((2, l_q, h_kv * kv_rep, headdim), device=device, dtype=dtype, generator=gen)
+            k_nhd = torch.randn((2, l_k, h_kv, headdim), device=device, dtype=dtype, generator=gen)
+            v_nhd = torch.randn((2, l_k, h_kv, headdim), device=device, dtype=dtype, generator=gen)
+            out_nhd = sageattn(q_nhd, k_nhd, v_nhd, tensor_layout="NHD", is_causal=False, return_lse=False, smooth_k=False)
             ref_hnd = F.scaled_dot_product_attention(
                 q_nhd.transpose(1, 2),
                 k_nhd.transpose(1, 2).repeat_interleave(kv_rep, dim=1) if kv_rep > 1 else k_nhd.transpose(1, 2),
@@ -170,11 +172,53 @@ def select_nhd_attention_backend(device, dtype, headdim: int, kv_rep: int) -> st
             )
             diff = (out_nhd.transpose(1, 2).float() - ref_hnd.float()).abs()
             mean_d, max_d = diff.mean().item(), diff.max().item()
+            extra_diag = ""
+            try:
+                import comfy.quant_ops
+                from comfy.ldm.flux.math import apply_rope1
+
+                k_rep_hnd = k_nhd.transpose(1, 2).repeat_interleave(kv_rep, dim=1).contiguous() if kv_rep > 1 else k_nhd.transpose(1, 2).contiguous()
+                v_rep_hnd = v_nhd.transpose(1, 2).repeat_interleave(kv_rep, dim=1).contiguous() if kv_rep > 1 else v_nhd.transpose(1, 2).contiguous()
+                out_hnd = sageattn(
+                    q_nhd.transpose(1, 2).contiguous(),
+                    k_rep_hnd,
+                    v_rep_hnd,
+                    tensor_layout="HND",
+                    is_causal=False,
+                    return_lse=False,
+                    smooth_k=False,
+                )
+                nhd_vs_hnd_max = (out_nhd.transpose(1, 2).float() - out_hnd.float()).abs().max().item()
+
+                x_ad = torch.randn((2, 64, 256), device=device, dtype=dtype, generator=gen)
+                n_sc = torch.randn((256,), device=device, dtype=dtype, generator=gen) * 0.1
+                m_sc = torch.randn((2, 1, 256), device=device, dtype=dtype, generator=gen) * 0.1
+                m_sh = torch.randn((2, 1, 256), device=device, dtype=dtype, generator=gen) * 0.1
+                eff_sc = ((1.0 + n_sc.float()) * (1.0 + m_sc.float()) - 1.0).to(dtype)
+                adaln_out = comfy.quant_ops.ck.rms_adaln(x_ad, eff_sc, m_sh, 1e-5)
+                adaln_ref = (1.0 + m_sc.float()) * F.rms_norm(x_ad.float(), (256,), weight=n_sc.float() + 1.0, eps=1e-5) + m_sh.float()
+                adaln_b2_max = (adaln_out.float() - adaln_ref).abs().max().item()
+
+                theta = torch.randn((2, 64, 1, headdim // 2), device=device, dtype=torch.float32, generator=gen)
+                c_r, s_r = torch.cos(theta), torch.sin(theta)
+                freqs_r = torch.stack((c_r, -s_r, s_r, c_r), dim=-1).reshape(2, 64, 1, headdim // 2, 2, 2).contiguous()
+                xr = torch.randn((2, 64, 4, headdim), device=device, dtype=dtype, generator=gen)
+                rscale = (1.0 + torch.randn((headdim,), device=device, dtype=torch.float32, generator=gen) * 0.1).to(dtype)
+                rope_out = comfy.quant_ops.ck.rms_rope1(xr, freqs_r, rscale, 1e-5)
+                rope_ref = apply_rope1(
+                    F.rms_norm(xr.float(), (headdim,), weight=rscale.float(), eps=1e-5).to(dtype).transpose(1, 2),
+                    freqs_r.transpose(1, 2),
+                ).transpose(1, 2)
+                rope_b2_max = (rope_out.float() - rope_ref.float()).abs().max().item()
+                extra_diag = f" nhd_vs_hnd_max={nhd_vs_hnd_max:.4f} adaln_b2_max={adaln_b2_max:.4f} rope_b2_max={rope_b2_max:.4f}"
+            except Exception as dex:
+                extra_diag = f" diag_err={type(dex).__name__}"
+
             if out_nhd.shape == q_nhd.shape and torch.isfinite(out_nhd).all() and mean_d < 0.03 and max_d < 0.25:
                 chosen = "sage_nhd_gqa"
-                note = f" mean_diff={mean_d:.4f} max_diff={max_d:.4f}"
+                note = f" mean_diff={mean_d:.4f} max_diff={max_d:.4f}{extra_diag}"
             else:
-                note = f" sage_rejected(mean={mean_d:.4f}/max={max_d:.4f})"
+                note = f" sage_rejected(mean={mean_d:.4f}/max={max_d:.4f}){extra_diag}"
         except Exception as exc:
             note = f" sage_err={type(exc).__name__}"
 
@@ -261,7 +305,7 @@ def _attend_bnhd(q_bnhd, k_bnhd, v_bnhd, attn, nhd_backend: str):
         try:
             from sageattention import sageattn
             v_c = v_bnhd if v_bnhd.is_contiguous() else v_bnhd.contiguous()
-            out_nhd = sageattn(q_bnhd, k_bnhd, v_c, tensor_layout="NHD", is_causal=False, return_lse=False)
+            out_nhd = sageattn(q_bnhd, k_bnhd, v_c, tensor_layout="NHD", is_causal=False, return_lse=False, smooth_k=False)
             return out_nhd.flatten(2)
         except Exception:
             pass
@@ -570,7 +614,7 @@ def install_krea2_core_fast() -> bool:
 
     km.LastLayer.forward = _fast_last_layer_forward
 
-    # 7. SingleStreamDiT._forward with txtfusion cache, freqs cache, prefetch, malloc_graph, and last-block pruning
+    # 7. SingleStreamDiT._forward with txtfusion cache, freqs cache, prefetch, and last-block pruning
     def _fast_dit_forward(self, x, timesteps, context, attention_mask=None, ref_latents=None, transformer_options={}, **kwargs):
         transformer_options = transformer_options.copy()
         temporal = x.ndim == 5
@@ -685,40 +729,37 @@ def install_krea2_core_fast() -> bool:
             and not ref_latents
             and _can_use_fast_core_block(self.blocks[-1], transformer_options, None, None)
         )
-        freqs_tgt_nhd = freqs_nhd[:, txtlen : txtlen + img_tokens] if can_prune_last else None
+        freqs_tgt_nhd = freqs_nhd[:, txtlen : txtlen + img_tokens].contiguous() if can_prune_last else None
+
+        b0_attn = self.blocks[0].attn
+        select_nhd_attention_backend(combined.device, combined.dtype, b0_attn.headdim, b0_attn.heads // b0_attn.kvheads)
 
         prefetch_queue = comfy.model_prefetch.make_prefetch_queue(list(self.blocks), device, transformer_options)
-        comfy.model_prefetch.malloc_graph_begin(device)
-        try:
-            for i, block in enumerate(self.blocks):
-                comfy.model_prefetch.prefetch_queue_pop(prefetch_queue, device, block, combined.dtype, malloc_scope="block")
-                transformer_options["block_index"] = i
-                if can_prune_last and i == n_blocks - 1:
-                    prescale, preshift, pregate, postscale, postshift, postgate = block.mod(tvec)
-                    target_out = krea2_block_attention_and_mlp(
-                        block,
-                        combined,
-                        prescale,
-                        preshift,
-                        pregate,
-                        postscale,
-                        postshift,
-                        postgate,
-                        freqs_q_nhd=freqs_tgt_nhd,
-                        freqs_k_nhd=freqs_nhd,
-                        target_only=True,
-                        tgt_start=txtlen,
-                        transformer_options=transformer_options,
-                    )
-                    del combined
-                    combined = target_out
-                else:
-                    combined = block(combined, tvec, freqs, None, timestep_zero_index=timestep_zero_index, transformer_options=transformer_options)
-            comfy.model_prefetch.prefetch_queue_pop(prefetch_queue, device, None, malloc_scope="block")
-            comfy.model_prefetch.malloc_graph_end()
-        except Exception:
-            comfy.model_prefetch.cleanup_malloc_graph()
-            raise
+        for i, block in enumerate(self.blocks):
+            comfy.model_prefetch.prefetch_queue_pop(prefetch_queue, device, block, combined.dtype)
+            transformer_options["block_index"] = i
+            if can_prune_last and i == n_blocks - 1:
+                prescale, preshift, pregate, postscale, postshift, postgate = block.mod(tvec)
+                target_out = krea2_block_attention_and_mlp(
+                    block,
+                    combined,
+                    prescale,
+                    preshift,
+                    pregate,
+                    postscale,
+                    postshift,
+                    postgate,
+                    freqs_q_nhd=freqs_tgt_nhd,
+                    freqs_k_nhd=freqs_nhd,
+                    target_only=True,
+                    tgt_start=txtlen,
+                    transformer_options=transformer_options,
+                )
+                del combined
+                combined = target_out
+            else:
+                combined = block(combined, tvec, freqs, None, timestep_zero_index=timestep_zero_index, transformer_options=transformer_options)
+        comfy.model_prefetch.prefetch_queue_pop(prefetch_queue, device, None)
 
         final = self.last(combined if can_prune_last else combined[:, txtlen : txtlen + img_tokens], t)
         del combined

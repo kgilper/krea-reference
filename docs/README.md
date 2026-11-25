@@ -20,6 +20,7 @@ validation scope than the V11 starting workflows.
 | Connect experimental native editing and sliders | [V13 setup and wiring](krea-v13-native-carriers.md#setup-and-first-comparison) |
 | Inspect native preparation, ports and compatibility pins | [V12 developer interface](krea-v12-native-studies.md) |
 | Understand balance, timing and caching | [V11 technical notes](krea-v11-technical-notes.md) |
+| Maintain Krea 2 core speedups across ComfyUI upgrades | [Krea 2 core accelerator upgrade guide](krea2-core-accelerator-upgrade-guide.md) |
 | Create custom recipes | [Recipe kit](../custom_recipes/README.md) |
 | Run maintainer checks | [Testing](testing.md) |
 

@@ -950,28 +950,22 @@ def krea2_fast_edit_forward(
     import comfy.model_prefetch
 
     prefetch_queue = comfy.model_prefetch.make_prefetch_queue(list(m.blocks), combined.device, transformer_options)
-    comfy.model_prefetch.malloc_graph_begin(combined.device)
-    try:
-        for i, block in enumerate(m.blocks):
-            comfy.model_prefetch.prefetch_queue_pop(prefetch_queue, combined.device, block, combined.dtype, malloc_scope="block")
-            transformer_options["block_index"] = i
-            is_last = i == n_blocks - 1
-            combined = _fast_block(
-                block,
-                combined,
-                tvec,
-                freqs,
-                freqs_tgt,
-                runtime_boost,
-                backend,
-                target_only=is_last,
-                transformer_options=transformer_options,
-            )
-        comfy.model_prefetch.prefetch_queue_pop(prefetch_queue, combined.device, None, malloc_scope="block")
-        comfy.model_prefetch.malloc_graph_end()
-    except Exception:
-        comfy.model_prefetch.cleanup_malloc_graph()
-        raise
+    for i, block in enumerate(m.blocks):
+        comfy.model_prefetch.prefetch_queue_pop(prefetch_queue, combined.device, block, combined.dtype)
+        transformer_options["block_index"] = i
+        is_last = i == n_blocks - 1
+        combined = _fast_block(
+            block,
+            combined,
+            tvec,
+            freqs,
+            freqs_tgt,
+            runtime_boost,
+            backend,
+            target_only=is_last,
+            transformer_options=transformer_options,
+        )
+    comfy.model_prefetch.prefetch_queue_pop(prefetch_queue, combined.device, None)
 
     final = m.last(combined, t)
     del combined

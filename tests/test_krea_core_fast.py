@@ -11,6 +11,7 @@ import types
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
 CORE_SPEC = importlib.util.spec_from_file_location(
@@ -85,6 +86,105 @@ class KreaCoreFastUnitTests(unittest.TestCase):
     def test_root_init_registers_core_fast_non_fatally(self):
         text = (ROOT / "__init__.py").read_text(encoding="utf-8")
         self.assertIn("install_krea2_core_fast", text)
+
+    def test_fused_qk_rms_rope_bnhd_makes_noncontiguous_b2_freqs_contiguous(self):
+        class _FakeTensor:
+            def __init__(self, shape, *, contiguous=True, device="cuda:0", dtype="bf16"):
+                self.shape = shape
+                self._contiguous = contiguous
+                self.device = device
+                self.dtype = dtype
+                self.is_cuda = True
+
+            def is_contiguous(self):
+                return self._contiguous
+
+            def contiguous(self):
+                return _FakeTensor(self.shape, contiguous=True, device=self.device, dtype=self.dtype)
+
+            def __add__(self, other):
+                return self
+
+            def to(self, dtype):
+                return _FakeTensor(self.shape, contiguous=self._contiguous, device=self.device, dtype=dtype)
+
+        calls = []
+
+        class _FakeCK:
+            @staticmethod
+            def rms_rope1(x, freqs, scale, eps):
+                calls.append(("rms_rope1", x.is_contiguous(), freqs.is_contiguous(), x.shape, freqs.shape))
+                return x
+
+        fake_torch = types.ModuleType("torch")
+        fake_torch.float32 = "fp32"
+        fake_mm = types.ModuleType("comfy.model_management")
+        fake_mm.in_training = False
+        fake_mm.cast_to = lambda t, dtype=None, device=None: _FakeTensor((64,), dtype=dtype, device=device)
+        fake_qops = types.ModuleType("comfy.quant_ops")
+        fake_qops.ck = _FakeCK()
+        fake_comfy = types.ModuleType("comfy")
+        fake_comfy.model_management = fake_mm
+        fake_comfy.quant_ops = fake_qops
+
+        q_bnhd = _FakeTensor((2, 100, 48, 64), contiguous=True)
+        k_bnhd = _FakeTensor((2, 200, 12, 64), contiguous=True)
+        freqs_q_noncontig = _FakeTensor((2, 100, 1, 32, 2, 2), contiguous=False)
+        freqs_k_noncontig = _FakeTensor((2, 200, 1, 32, 2, 2), contiguous=False)
+        qknorm = SimpleNamespace(
+            qnorm=SimpleNamespace(scale="qs", eps=1e-6),
+            knorm=SimpleNamespace(scale="ks", eps=1e-6),
+        )
+
+        with mock.patch.dict(
+            sys.modules,
+            {
+                "torch": fake_torch,
+                "comfy": fake_comfy,
+                "comfy.model_management": fake_mm,
+                "comfy.quant_ops": fake_qops,
+            },
+        ):
+            CORE_PKG.core_fast.fused_qk_rms_rope_bnhd(
+                qknorm, q_bnhd, k_bnhd, freqs_q_noncontig, freqs_k_noncontig
+            )
+
+        self.assertEqual(len(calls), 2)
+        self.assertTrue(all(x_c and f_c for _, x_c, f_c, _, _ in calls))
+
+    def test_attend_bnhd_passes_smooth_k_false_to_sageattn(self):
+        seen_kwargs = []
+
+        class _FakeOut:
+            def flatten(self, start_dim):
+                return ("flattened", start_dim)
+
+        class _FakeV:
+            def is_contiguous(self):
+                return True
+
+        fake_sage = types.ModuleType("sageattention")
+
+        def _fake_sageattn(q, k, v, **kwargs):
+            seen_kwargs.append(kwargs)
+            return _FakeOut()
+
+        fake_sage.sageattn = _fake_sageattn
+        fake_ops = types.ModuleType("comfy.ops")
+        fake_comfy = types.ModuleType("comfy")
+        fake_comfy.ops = fake_ops
+        attn = SimpleNamespace(heads=48, kvheads=12)
+
+        with mock.patch.dict(
+            sys.modules,
+            {"sageattention": fake_sage, "comfy": fake_comfy, "comfy.ops": fake_ops},
+        ):
+            out = CORE_PKG.core_fast._attend_bnhd("q", "k", _FakeV(), attn, "sage_nhd_gqa")
+
+        self.assertEqual(out, ("flattened", 2))
+        self.assertEqual(len(seen_kwargs), 1)
+        self.assertEqual(seen_kwargs[0].get("tensor_layout"), "NHD")
+        self.assertIs(seen_kwargs[0].get("smooth_k"), False)
 
 
 if __name__ == "__main__":
